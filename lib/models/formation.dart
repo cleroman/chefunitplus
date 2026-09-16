@@ -88,13 +88,13 @@ class Formation {
         type: FormationTypeX.fromValue(j['type'] as String?),
         startDate: _parseDate(j['startDate'] ?? j['start_date']),
         endDate: _parseDate(j['endDate'] ?? j['end_date']),
-        totalHours: j['totalHours'] ?? j['total_hours'] ?? 0,
+        totalHours: _parseInt(j['totalHours'] ?? j['total_hours']),
         pdfPath: j['pdfPath'] ?? j['pdf_path'],
         ficheTechniquePath: j['ficheTechniquePath'] ?? j['fiche_technique_path'],
-        maxParticipants: j['maxParticipants'] ?? j['max_participants'] ?? 0,
-        isPublished: j['isPublished'] ?? j['is_published'] ?? false,
-        enrolledCount: j['enrolledCount'] ?? j['enrolled_count'] ?? 0,
-        moduleCount: j['moduleCount'] ?? j['module_count'] ?? 0,
+        maxParticipants: _parseInt(j['maxParticipants'] ?? j['max_participants']),
+        isPublished: _parseBool(j['isPublished'] ?? j['is_published']),
+        enrolledCount: _parseInt(j['enrolledCount'] ?? j['enrolled_count']),
+        moduleCount: _parseInt(j['moduleCount'] ?? j['module_count']),
         createdAt: _parseDate(j['createdAt'] ?? j['created_at']),
         updatedAt: _parseDate(j['updatedAt'] ?? j['updated_at']),
       );
@@ -150,4 +150,24 @@ class Formation {
 
   @override
   int get hashCode => id.hashCode;
+
+  // Helper : convertir int|bool|null en bool
+  static bool _parseBool(dynamic value, {bool defaultValue = false}) {
+    if (value == null) return defaultValue;
+    if (value is bool) return value;
+    if (value is int) return value != 0;
+    if (value is String) {
+      final v = value.toLowerCase().trim();
+      return v == '1' || v == 'true' || v == 'yes';
+    }
+    return defaultValue;
+  }
+  // Helper : convertir num|String|null en int
+  static int _parseInt(dynamic value, {int defaultValue = 0}) {
+    if (value == null) return defaultValue;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? defaultValue;
+    return defaultValue;
+  }
 }
