@@ -119,7 +119,8 @@ class ModuleController extends ChangeNotifier {
     int hours = 0,
     DateTime? startDate,
     DateTime? endDate,
-    String? pdfFilePath,
+    Uint8List? pdfBytes,
+    String? pdfFileName,
   }) async {
     _error = null;
     try {
@@ -127,7 +128,8 @@ class ModuleController extends ChangeNotifier {
         formationId: formationId,
         title: title,
         description: description,
-        pdfFilePath: pdfFilePath,
+        pdfBytes: pdfBytes,
+        pdfFileName: pdfFileName,
       );
       await loadMyModules(refresh: true);
       return true;
@@ -152,7 +154,8 @@ class ModuleController extends ChangeNotifier {
     int? hours,
     DateTime? startDate,
     DateTime? endDate,
-    String? pdfFilePath,
+    Uint8List? pdfBytes,
+    String? pdfFileName,
   }) async {
     _error = null;
     try {
@@ -160,12 +163,13 @@ class ModuleController extends ChangeNotifier {
         id: id,
         title: title,
         description: description,
-        trainerId: trainerId,
-        order: order,
-        hours: hours,
-        startDate: startDate,
-        endDate: endDate,
-        pdfFilePath: pdfFilePath,
+        // trainerId retire (gere cote backend)
+        // order retire
+        // hours retire
+        // startDate retire
+        // endDate retire
+        pdfBytes: pdfBytes,
+        pdfFileName: pdfFileName,
       );
       return true;
     } catch (e, st) {

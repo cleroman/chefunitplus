@@ -1,5 +1,5 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
@@ -7,6 +7,7 @@ import '../../controllers/module_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../models/module.dart';
 import '../../models/role.dart';
+import '../../widgets/utils/pdf_picker.dart';
 
 class ModuleEditorScreen extends StatefulWidget {
   final String formationId;
@@ -32,7 +33,7 @@ class _ModuleEditorScreenState extends State<ModuleEditorScreen> {
   String? _trainerId;
   DateTime? _startDate;
   DateTime? _endDate;
-  String? _pdfFilePath;
+  Uint8List? _pdfBytes;
   String? _pdfFileName;
 
   bool _saving = false;
@@ -91,24 +92,13 @@ class _ModuleEditorScreenState extends State<ModuleEditorScreen> {
   }
 
   Future<void> _pickPdf() async {
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf'],
-      );
-      if (result == null || result.files.isEmpty) return;
-      final file = result.files.first;
-      if (file.path == null) return;
-      setState(() {
-        _pdfFilePath = file.path;
-        _pdfFileName = file.name;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur : $e'), backgroundColor: AppColors.danger),
-      );
-    }
+    final picked = await PdfPicker.pick();
+    if (picked == null) return;
+    if (!mounted) return;
+    setState(() {
+      _pdfBytes = picked.bytes;
+      _pdfFileName = picked.name;
+    });
   }
 
   Future<void> _save() async {
@@ -132,7 +122,7 @@ class _ModuleEditorScreenState extends State<ModuleEditorScreen> {
         hours: hours,
         startDate: _startDate,
         endDate: _endDate,
-        pdfFilePath: _pdfFilePath,
+        pdfBytes: _pdfBytes, pdfFileName: _pdfFileName,
       );
     } else {
       ok = await ctrl.create(
@@ -144,7 +134,7 @@ class _ModuleEditorScreenState extends State<ModuleEditorScreen> {
         hours: hours,
         startDate: _startDate,
         endDate: _endDate,
-        pdfFilePath: _pdfFilePath,
+        pdfBytes: _pdfBytes, pdfFileName: _pdfFileName,
       );
     }
 
@@ -306,7 +296,7 @@ class _ModuleEditorScreenState extends State<ModuleEditorScreen> {
                       IconButton(
                         icon: const Icon(Icons.close, size: 18),
                         onPressed: () => setState(() {
-                          _pdfFilePath = null;
+                          _pdfBytes = null;
                           _pdfFileName = null;
                         }),
                       ),

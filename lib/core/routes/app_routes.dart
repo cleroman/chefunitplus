@@ -41,6 +41,8 @@ class AppRoutes {
   static const String trainerStudents = '/trainer/students';
   static const String trainerModuleEditor = '/trainer/module/editor';
   static const String trainerLessonEditor = '/trainer/lesson/editor';
+  static const String trainerCreateModule = '/trainer/module/create';
+  static const String trainerMyModules = '/trainer/modules';
 
   // ---------------- ADMIN ----------------
   static const String adminUsers = '/admin/users';
@@ -97,10 +99,20 @@ class AppRoutes {
 
 
   static const String directorFormationsList = '/director/formations';
+  static const String directorFormations = '/director/formations';
+  static const String directorModulesValidation = '/director/modules/validation';
 
   static const String chat = '/chat';
 
   static const String conversations = '/conversations';
 
   static const String changePassword = '/change-password';
+
+  static const String adminMessages = '/admin/messages';
+
+  static const String directorMessages = '/director/messages';
+
+  static const String trainerMessages = '/trainer/messages';
+
+  static const String learnerMessages = '/learner/messages';
 }

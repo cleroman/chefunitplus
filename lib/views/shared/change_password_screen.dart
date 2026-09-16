@@ -58,7 +58,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
 
-    // TODO : appeler le service reel
+    // Integration a venir
     // Pour l'instant : simulation
     await Future.delayed(const Duration(seconds: 1));
 

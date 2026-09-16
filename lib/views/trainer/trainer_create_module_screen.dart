@@ -1,9 +1,10 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../controllers/formation_controller.dart';
 import '../../controllers/module_controller.dart';
+import '../../widgets/utils/pdf_picker.dart';
 
 class TrainerCreateModuleScreen extends StatefulWidget {
   const TrainerCreateModuleScreen({super.key});
@@ -16,8 +17,9 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
+
   String? _formationId;
-  String? _pdfFilePath;
+  Uint8List? _pdfBytes;
   String? _pdfFileName;
   bool _saving = false;
 
@@ -25,7 +27,6 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // all: true -> affiche TOUTES les formations (brouillons inclus)
       context.read<FormationController>().load(all: true);
     });
   }
@@ -38,24 +39,13 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
   }
 
   Future<void> _pickPdf() async {
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf'],
-      );
-      if (result == null || result.files.isEmpty) return;
-      final file = result.files.first;
-      if (file.path == null) return;
-      setState(() {
-        _pdfFilePath = file.path;
-        _pdfFileName = file.name;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur : $e'), backgroundColor: AppColors.danger),
-      );
-    }
+    final picked = await PdfPicker.pick();
+    if (picked == null) return;
+    if (!mounted) return;
+    setState(() {
+      _pdfBytes = picked.bytes;
+      _pdfFileName = picked.name;
+    });
   }
 
   Future<void> _submit() async {
@@ -69,16 +59,17 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
       );
       return;
     }
+
     setState(() => _saving = true);
 
-    // Capture AVANT await
     final moduleCtrl = context.read<ModuleController>();
-
+    final messenger = ScaffoldMessenger.of(context);
     final ok = await moduleCtrl.create(
       formationId: _formationId!,
       title: _titleCtrl.text.trim(),
       description: _descCtrl.text.trim(),
-      pdfFilePath: _pdfFilePath,
+      pdfBytes: _pdfBytes,
+      pdfFileName: _pdfFileName,
     );
 
     if (!mounted) return;
@@ -87,7 +78,7 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
     if (ok) {
       showDialog(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (ctx) => AlertDialog(
           title: const Row(
             children: [
               Icon(Icons.check_circle, color: AppColors.success),
@@ -102,7 +93,7 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
           actions: [
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(ctx);
                 Navigator.pop(context, true);
               },
               style: ElevatedButton.styleFrom(
@@ -115,7 +106,7 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text(moduleCtrl.errorMessage ?? 'Erreur'),
           backgroundColor: AppColors.danger,
@@ -138,7 +129,7 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // ✅ Tous les widgets statiques en const
+            // Info banner
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -159,8 +150,10 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
               ),
             ),
             const SizedBox(height: 20),
+
             _formationDropdown(),
             const SizedBox(height: 16),
+
             TextFormField(
               controller: _titleCtrl,
               textCapitalization: TextCapitalization.sentences,
@@ -177,6 +170,7 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
               },
             ),
             const SizedBox(height: 16),
+
             TextFormField(
               controller: _descCtrl,
               maxLines: 4,
@@ -195,9 +189,13 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
               },
             ),
             const SizedBox(height: 20),
-            const Text('Support PDF (optionnel)',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+
+            const Text(
+              'Support PDF (optionnel)',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 8),
+
             InkWell(
               onTap: _pickPdf,
               borderRadius: BorderRadius.circular(12),
@@ -236,7 +234,7 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
                       IconButton(
                         icon: const Icon(Icons.close, size: 18),
                         onPressed: () => setState(() {
-                          _pdfFilePath = null;
+                          _pdfBytes = null;
                           _pdfFileName = null;
                         }),
                       ),
@@ -245,6 +243,7 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
               ),
             ),
             const SizedBox(height: 32),
+
             SizedBox(
               height: 52,
               child: ElevatedButton.icon(
@@ -254,7 +253,9 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     : const Icon(Icons.send),
                 label: Text(_saving ? 'Envoi...' : 'Proposer au directeur'),
@@ -304,7 +305,8 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: Text(f.title, overflow: TextOverflow.ellipsis),
+                          child: Text(f.title,
+                              overflow: TextOverflow.ellipsis),
                         ),
                         const SizedBox(width: 8),
                         Container(
