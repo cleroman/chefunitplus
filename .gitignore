@@ -1,45 +1,44 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
-
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
-.idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+# Flutter/Dart
 .dart_tool/
+.packages
+build/
+.flutter-plugins
 .flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
+*.iml
 
-# Symbolication related
-app.*.symbols
+# IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
 
-# Obfuscation related
-app.*.map.json
+# OS
+.DS_Store
+Thumbs.db
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Backups (NE PAS COMMITER)
+_backup*/
+*.bak
+*.bak_*
+*.backup
+lib/main.dart.backup
+lib/*.backup
+lib/**/*.backup
+
+# Fichiers de diagnostic
+analyse_*.txt
+diagnostics_*.txt
+run_*.txt
+api_client_DEBUG.txt
+
+# Scripts JS temporaires
+fix_*.js
+02_flutter_*.js
+03_flutter_*.js
+50
+
+# Node modules (si backend dans le repo)
+node_modules/
+
+# Logs
+*.log

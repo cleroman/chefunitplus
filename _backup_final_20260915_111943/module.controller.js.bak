@@ -1,5 +1,0 @@
-// ChefUnitPlus - Controleur
-// TODO : Implementer les fonctions
-// Fonctions prevues : listByFormation, listMine, create, update, assignTrainer, delete
-
-module.exports = {};
