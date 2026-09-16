@@ -1,0 +1,555 @@
+import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/constants/app_colors.dart';
+import '../../controllers/formation_controller.dart';
+import '../../controllers/user_controller.dart';
+import '../../models/formation.dart';
+import '../../models/role.dart';
+
+class FormationEditorScreen extends StatefulWidget {
+  final String? formationId;
+  const FormationEditorScreen({super.key, this.formationId});
+
+  @override
+  State<FormationEditorScreen> createState() => _FormationEditorScreenState();
+}
+
+class _FormationEditorScreenState extends State<FormationEditorScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _titleCtrl = TextEditingController();
+  final _descCtrl = TextEditingController();
+  final _priceCtrl = TextEditingController();
+  final _maxPartCtrl = TextEditingController(text: '0');
+
+  FormationType _type = FormationType.training;
+  DateTime? _startDate;
+  DateTime? _endDate;
+  String? _trainerId;
+
+  String? _pdfFilePath;
+  String? _pdfFileName;
+  String? _ficheFilePath;
+  String? _ficheFileName;
+
+  bool _saving = false;
+
+  bool get _isEditing => widget.formationId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Charger les formateurs disponibles
+      context.read<UserController>().loadAll(refresh: true);
+
+      if (_isEditing) {
+        _loadFormation();
+      }
+    });
+  }
+
+  Future<void> _loadFormation() async {
+    final f = await context.read<FormationController>().getById(widget.formationId!);
+    if (f == null || !mounted) return;
+
+    setState(() {
+      _titleCtrl.text = f.title;
+      _descCtrl.text = f.description;
+      _priceCtrl.text = f.price.toString();
+      _type = f.type;
+      _startDate = f.startDate;
+      _endDate = f.endDate;
+      _trainerId = f.trainerId;
+      _maxPartCtrl.text = f.maxParticipants.toString();
+    });
+  }
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _descCtrl.dispose();
+    _priceCtrl.dispose();
+    _maxPartCtrl.dispose();
+    super.dispose();
+  }
+
+  // ============================================================
+  // PICK DATE
+  // ============================================================
+  Future<void> _pickDate({required bool isStart}) async {
+    final initial = isStart
+        ? (_startDate ?? DateTime.now())
+        : (_endDate ?? (_startDate ?? DateTime.now()).add(const Duration(days: 7)));
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null) {
+      setState(() {
+        if (isStart) {
+          _startDate = picked;
+        } else {
+          _endDate = picked;
+        }
+      });
+    }
+  }
+
+  // ============================================================
+  // PICK PDF
+  // ============================================================
+  Future<void> _pickPdf({required bool isSupport}) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+      );
+
+      if (result == null || result.files.isEmpty) return;
+
+      final file = result.files.first;
+      if (file.path == null) return;
+
+      setState(() {
+        if (isSupport) {
+          _pdfFilePath = file.path;
+          _pdfFileName = file.name;
+        } else {
+          _ficheFilePath = file.path;
+          _ficheFileName = file.name;
+        }
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur : $e'), backgroundColor: AppColors.danger),
+      );
+    }
+  }
+
+  // ============================================================
+  // SAVE
+  // ============================================================
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_startDate == null || _endDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Definissez les dates de debut et de fin'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
+
+    if (_endDate!.isBefore(_startDate!)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('La date de fin doit etre apres la date de debut'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _saving = true);
+
+    final ctrl = context.read<FormationController>();
+    final price = double.parse(_priceCtrl.text.replaceAll(',', '.'));
+    final maxPart = int.tryParse(_maxPartCtrl.text) ?? 0;
+
+    bool ok;
+    if (_isEditing) {
+      ok = await ctrl.update(
+        id: widget.formationId!,
+        title: _titleCtrl.text.trim(),
+        description: _descCtrl.text.trim(),
+        price: price,
+        type: _type,
+        trainerId: _trainerId,
+        startDate: _startDate,
+        endDate: _endDate,
+        maxParticipants: maxPart,
+        pdfFilePath: _pdfFilePath,
+        ficheFilePath: _ficheFilePath,
+      );
+    } else {
+      ok = await ctrl.create(
+        title: _titleCtrl.text.trim(),
+        description: _descCtrl.text.trim(),
+        price: price,
+        type: _type,
+        trainerId: _trainerId,
+        startDate: _startDate,
+        endDate: _endDate,
+        maxParticipants: maxPart,
+        pdfFilePath: _pdfFilePath,
+        ficheFilePath: _ficheFilePath,
+      );
+    }
+
+    if (!mounted) return;
+    setState(() => _saving = false);
+
+    if (ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_isEditing ? 'Formation modifiee' : 'Formation creee'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+      Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(ctrl.errorMessage ?? 'Erreur inconnue'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+    }
+  }
+
+  // ============================================================
+  // BUILD
+  // ============================================================
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: Text(_isEditing ? 'Modifier la formation' : 'Creer une formation'),
+        backgroundColor: AppColors.mauve,
+        foregroundColor: Colors.white,
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            _section('Informations generales'),
+
+            TextFormField(
+              controller: _titleCtrl,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                labelText: 'Titre de la formation',
+                hintText: 'Ex : Wood Badge 2026',
+                prefixIcon: Icon(Icons.title),
+                border: OutlineInputBorder(),
+              ),
+              validator: (v) {
+                if (v == null || v.trim().isEmpty) return 'Requis';
+                if (v.trim().length < 3) return 'Au moins 3 caracteres';
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+
+            TextFormField(
+              controller: _descCtrl,
+              maxLines: 4,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                hintText: 'Decrivez la formation...',
+                prefixIcon: Icon(Icons.description_outlined),
+                border: OutlineInputBorder(),
+                alignLabelWithHint: true,
+              ),
+              validator: (v) {
+                if (v == null || v.trim().isEmpty) return 'Requis';
+                if (v.trim().length < 20) return 'Au moins 20 caracteres';
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Type
+            DropdownButtonFormField<FormationType>(
+              initialValue: _type,
+              decoration: const InputDecoration(
+                labelText: 'Type de formation',
+                prefixIcon: Icon(Icons.category_outlined),
+                border: OutlineInputBorder(),
+              ),
+              items: FormationType.values
+                  .map((t) => DropdownMenuItem<FormationType>(
+                        value: t,
+                        child: Text(t.label),
+                      ))
+                  .toList(),
+              onChanged: (v) => setState(() => _type = v!),
+            ),
+            const SizedBox(height: 16),
+
+            // Prix
+            TextFormField(
+              controller: _priceCtrl,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                labelText: 'Prix (USD)',
+                hintText: 'Ex : 25.00',
+                prefixIcon: Icon(Icons.attach_money),
+                border: OutlineInputBorder(),
+              ),
+              validator: (v) {
+                if (v == null || v.trim().isEmpty) return 'Requis';
+                final p = double.tryParse(v.replaceAll(',', '.'));
+                if (p == null) return 'Nombre invalide';
+                if (p < 0) return 'Le prix ne peut pas etre negatif';
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Max participants
+            TextFormField(
+              controller: _maxPartCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Nombre max de participants (0 = illimite)',
+                prefixIcon: Icon(Icons.groups_outlined),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // ============================================================
+            // FORMATEUR
+            // ============================================================
+            _section('Formateur'),
+            _buildTrainerDropdown(),
+            const SizedBox(height: 24),
+
+            // ============================================================
+            // DATES
+            // ============================================================
+            _section('Planning'),
+            Row(
+              children: [
+                Expanded(child: _datePicker(
+                  label: 'Date de debut',
+                  date: _startDate,
+                  isStart: true,
+                )),
+                const SizedBox(width: 12),
+                Expanded(child: _datePicker(
+                  label: 'Date de fin',
+                  date: _endDate,
+                  isStart: false,
+                )),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Le volume horaire total sera calcule automatiquement a partir des modules.',
+              style: TextStyle(fontSize: 11, color: AppColors.textMuted, fontStyle: FontStyle.italic),
+            ),
+            const SizedBox(height: 24),
+
+            // ============================================================
+            // PDFs
+            // ============================================================
+            _section('Documents PDF'),
+            _pdfPicker(
+              label: 'Support de formation',
+              hint: 'PDF telechargeable APRES paiement valide',
+              fileName: _pdfFileName,
+              onPick: () => _pickPdf(isSupport: true),
+            ),
+            const SizedBox(height: 16),
+            _pdfPicker(
+              label: 'Fiche technique',
+              hint: 'PDF public (accessible a tous)',
+              fileName: _ficheFileName,
+              onPick: () => _pickPdf(isSupport: false),
+            ),
+            const SizedBox(height: 32),
+
+            // ============================================================
+            // SAVE
+            // ============================================================
+            SizedBox(
+              height: 52,
+              child: ElevatedButton.icon(
+                onPressed: _saving ? null : _save,
+                icon: _saving
+                    ? const SizedBox(
+                        width: 20, height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white),
+                      )
+                    : Icon(_isEditing ? Icons.save : Icons.add),
+                label: Text(_saving
+                    ? 'Enregistrement...'
+                    : (_isEditing ? 'Enregistrer' : 'Creer la formation')),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.mauve,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // Widgets
+  // ============================================================
+  Widget _section(String title) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 4,
+              height: 20,
+              decoration: BoxDecoration(
+                color: AppColors.mauve,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(title,
+                style: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.w700)),
+          ],
+        ),
+      );
+
+  Widget _datePicker({
+    required String label,
+    required DateTime? date,
+    required bool isStart,
+  }) {
+    return InkWell(
+      onTap: () => _pickDate(isStart: isStart),
+      borderRadius: BorderRadius.circular(12),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: const Icon(Icons.calendar_today_outlined),
+          border: const OutlineInputBorder(),
+        ),
+        child: Text(
+          date != null ? _formatDate(date) : 'Choisir',
+          style: TextStyle(
+            color: date != null ? AppColors.textPrimary : AppColors.textMuted,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _pdfPicker({
+    required String label,
+    required String hint,
+    required String? fileName,
+    required VoidCallback onPick,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 4),
+        Text(hint, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: onPick,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: fileName != null
+                  ? AppColors.success.withValues(alpha: 0.08)
+                  : AppColors.background,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: fileName != null ? AppColors.success : AppColors.divider,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  fileName != null ? Icons.check_circle : Icons.picture_as_pdf,
+                  color: fileName != null ? AppColors.success : AppColors.mauve,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    fileName ?? 'Choisir un PDF',
+                    style: const TextStyle(fontSize: 13),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (fileName != null)
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 18),
+                    onPressed: () {
+                      setState(() {
+                        if (label.contains('Support')) {
+                          _pdfFilePath = null;
+                          _pdfFileName = null;
+                        } else {
+                          _ficheFilePath = null;
+                          _ficheFileName = null;
+                        }
+                      });
+                    },
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTrainerDropdown() {
+    final userCtrl = context.watch<UserController>();
+    final trainers = userCtrl.users
+        .where((u) => u.role == UserRole.formateur || u.role == UserRole.directeur)
+        .toList();
+
+    if (userCtrl.isLoading && trainers.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return DropdownButtonFormField<String>(
+      initialValue: trainers.any((t) => t.id == _trainerId) ? _trainerId : null,
+      decoration: const InputDecoration(
+        labelText: 'Formateur',
+        prefixIcon: Icon(Icons.person_outline),
+        border: OutlineInputBorder(),
+      ),
+      items: trainers
+          .map((u) => DropdownMenuItem<String>(
+                value: u.id,
+                child: Text(u.fullName),
+              ))
+          .toList(),
+      onChanged: (v) => setState(() => _trainerId = v),
+      hint: trainers.isEmpty
+          ? const Text('Aucun formateur disponible')
+          : const Text('Selectionner un formateur'),
+    );
+  }
+
+  String _formatDate(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+}

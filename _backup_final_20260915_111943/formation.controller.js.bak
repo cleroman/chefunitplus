@@ -1,0 +1,92 @@
+// ChefUnitPlus - Controller Formation
+const db = require('../config/database');
+
+function list(req, res, next) {
+  try {
+    let formations = [];
+    try {
+      formations = db.prepare(`SELECT * FROM formations ORDER BY created_at DESC`).all();
+    } catch (e) {
+      // Table vide ou inexistante
+      formations = [];
+    }
+    return res.json({ success: true, data: formations });
+  } catch (err) {
+    next(err);
+  }
+}
+
+function getById(req, res, next) {
+  try {
+    const formation = db.prepare(`SELECT * FROM formations WHERE id = ?`).get(req.params.id);
+    if (!formation) {
+      return res.status(404).json({ success: false, message: 'Formation introuvable' });
+    }
+    return res.json({ success: true, data: formation });
+  } catch (err) {
+    next(err);
+  }
+}
+
+function listModules(req, res, next) {
+  try {
+    let modules = [];
+    try {
+      modules = db.prepare(`SELECT * FROM modules WHERE formation_id = ? ORDER BY "order" ASC`).all(req.params.id);
+    } catch (e) {
+      modules = [];
+    }
+    return res.json({ success: true, data: modules });
+  } catch (err) {
+    next(err);
+  }
+}
+
+function create(req, res, next) {
+  try {
+    const { id, title, description, price, coverImage, currency } = req.body;
+    if (!title || price === undefined) {
+      return res.status(422).json({ success: false, message: 'Titre et prix requis' });
+    }
+    const newId = id || require('uuid').v4();
+    db.prepare(`
+      INSERT INTO formations (id, title, description, price, cover_image, currency, director_id, is_published, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 1, datetime('now'))
+    `).run(newId, title, description || '', price, coverImage || null, currency || 'USD', req.user.id);
+    const formation = db.prepare(`SELECT * FROM formations WHERE id = ?`).get(newId);
+    return res.status(201).json({ success: true, data: formation });
+  } catch (err) {
+    next(err);
+  }
+}
+
+function update(req, res, next) {
+  try {
+    const { title, description, price, is_published } = req.body;
+    const fields = [];
+    const values = [];
+    if (title !== undefined) { fields.push('title = ?'); values.push(title); }
+    if (description !== undefined) { fields.push('description = ?'); values.push(description); }
+    if (price !== undefined) { fields.push('price = ?'); values.push(price); }
+    if (is_published !== undefined) { fields.push('is_published = ?'); values.push(is_published ? 1 : 0); }
+    if (fields.length > 0) {
+      values.push(req.params.id);
+      db.prepare(`UPDATE formations SET ${fields.join(', ')} WHERE id = ?`).run(...values);
+    }
+    const formation = db.prepare(`SELECT * FROM formations WHERE id = ?`).get(req.params.id);
+    return res.json({ success: true, data: formation });
+  } catch (err) {
+    next(err);
+  }
+}
+
+function remove(req, res, next) {
+  try {
+    db.prepare(`DELETE FROM formations WHERE id = ?`).run(req.params.id);
+    return res.json({ success: true, message: 'Formation supprimee' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { list, getById, listModules, create, update, remove };

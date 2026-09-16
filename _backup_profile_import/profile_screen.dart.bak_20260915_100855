@@ -1,0 +1,184 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/constants/app_colors.dart';
+import '../../controllers/auth_controller.dart';
+
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = context.watch<AuthController>();
+    final user = auth.currentUser;
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Mon profil'),
+        backgroundColor: AppColors.mauve,
+        foregroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+      ),
+      body: ListView(
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.all(24),
+            color: Colors.white,
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                  backgroundColor: AppColors.mauveSoft,
+                  child: Text(
+                    user?.initials ?? '?',
+                    style: const TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.mauveDark,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  user?.fullName ?? 'Utilisateur',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  user?.email ?? '',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textMuted,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.mauve.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    user?.role.label ?? 'Apprenant',
+                    style: const TextStyle(
+                      color: AppColors.mauveDark,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          _section('Compte'),
+          _item(context, Icons.person_outline, 'Modifier mes informations'),
+          _item(context, Icons.lock_outline, 'Changer mon mot de passe'),
+          _item(context, Icons.phone_outlined, 'Verifier mon telephone'),
+
+          const SizedBox(height: 16),
+          _section('Preferences'),
+          _item(context, Icons.notifications_outlined, 'Notifications'),
+          _item(context, Icons.language, 'Langue'),
+
+          const SizedBox(height: 16),
+          _section('A propos'),
+          _item(context, Icons.info_outline, 'Version 1.0.0'),
+          _item(context, Icons.help_outline, 'Aide & support'),
+
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: SizedBox(
+              height: 52,
+              child: OutlinedButton.icon(
+                onPressed: () => _confirmLogout(context),
+                icon: const Icon(Icons.logout, color: AppColors.danger),
+                label: const Text(
+                  'Se deconnecter',
+                  style: TextStyle(
+                    color: AppColors.danger,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.danger, width: 1.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+
+  Widget _section(String title) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Text(
+          title.toUpperCase(),
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textMuted,
+            letterSpacing: 1.2,
+          ),
+        ),
+      );
+
+  Widget _item(BuildContext context, IconData icon, String label) {
+    return Material(
+      color: Colors.white,
+      child: ListTile(
+        leading: Icon(icon, color: AppColors.mauve),
+        title: Text(label),
+        trailing: const Icon(Icons.chevron_right, size: 20),
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Fonctionnalite bientot disponible'),
+              backgroundColor: AppColors.kaki,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _confirmLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Deconnexion'),
+        content: const Text('Voulez-vous vraiment vous deconnecter ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<AuthController>().logout();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+            child: const Text('Se deconnecter'),
+          ),
+        ],
+      ),
+    );
+  }
+}

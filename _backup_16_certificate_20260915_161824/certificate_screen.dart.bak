@@ -1,0 +1,56 @@
+import 'package:flutter/material.dart';
+import '../../core/constants/app_colors.dart';
+
+class CertificateScreen extends StatelessWidget {
+  const CertificateScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Mes certificats'),
+        backgroundColor: AppColors.mauve,
+        foregroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppColors.mauve.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.workspace_premium_outlined,
+                  size: 72,
+                  color: AppColors.mauve,
+                ),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Aucun certificat pour l\'instant',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Terminez une formation et faites-la valider par un directeur pour recevoir votre certificat.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: AppColors.textMuted),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

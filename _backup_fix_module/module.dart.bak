@@ -1,0 +1,66 @@
+class Module {
+  final String id;
+  final String formationId;
+  final String title;
+  final String? description;
+  final String? trainerId;
+  final String? trainerName;
+  final int order;
+  final int hours;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final String? pdfPath;
+  final int lessonCount;
+  final DateTime? createdAt;
+
+  const Module({
+    required this.id,
+    required this.formationId,
+    required this.title,
+    this.description,
+    this.trainerId,
+    this.trainerName,
+    this.order = 0,
+    this.hours = 0,
+    this.startDate,
+    this.endDate,
+    this.pdfPath,
+    this.lessonCount = 0,
+    this.createdAt,
+  });
+
+  factory Module.fromJson(Map<String, dynamic> j) => Module(
+        id: (j['id'] ?? j['_id'] ?? '').toString(),
+        formationId: (j['formationId'] ?? j['formation_id'] ?? '').toString(),
+        title: j['title'] ?? '',
+        description: j['description'],
+        trainerId: j['trainerId']?.toString() ?? j['trainer_id']?.toString(),
+        trainerName: j['trainerName'] ?? j['trainer_name'],
+        order: j['order'] ?? 0,
+        hours: j['hours'] ?? 0,
+        startDate: _parseDate(j['startDate'] ?? j['start_date']),
+        endDate: _parseDate(j['endDate'] ?? j['end_date']),
+        pdfPath: j['pdfPath'] ?? j['pdf_path'],
+        lessonCount: j['lessonCount'] ?? j['lesson_count'] ?? 0,
+        createdAt: _parseDate(j['createdAt'] ?? j['created_at']),
+      );
+
+  bool get hasTrainer => trainerId != null;
+  bool get hasPdf => pdfPath != null && pdfPath!.isNotEmpty;
+  bool get hasSchedule => startDate != null && endDate != null;
+  String get hoursLabel => '${hours}h';
+
+  String get scheduleLabel {
+    if (!hasSchedule) return 'Dates non definies';
+    return '${_d(startDate!)} → ${_d(endDate!)}';
+  }
+
+  static DateTime? _parseDate(dynamic v) {
+    if (v == null) return null;
+    if (v is DateTime) return v;
+    return DateTime.tryParse(v.toString());
+  }
+
+  static String _d(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+}

@@ -1,0 +1,97 @@
+const { v4: uuidv4 } = require('uuid');
+const path = require('path');
+const fs = require('fs');
+const Module = require('../models/Module');
+const Formation = require('../models/Formation');
+const db = require('../config/database');
+
+function listByFormation(req, res, next) {
+  try {
+    return res.json({ success: true, data: Module.listByFormation(req.params.id) });
+  } catch (err) { next(err); }
+}
+
+function getById(req, res, next) {
+  try {
+    const m = Module.findById(req.params.id);
+    if (!m) return res.status(404).json({ success: false, message: 'Module introuvable' });
+    return res.json({ success: true, data: m });
+  } catch (err) { next(err); }
+}
+
+function create(req, res, next) {
+  try {
+    const {
+      formationId, title, description, trainerId,
+      order, hours, startDate, endDate,
+    } = req.body;
+
+    if (!formationId || !title) {
+      return res.status(422).json({ success: false, message: 'formationId et titre requis' });
+    }
+
+    const formation = db.prepare('SELECT id FROM formations WHERE id = ?').get(formationId);
+    if (!formation) {
+      return res.status(404).json({ success: false, message: 'Formation introuvable' });
+    }
+
+    const pdfPath = req.file ? 'uploads/modules/' + req.file.filename : null;
+
+    const module = Module.create({
+      id: uuidv4(),
+      formationId, title, description: description || null,
+      trainerId: trainerId || null,
+      order: parseInt(order) || 0,
+      hours: parseInt(hours) || 0,
+      startDate: startDate || null,
+      endDate: endDate || null,
+      pdfPath,
+    });
+
+    // Recalculer le total_hours de la formation
+    const totalHours = Formation.recalculateHours(formationId);
+
+    return res.status(201).json({
+      success: true,
+      message: 'Module cree',
+      data: module,
+      totalHours,
+    });
+  } catch (err) { next(err); }
+}
+
+function update(req, res, next) {
+  try {
+    const fields = { ...req.body };
+    const old = Module.findById(req.params.id);
+
+    if (req.file) {
+      if (old && old.pdf_path) {
+        const p = path.join(__dirname, '..', '..', old.pdf_path);
+        if (fs.existsSync(p)) fs.unlinkSync(p);
+      }
+      fields.pdf_path = 'uploads/modules/' + req.file.filename;
+    }
+
+    const updated = Module.update(req.params.id, fields);
+    const totalHours = Formation.recalculateHours(updated.formation_id);
+
+    return res.json({ success: true, data: updated, totalHours });
+  } catch (err) { next(err); }
+}
+
+function remove(req, res, next) {
+  try {
+    const m = Module.findById(req.params.id);
+    if (m && m.pdf_path) {
+      const p = path.join(__dirname, '..', '..', m.pdf_path);
+      if (fs.existsSync(p)) fs.unlinkSync(p);
+    }
+    const formationId = m ? m.formation_id : null;
+    Module.delete(req.params.id);
+    const totalHours = formationId ? Formation.recalculateHours(formationId) : 0;
+    return res.json({ success: true, message: 'Module supprime', totalHours });
+  } catch (err) { next(err); }
+}
+
+module.exports = { listByFormation, getById, create, update, remove };

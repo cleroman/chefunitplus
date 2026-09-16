@@ -1,0 +1,85 @@
+import 'package:flutter/material.dart';
+import '../../core/constants/app_colors.dart';
+
+class StudentsListScreen extends StatelessWidget {
+  const StudentsListScreen({super.key});
+
+  final List<Map<String, dynamic>> _students = const [
+    {'name': 'Marie Kabongo', 'email': 'marie@test.com', 'progress': 0.80},
+    {'name': 'Jean Mukendi', 'email': 'jean@test.com', 'progress': 0.55},
+    {'name': 'Paul Ilunga', 'email': 'paul@test.com', 'progress': 0.90},
+    {'name': 'Sarah Nsimba', 'email': 'sarah@test.com', 'progress': 0.30},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Mes etudiants'),
+        backgroundColor: AppColors.mauve,
+        foregroundColor: Colors.white,
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _students.length,
+        itemBuilder: (_, i) => _card(_students[i]),
+      ),
+    );
+  }
+
+  Widget _card(Map<String, dynamic> s) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: AppColors.mauveSoft,
+          child: Text(
+            _initials(s['name']),
+            style: const TextStyle(
+              color: AppColors.mauveDark,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        title: Text(
+          s['name'],
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        subtitle: Text(s['email']),
+        trailing: SizedBox(
+          width: 40,
+          height: 40,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CircularProgressIndicator(
+                value: s['progress'],
+                backgroundColor: AppColors.background,
+                valueColor:
+                    const AlwaysStoppedAnimation<Color>(AppColors.success),
+                strokeWidth: 4,
+              ),
+              Text(
+                '${(s['progress'] * 100).toInt()}',
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _initials(String name) {
+    final parts = name.split(' ');
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return name.isNotEmpty ? name[0].toUpperCase() : '?';
+  }
+}

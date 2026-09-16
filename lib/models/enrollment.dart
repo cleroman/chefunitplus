@@ -1,0 +1,189 @@
+enum EnrollmentStatus {
+  pendingPayment,
+  pendingDirector,
+  approved,
+  rejected,
+  failed,
+  cancelled,
+}
+
+extension EnrollmentStatusX on EnrollmentStatus {
+  String get label => switch (this) {
+        EnrollmentStatus.pendingPayment => 'Paiement en attente',
+        EnrollmentStatus.pendingDirector => 'En attente directeur',
+        EnrollmentStatus.approved => 'Validee',
+        EnrollmentStatus.rejected => 'Refusee',
+        EnrollmentStatus.failed => 'Echouee',
+        EnrollmentStatus.cancelled => 'Annulee',
+      };
+
+  bool get grantsAccess => this == EnrollmentStatus.approved;
+
+  bool get isFinal =>
+      this == EnrollmentStatus.approved ||
+      this == EnrollmentStatus.rejected ||
+      this == EnrollmentStatus.cancelled;
+
+  bool get isPending =>
+      this == EnrollmentStatus.pendingPayment ||
+      this == EnrollmentStatus.pendingDirector;
+}
+
+class Enrollment {
+  final String id;
+  final String learnerId;
+  final String learnerName;
+  final String? learnerEmail;
+  final String formationId;
+  final String formationTitle;
+  final String? formationCoverImage;
+  final EnrollmentStatus status;
+  final double amountPaid;
+  final String currency;
+  final String? phone;
+  final String? accountName;
+  final String? paymentRef;
+  final String? paymentOtp;
+  final String? directorOtp;
+  final String? directorComment;
+  final String? receiptNumber;
+  final DateTime requestedAt;
+  final DateTime? paidAt;
+  final DateTime? approvedAt;
+  final DateTime? validatedAt;
+
+  const Enrollment({
+    required this.id,
+    required this.learnerId,
+    required this.learnerName,
+    this.learnerEmail,
+    required this.formationId,
+    required this.formationTitle,
+    this.formationCoverImage,
+    required this.status,
+    this.amountPaid = 0,
+    this.currency = 'USD',
+    this.phone,
+    this.accountName,
+    this.paymentRef,
+    this.paymentOtp,
+    this.directorOtp,
+    this.directorComment,
+    this.receiptNumber,
+    required this.requestedAt,
+    this.paidAt,
+    this.approvedAt,
+    this.validatedAt,
+  });
+
+  // ============================================================
+  // GETTERS
+  // ============================================================
+  bool get isApproved => status == EnrollmentStatus.approved;
+  bool get isRejected => status == EnrollmentStatus.rejected;
+  bool get isPendingPayment => status == EnrollmentStatus.pendingPayment;
+  bool get isPendingDirector => status == EnrollmentStatus.pendingDirector;
+  bool get isPending => status.isPending;
+  bool get hasAccess => status.grantsAccess;
+  bool get hasReceipt => receiptNumber != null && receiptNumber!.isNotEmpty;
+  bool get hasResponse =>
+      directorComment != null && directorComment!.trim().isNotEmpty;
+
+  String get amountLabel => '\$${amountPaid.toStringAsFixed(2)} $currency';
+
+  // ============================================================
+  // FROM JSON
+  // ============================================================
+  factory Enrollment.fromJson(Map<String, dynamic> json) {
+    return Enrollment(
+      id: (json['id'] ?? json['_id'] ?? '').toString(),
+      learnerId: (json['learner_id'] ?? json['learnerId'] ?? '').toString(),
+      learnerName:
+          (json['learner_name'] ?? json['learnerName'] ?? '').toString(),
+      learnerEmail: json['learner_email'] ?? json['learnerEmail'],
+      formationId:
+          (json['formation_id'] ?? json['formationId'] ?? '').toString(),
+      formationTitle:
+          (json['formation_title'] ?? json['formationTitle'] ?? '').toString(),
+      formationCoverImage:
+          json['formation_cover_image'] ?? json['formationCoverImage'],
+      status: _parseStatus(json['status']),
+      amountPaid: _parseDouble(json['amount_paid'] ?? json['amountPaid']),
+      currency: json['currency'] ?? 'USD',
+      phone: json['phone'],
+      accountName: json['account_name'] ?? json['accountName'],
+      paymentRef: json['payment_ref'] ?? json['paymentRef'],
+      paymentOtp: json['payment_otp'] ?? json['paymentOtp'],
+      directorOtp: json['director_otp'] ?? json['directorOtp'],
+      directorComment: json['director_comment'] ?? json['directorComment'],
+      receiptNumber: json['receipt_number'] ?? json['receiptNumber'],
+      requestedAt:
+          _parseDate(json['requested_at'] ?? json['requestedAt']) ??
+              DateTime.now(),
+      paidAt: _parseDate(json['paid_at'] ?? json['paidAt']),
+      approvedAt: _parseDate(json['approved_at'] ?? json['approvedAt']),
+      validatedAt: _parseDate(json['validated_at'] ?? json['validatedAt']),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'learner_id': learnerId,
+        'learner_name': learnerName,
+      'learner_email': learnerEmail,
+        'formation_id': formationId,
+        'formation_title': formationTitle,
+        'status': status.name,
+        'amount_paid': amountPaid,
+        'currency': currency,
+        'phone': phone,
+        'account_name': accountName,
+        'payment_ref': paymentRef,
+        'payment_otp': paymentOtp,
+        'director_otp': directorOtp,
+        'director_comment': directorComment,
+        'receipt_number': receiptNumber,
+        'requested_at': requestedAt.toIso8601String(),
+        'paid_at': paidAt?.toIso8601String(),
+        'approved_at': approvedAt?.toIso8601String(),
+        'validated_at': validatedAt?.toIso8601String(),
+      };
+
+  // ============================================================
+  // HELPERS
+  // ============================================================
+  static EnrollmentStatus _parseStatus(dynamic v) {
+    if (v == null) return EnrollmentStatus.pendingPayment;
+    final n = v.toString().toLowerCase().replaceAll('_', '');
+    for (final s in EnrollmentStatus.values) {
+      if (s.name.toLowerCase() == n) return s;
+    }
+    return EnrollmentStatus.pendingPayment;
+  }
+
+  static double _parseDouble(dynamic v) {
+    if (v == null) return 0;
+    if (v is num) return v.toDouble();
+    return double.tryParse(v.toString()) ?? 0;
+  }
+
+  static DateTime? _parseDate(dynamic v) {
+    if (v == null) return null;
+    if (v is DateTime) return v;
+    return DateTime.tryParse(v.toString());
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Enrollment &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() =>
+      'Enrollment(id: $id, status: ${status.name}, formation: $formationTitle)';
+}

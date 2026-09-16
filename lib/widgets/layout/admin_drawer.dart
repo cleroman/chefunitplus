@@ -1,0 +1,92 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/routes/app_routes.dart';
+import '../../controllers/user_controller.dart';
+import 'base_drawer.dart';
+import '../../views/shared/conversations_screen.dart';
+
+class AdminDrawer extends StatelessWidget {
+  final String? currentRoute;
+  const AdminDrawer({super.key, this.currentRoute});
+
+  @override
+  Widget build(BuildContext context) {
+    final userCtrl = context.watch<UserController>();
+
+    return BaseDrawer(
+      title: 'Administration',
+      roleLabel: 'Administrateur',
+      currentRoute: currentRoute,
+      items: [
+        DrawerItem(
+          icon: Icons.dashboard_outlined,
+          label: 'Tableau de bord',
+          route: AppRoutes.adminHome,
+          isSelected: currentRoute == AppRoutes.adminHome,
+        ),
+        DrawerItem(
+          icon: Icons.people_outline,
+          label: 'Utilisateurs',
+          route: AppRoutes.adminUsers,
+          badge: userCtrl.users.isEmpty ? null : userCtrl.users.length,
+          isSelected: currentRoute == AppRoutes.adminUsers,
+        ),
+        DrawerItem(
+          icon: Icons.upgrade_outlined,
+          label: 'Promotions',
+          route: AppRoutes.adminPromote,
+          isSelected: currentRoute == AppRoutes.adminPromote,
+        ),
+        DrawerItem(
+          icon: Icons.bar_chart_outlined,
+          label: 'Statistiques',
+          route: AppRoutes.adminStats,
+          isSelected: currentRoute == AppRoutes.adminStats,
+        ),
+        DrawerItem(
+          icon: Icons.payments_outlined,
+          label: 'Paiements',
+          route: AppRoutes.adminPayments,
+          isSelected: currentRoute == AppRoutes.adminPayments,
+        ),
+        DrawerItem(
+          icon: Icons.report_problem_outlined,
+          label: 'Reclamations',
+          route: AppRoutes.adminComplaints,
+          isSelected: currentRoute == AppRoutes.adminComplaints,
+        ),
+        DrawerItem(
+          icon: Icons.lock_reset,
+          label: 'Mots de passe',
+          route: AppRoutes.adminPasswordRequests,
+          isSelected: currentRoute == AppRoutes.adminPasswordRequests,
+        ),
+        DrawerItem(
+          icon: Icons.groups_outlined,
+          label: 'Groupes scouts',
+          route: AppRoutes.adminScoutGroups,
+          isSelected: currentRoute == AppRoutes.adminScoutGroups,
+        ),
+        DrawerItem(
+          icon: Icons.chat_bubble_outline,
+          label: 'Messages',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ConversationsScreen(),
+              ),
+            );
+          },
+        ),
+        const DrawerItem.divider(),
+        DrawerItem(
+          icon: Icons.settings_outlined,
+          label: 'Systeme',
+          route: AppRoutes.adminSettings,
+          isSelected: currentRoute == AppRoutes.adminSettings,
+        ),
+      ],
+    );
+  }
+}

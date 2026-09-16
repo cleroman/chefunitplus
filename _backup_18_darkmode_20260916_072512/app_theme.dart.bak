@@ -1,0 +1,172 @@
+// =============================================================
+// ChefUnitPlus - Theme Material 3 (light + dark)
+// =============================================================
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '../constants/app_colors.dart';
+import '../constants/app_sizes.dart';
+import 'text_styles.dart';
+
+class AppTheme {
+  AppTheme._();
+
+  static ThemeData get light {
+    const scheme = ColorScheme.light(
+      primary: AppColors.mauve,
+      onPrimary: Colors.white,
+      primaryContainer: AppColors.mauveSoft,
+      onPrimaryContainer: AppColors.mauveDark,
+      secondary: AppColors.kaki,
+      onSecondary: Colors.white,
+      secondaryContainer: AppColors.kakiSoft,
+      onSecondaryContainer: AppColors.kakiDark,
+      error: AppColors.danger,
+      onError: Colors.white,
+      errorContainer: AppColors.dangerSoft,
+      onErrorContainer: AppColors.dangerDark,
+      surface: AppColors.surface,
+      onSurface: AppColors.textPrimary,
+      onSurfaceVariant: AppColors.textMuted,
+      outline: AppColors.divider,
+      brightness: Brightness.light,
+    );
+    return _build(scheme, isDark: false);
+  }
+
+  static ThemeData get dark {
+    const scheme = ColorScheme.dark(
+      primary: AppColors.mauveLight,
+      onPrimary: AppColors.mauveDark,
+      primaryContainer: AppColors.mauveDark,
+      onPrimaryContainer: AppColors.mauveSoft,
+      secondary: AppColors.kakiLight,
+      onSecondary: AppColors.kakiDark,
+      secondaryContainer: AppColors.kakiDark,
+      onSecondaryContainer: AppColors.kakiSoft,
+      error: AppColors.dangerLight,
+      onError: Colors.white,
+      errorContainer: AppColors.dangerDark,
+      onErrorContainer: AppColors.dangerSoft,
+      surface: AppColors.darkSurface,
+      onSurface: AppColors.darkTextPrimary,
+      onSurfaceVariant: AppColors.darkTextMuted,
+      outline: AppColors.darkDivider,
+      brightness: Brightness.dark,
+    );
+    return _build(scheme, isDark: true);
+  }
+
+  static ThemeData _build(ColorScheme scheme, {required bool isDark}) {
+    final textTheme = AppTextStyles.buildTextTheme(
+      primary: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+      muted: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      brightness: scheme.brightness,
+      scaffoldBackgroundColor:
+          isDark ? AppColors.darkBackground : AppColors.background,
+      textTheme: textTheme,
+      appBarTheme: AppBarTheme(
+        elevation: 0,
+        centerTitle: false,
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
+        titleTextStyle: textTheme.titleLarge?.copyWith(
+          color: scheme.onPrimary,
+          fontWeight: FontWeight.w600,
+        ),
+        iconTheme: IconThemeData(color: scheme.onPrimary),
+        systemOverlayStyle: isDark ? null : SystemUiOverlayStyle.light,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: scheme.primary,
+          foregroundColor: scheme.onPrimary,
+          minimumSize: const Size.fromHeight(AppSizes.buttonHeight),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSizes.lg,
+            vertical: AppSizes.md,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+          ),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: AppSizes.fontMd,
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: scheme.primary,
+          minimumSize: const Size.fromHeight(AppSizes.buttonHeight),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSizes.lg,
+            vertical: AppSizes.md,
+          ),
+          side: BorderSide(color: scheme.primary, width: 1.5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+          ),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: isDark ? AppColors.darkSurface : AppColors.surface,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppSizes.md,
+          vertical: AppSizes.md,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+          borderSide: BorderSide(color: scheme.outline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+          borderSide: BorderSide(color: scheme.outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+          borderSide: BorderSide(color: scheme.primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+          borderSide: BorderSide(color: scheme.error, width: 1.5),
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
+        elevation: 2,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+        ),
+      ),
+      dividerTheme: DividerThemeData(
+        color: scheme.outline,
+        thickness: 1,
+        space: AppSizes.md,
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: scheme.inverseSurface,
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
+          color: scheme.onInverseSurface,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: isDark ? AppColors.darkSurface : AppColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSizes.radiusXl),
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,61 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/routes/app_routes.dart';
+import '../../controllers/module_controller.dart';
+import 'base_drawer.dart';
+
+class TrainerDrawer extends StatelessWidget {
+  final String? currentRoute;
+  const TrainerDrawer({super.key, this.currentRoute});
+
+  @override
+  Widget build(BuildContext context) {
+    final moduleCtrl = context.watch<ModuleController>();
+    final pending = moduleCtrl.myModules.where((m) => m.isPending).length;
+    final approved = moduleCtrl.myModules.where((m) => m.isApproved).length;
+
+    return BaseDrawer(
+      title: 'Formation',
+      roleLabel: 'Formateur',
+      currentRoute: currentRoute,
+      items: [
+        DrawerItem(
+          icon: Icons.dashboard_outlined,
+          label: 'Tableau de bord',
+          route: AppRoutes.trainerHome,
+          isSelected: currentRoute == AppRoutes.trainerHome,
+        ),
+        DrawerItem(
+          icon: Icons.add_circle_outline,
+          label: 'Proposer un module',
+          onTap: () {
+            Navigator.pushNamed(context, '/trainer/module/create');
+          },
+        ),
+        DrawerItem(
+          icon: Icons.library_books_outlined,
+          label: 'Mes modules',
+          badge: approved > 0 ? approved : null,
+          onTap: () {
+            Navigator.pushNamed(context, '/trainer/modules');
+          },
+        ),
+        DrawerItem(
+          icon: Icons.hourglass_empty,
+          label: 'En attente',
+          badge: pending > 0 ? pending : null,
+          onTap: () {
+            Navigator.pushNamed(context, '/trainer/modules');
+          },
+        ),
+        const DrawerItem.divider(),
+        DrawerItem(
+          icon: Icons.people_outline,
+          label: 'Mes etudiants',
+          route: AppRoutes.trainerStudents,
+          isSelected: currentRoute == AppRoutes.trainerStudents,
+        ),
+      ],
+    );
+  }
+}

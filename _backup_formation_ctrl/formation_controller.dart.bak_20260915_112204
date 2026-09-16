@@ -1,0 +1,191 @@
+import 'package:flutter/foundation.dart';
+
+import '../core/errors/app_exception.dart';
+import '../core/errors/error_handler.dart';
+import '../models/formation.dart';
+import '../services/formation_service.dart';
+
+enum LoadState { idle, loading, success, error }
+
+class FormationController extends ChangeNotifier {
+  final FormationService _service;
+
+  FormationController(this._service);
+
+  // =========================================================
+  // ÉTAT
+  // =========================================================
+  LoadState _state = LoadState.idle;
+  LoadState get state => _state;
+
+  List<Formation> _formations = [];
+  List<Formation> get formations => _formations;
+
+  String? _error;
+  String? get error => _error;
+
+  // Compat : ancien code
+  String? get errorMessage => _error;
+  bool get isLoading => _state == LoadState.loading;
+  bool get hasError => _state == LoadState.error;
+  bool get hasData => _formations.isNotEmpty;
+
+  String _search = '';
+  String get search => _search;
+
+  // =========================================================
+  // CHARGEMENT
+  // =========================================================
+  Future<void> load({bool refresh = false}) async {
+    if (!refresh && _state == LoadState.loading) return;
+
+    _state = LoadState.loading;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _formations = await _service.list(search: _search);
+      _state = LoadState.success;
+    } on AppException catch (e) {
+      _error = e.message;
+      _state = LoadState.error;
+    } catch (e, st) {
+      _error = ErrorHandler.message(e);
+      _state = LoadState.error;
+      ErrorHandler.log(e, st, 'FormationController.load');
+    }
+
+    notifyListeners();
+  }
+
+  /// Alias (compat ancien code)
+  Future<void> loadMine({bool refresh = false}) => load(refresh: refresh);
+
+  // =========================================================
+  // RECHERCHE
+  // =========================================================
+  Future<void> setSearch(String query) async {
+    _search = query;
+    await load(refresh: true);
+  }
+
+  // =========================================================
+  // CREATE — accepte les paramètres nommés
+  // =========================================================
+  Future<bool> create({
+    required String title,
+    required String description,
+    required double price,
+    String? coverImage,
+    String? currency,
+  }) async {
+    try {
+      final payload = <String, dynamic>{
+        'title': title,
+        'description': description,
+        'price': price,
+        if (coverImage != null && coverImage.isNotEmpty)
+          'coverImage': coverImage,
+        if (currency != null) 'currency': currency,
+      };
+
+      await _service.create(payload);
+      await load(refresh: true);
+      return true;
+    } on AppException catch (e) {
+      _error = e.message;
+      notifyListeners();
+      return false;
+    } catch (e, st) {
+      _error = ErrorHandler.message(e);
+      notifyListeners();
+      ErrorHandler.log(e, st, 'FormationController.create');
+      return false;
+    }
+  }
+
+  // =========================================================
+  // UPDATE — accepte les paramètres nommés
+  // =========================================================
+  Future<bool> update({
+    required String id,
+    required String title,
+    required String description,
+    required double price,
+    String? coverImage,
+    String? currency,
+  }) async {
+    try {
+      final payload = <String, dynamic>{
+        'title': title,
+        'description': description,
+        'price': price,
+        if (coverImage != null && coverImage.isNotEmpty)
+          'coverImage': coverImage,
+        if (currency != null) 'currency': currency,
+      };
+
+      await _service.update(id, payload);
+      await load(refresh: true);
+      return true;
+    } on AppException catch (e) {
+      _error = e.message;
+      notifyListeners();
+      return false;
+    } catch (e, st) {
+      _error = ErrorHandler.message(e);
+      notifyListeners();
+      ErrorHandler.log(e, st, 'FormationController.update');
+      return false;
+    }
+  }
+
+  // =========================================================
+  // DELETE
+  // =========================================================
+  Future<bool> delete(String id) async {
+    try {
+      await _service.delete(id);
+      _formations = _formations.where((f) => f.id != id).toList();
+      notifyListeners();
+      return true;
+    } catch (e, st) {
+      _error = ErrorHandler.message(e);
+      notifyListeners();
+      ErrorHandler.log(e, st, 'FormationController.delete');
+      return false;
+    }
+  }
+
+  // =========================================================
+  // DÉTAIL / MODULES
+  // =========================================================
+  Future<Formation?> getById(String id) async {
+    try {
+      return await _service.getById(id);
+    } catch (e, st) {
+      ErrorHandler.log(e, st, 'FormationController.getById');
+      return null;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> listModules(String formationId) async {
+    try {
+      return await _service.listModules(formationId);
+    } catch (e, st) {
+      ErrorHandler.log(e, st, 'FormationController.listModules');
+      return [];
+    }
+  }
+
+  // =========================================================
+  // RESET
+  // =========================================================
+  void reset() {
+    _state = LoadState.idle;
+    _formations = [];
+    _error = null;
+    _search = '';
+    notifyListeners();
+  }
+}

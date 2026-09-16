@@ -1,0 +1,285 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/constants/app_colors.dart';
+import '../../controllers/enrollment_controller.dart';
+import '../../controllers/formation_controller.dart';
+import '../../models/formation.dart';
+
+class FormationDetailScreen extends StatefulWidget {
+  final String formationId;
+  const FormationDetailScreen({super.key, required this.formationId});
+
+  @override
+  State<FormationDetailScreen> createState() => _FormationDetailScreenState();
+}
+
+class _FormationDetailScreenState extends State<FormationDetailScreen> {
+  Formation? _formation;
+  List<Map<String, dynamic>> _modules = [];
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final fc = context.read<FormationController>();
+      final f = await fc.getById(widget.formationId);
+      final m = await fc.listModules(widget.formationId);
+      if (!mounted) return;
+      setState(() {
+        _formation = f;
+        _modules = m;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = 'Impossible de charger la formation';
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_error != null || _formation == null) {
+      return Scaffold(
+        appBar: AppBar(backgroundColor: AppColors.mauve),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline,
+                  size: 80, color: AppColors.danger),
+              const SizedBox(height: 16),
+              Text(_error ?? 'Formation introuvable'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _load,
+                child: const Text('Réessayer'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final f = _formation!;
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 200,
+            pinned: true,
+            backgroundColor: AppColors.mauve,
+            foregroundColor: Colors.white,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(f.title,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16)),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [AppColors.mauveDark, AppColors.mauve],
+                  ),
+                ),
+                child: const Center(
+                  child: Icon(Icons.school, size: 100, color: Colors.white54),
+                ),
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.attach_money,
+                          color: AppColors.mauve, size: 32),
+                      const SizedBox(width: 8),
+                      Text(f.priceLabel,
+                          style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.mauveDark)),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text('Description',
+                    style: TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 8),
+                Text(f.description,
+                    style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textMuted,
+                        height: 1.5)),
+                const SizedBox(height: 24),
+                if (_modules.isNotEmpty) ...[
+                  const Text('Contenu de la formation',
+                      style: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 12),
+                  ..._modules.map((m) => _moduleTile(m)),
+                ] else ...[
+                  const Text('Aucun module publié',
+                      style: TextStyle(color: AppColors.textMuted)),
+                ],
+                const SizedBox(height: 100),
+              ]),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: _BottomBar(formation: f),
+    );
+  }
+
+  Widget _moduleTile(Map<String, dynamic> m) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: const CircleAvatar(
+          backgroundColor: AppColors.mauveSoft,
+          child: Icon(Icons.play_lesson_outlined, color: AppColors.mauve),
+        ),
+        title: Text(m['title']?.toString() ?? 'Module'),
+        subtitle: m['description'] != null
+            ? Text(m['description'].toString(),
+                maxLines: 1, overflow: TextOverflow.ellipsis)
+            : null,
+        trailing: const Icon(Icons.lock_outline, size: 18),
+      ),
+    );
+  }
+}
+
+// =====================================================================
+// BARRE D'ACTION EN BAS
+// =====================================================================
+class _BottomBar extends StatefulWidget {
+  final Formation formation;
+  const _BottomBar({required this.formation});
+
+  @override
+  State<_BottomBar> createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<_BottomBar> {
+  bool _enrolling = false;
+
+  Future<void> _enroll() async {
+    setState(() => _enrolling = true);
+
+    final enrollment = await context
+        .read<EnrollmentController>()
+        .request(widget.formation.id);
+
+    if (!mounted) return;
+    setState(() => _enrolling = false);
+
+    if (enrollment != null) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.check_circle, color: AppColors.success),
+              SizedBox(width: 8),
+              Text('Inscription initiée'),
+            ],
+          ),
+          content: const Text(
+              'Votre demande a été enregistrée.\n\n'
+              'Procédez au paiement puis attendez la validation du directeur.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Échec de l\'inscription'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, -4)),
+        ],
+      ),
+      child: SafeArea(
+        child: SizedBox(
+          height: 52,
+          child: ElevatedButton.icon(
+            onPressed: _enrolling ? null : _enroll,
+            icon: _enrolling
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
+                  )
+                : const Icon(Icons.shopping_cart_checkout),
+            label: Text(_enrolling
+                ? 'Traitement...'
+                : 'S\'inscrire pour ${widget.formation.priceLabel}'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.mauve,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

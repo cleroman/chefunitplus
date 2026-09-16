@@ -1,0 +1,152 @@
+// ChefUnitPlus - Ecran gestion des groupes scout
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../controllers/scout_group_controller.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_sizes.dart';
+import '../../core/utils/snackbar_helper.dart';
+
+class ScoutGroupsScreen extends StatefulWidget {
+  const ScoutGroupsScreen({super.key});
+
+  @override
+  State<ScoutGroupsScreen> createState() => _ScoutGroupsScreenState();
+}
+
+class _ScoutGroupsScreenState extends State<ScoutGroupsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ScoutGroupController>().loadAll();
+    });
+  }
+
+  Future<void> _showCreateDialog() async {
+    final nameCtrl = TextEditingController();
+    final regionCtrl = TextEditingController();
+    final districtCtrl = TextEditingController();
+    final descCtrl = TextEditingController();
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
+        title: const Text('Nouveau groupe scout'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Nom du groupe *')),
+              const SizedBox(height: 12),
+              TextField(controller: regionCtrl, decoration: const InputDecoration(labelText: 'Region')),
+              const SizedBox(height: 12),
+              TextField(controller: districtCtrl, decoration: const InputDecoration(labelText: 'District')),
+              const SizedBox(height: 12),
+              TextField(controller: descCtrl, maxLines: 3, decoration: const InputDecoration(labelText: 'Description')),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Annuler')),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.mauve),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Creer'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != true || !mounted) return;
+    if (nameCtrl.text.trim().isEmpty) {
+      SnackbarHelper.error(context, 'Le nom est obligatoire');
+      return;
+    }
+
+    final ok = await context.read<ScoutGroupController>().create(
+      name: nameCtrl.text.trim(),
+      region: regionCtrl.text.trim().isEmpty ? null : regionCtrl.text.trim(),
+      district: districtCtrl.text.trim().isEmpty ? null : districtCtrl.text.trim(),
+      description: descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
+    );
+
+    if (!mounted) return;
+    if (ok) {
+      SnackbarHelper.success(context, 'Groupe cree');
+    } else {
+      SnackbarHelper.error(context, 'Erreur de creation');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ctrl = context.watch<ScoutGroupController>();
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Groupes Scout'),
+        backgroundColor: AppColors.mauve,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(icon: const Icon(Icons.refresh), onPressed: () => ctrl.loadAll()),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _showCreateDialog,
+        backgroundColor: AppColors.mauve,
+        icon: const Icon(Icons.add),
+        label: const Text('Nouveau groupe'),
+      ),
+      body: ctrl.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ctrl.groups.isEmpty
+              ? _buildEmpty()
+              : RefreshIndicator(
+                  onRefresh: () => ctrl.loadAll(),
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(AppSizes.screenPadding),
+                    itemCount: ctrl.groups.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (_, i) {
+                      final g = ctrl.groups[i];
+                      return Card(
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: AppColors.mauveSoft,
+                            child: Text(g.name.substring(0, 1).toUpperCase(),
+                                style: const TextStyle(color: AppColors.mauveDark, fontWeight: FontWeight.bold)),
+                          ),
+                          title: Text(g.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                          subtitle: Text('${g.membersCount} membres · ${g.region ?? "Region non specifiee"}'),
+                          trailing: g.hasDirector
+                              ? const Icon(Icons.check_circle, color: AppColors.success)
+                              : const Icon(Icons.person_off_outlined, color: AppColors.warning),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+    );
+  }
+
+  Widget _buildEmpty() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.groups_outlined, size: 80, color: AppColors.textMuted),
+            SizedBox(height: 16),
+            Text('Aucun groupe scout', style: TextStyle(color: AppColors.textMuted)),
+            SizedBox(height: 8),
+            Text('Appuyez sur + pour creer un groupe', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+          ],
+        ),
+      ),
+    );
+  }
+}

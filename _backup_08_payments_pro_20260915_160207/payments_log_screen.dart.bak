@@ -1,0 +1,295 @@
+// =============================================================
+// ChefUnitPlus - PaymentsLogScreen
+// Journal des paiements FlexPaie
+// =============================================================
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../controllers/enrollment_controller.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_sizes.dart';
+import '../../core/utils/formatters.dart';
+import '../../models/enrollment.dart';
+
+class PaymentsLogScreen extends StatefulWidget {
+  const PaymentsLogScreen({super.key});
+
+  @override
+  State<PaymentsLogScreen> createState() => _PaymentsLogScreenState();
+}
+
+class _PaymentsLogScreenState extends State<PaymentsLogScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => context.read<EnrollmentController>().loadPending(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ctrl = context.watch<EnrollmentController>();
+    final list = ctrl.pending
+        .where((e) => e.paymentRef != null && e.paymentRef!.isNotEmpty)
+        .toList();
+
+    final totalAmount =
+        list.fold<double>(0, (s, e) => s + e.amountPaid);
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Journal des paiements'),
+        backgroundColor: AppColors.mauve,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Rafraîchir',
+            onPressed: () => ctrl.loadPending(),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Résumé
+          Container(
+            margin: const EdgeInsets.all(AppSizes.screenPadding),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [AppColors.success, AppColors.successLight],
+              ),
+              borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.receipt_long,
+                  color: Colors.white,
+                  size: 32,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Transactions récentes',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${list.length} paiement${list.length > 1 ? 's' : ''}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Text(
+                      'Total',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11,
+                      ),
+                    ),
+                    Text(
+                      Formatters.moneyCompact(totalAmount),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Liste
+          Expanded(
+            child: ctrl.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                    color: AppColors.mauve,
+                    onRefresh: () => ctrl.loadPending(),
+                    child: list.isEmpty
+                        ? _EmptyState()
+                        : ListView.separated(
+                            padding: const EdgeInsets.fromLTRB(
+                              AppSizes.screenPadding,
+                              0,
+                              AppSizes.screenPadding,
+                              AppSizes.screenPadding,
+                            ),
+                            itemCount: list.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 10),
+                            itemBuilder: (_, i) =>
+                                _PaymentTile(enrollment: list[i]),
+                          ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaymentTile extends StatelessWidget {
+  final Enrollment enrollment;
+  const _PaymentTile({required this.enrollment});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.successSoft,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.receipt_long_outlined,
+                  color: AppColors.success,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      enrollment.learnerName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      Formatters.truncate(
+                        enrollment.paymentRef ?? '-',
+                        22,
+                      ),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textMuted,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                Formatters.money(enrollment.amountPaid),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.success,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              const Icon(
+                Icons.school_outlined,
+                size: 12,
+                color: AppColors.textMuted,
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  enrollment.formationTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textMuted,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                Formatters.dateShort(enrollment.requestedAt),
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textMuted,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.5,
+          child: const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.receipt_long_outlined,
+                  size: 80,
+                  color: AppColors.textMuted,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Aucun paiement enregistré',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textMuted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

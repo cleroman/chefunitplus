@@ -1,0 +1,409 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/constants/app_colors.dart';
+import '../../controllers/auth_controller.dart';
+import '../../controllers/formation_controller.dart';
+import '../../controllers/module_controller.dart';
+import '../../models/formation.dart';
+import 'formation_editor_screen.dart';
+import 'director_module_validation_screen.dart';
+
+class DirectorDashboard extends StatefulWidget {
+  const DirectorDashboard({super.key});
+  @override
+  State<DirectorDashboard> createState() => _DirectorDashboardState();
+}
+
+class _DirectorDashboardState extends State<DirectorDashboard> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<FormationController>().load(all: true);
+      context.read<ModuleController>().loadPending(refresh: true);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final formCtrl = context.watch<FormationController>();
+    final moduleCtrl = context.watch<ModuleController>();
+    final formations = formCtrl.formations;
+    final publishedCount = formations.where((f) => f.isPublished).length;
+    final draftCount = formations.length - publishedCount;
+    final pendingModules = moduleCtrl.pending.length;
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Espace Directeur'),
+        backgroundColor: AppColors.mauve,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => context.read<AuthController>().logout(),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _createFormation,
+        backgroundColor: AppColors.mauve,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add),
+        label: const Text('Nouvelle formation'),
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await formCtrl.load(all: true, refresh: true);
+          await moduleCtrl.loadPending(refresh: true);
+        },
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Row(
+              children: [
+                _stat('${formations.length}', 'Total', Icons.school, AppColors.mauve),
+                const SizedBox(width: 12),
+                _stat('$publishedCount', 'Publiees', Icons.check_circle, AppColors.success),
+                const SizedBox(width: 12),
+                _stat('$draftCount', 'Brouillons', Icons.edit, AppColors.warning),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (pendingModules > 0) _pendingBanner(pendingModules),
+            if (pendingModules > 0) const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('Formations',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: _goToValidation,
+                  icon: const Icon(Icons.rule, size: 18),
+                  label: const Text('Valider modules'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (formCtrl.isLoading && formations.isEmpty)
+              const Center(child: CircularProgressIndicator())
+            else if (formations.isEmpty)
+              _emptyFormations()
+            else
+              ...formations.map((f) => _formationCard(f)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _stat(String value, String label, IconData icon, Color color) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8),
+          ],
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(height: 6),
+            Text(value,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+            Text(label,
+                style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _pendingBanner(int count) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.warning),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.hourglass_empty, color: AppColors.warning),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('$count module(s) en attente',
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                const Text('Propose(s) par les formateurs',
+                    style: TextStyle(fontSize: 12)),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            onPressed: _goToValidation,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.warning,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Valider'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _emptyFormations() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.mauve.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.school_outlined, size: 50, color: AppColors.mauve),
+          ),
+          const SizedBox(height: 16),
+          const Text('Aucune formation',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          const Text('Creez une formation, les formateurs y ajouteront des modules',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _createFormation,
+            icon: const Icon(Icons.add),
+            label: const Text('Creer une formation'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.mauve,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _formationCard(Formation f) {
+    final modulesCount = f.moduleCount;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(f.title,
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: f.isPublished
+                        ? AppColors.success.withValues(alpha: 0.15)
+                        : AppColors.warning.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    f.isPublished ? 'Publiee' : 'Brouillon',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: f.isPublished ? AppColors.success : AppColors.warning,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.school, size: 14, color: AppColors.textMuted),
+                const SizedBox(width: 4),
+                Text(f.type.label,
+                    style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                const SizedBox(width: 12),
+                const Icon(Icons.schedule, size: 14, color: AppColors.textMuted),
+                const SizedBox(width: 4),
+                Text('${f.totalHours}h',
+                    style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                const SizedBox(width: 12),
+                const Icon(Icons.list, size: 14, color: AppColors.textMuted),
+                const SizedBox(width: 4),
+                Text('$modulesCount module(s)',
+                    style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _editFormation(f),
+                    icon: const Icon(Icons.edit, size: 16),
+                    label: const Text('Modifier'),
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                if (!f.isPublished)
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: modulesCount > 0 ? () => _publish(f) : null,
+                      icon: const Icon(Icons.public, size: 16),
+                      label: const Text('Publier'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.success,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor:
+                            AppColors.success.withValues(alpha: 0.3),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  )
+                else
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _unpublish(f),
+                      icon: const Icon(Icons.visibility_off, size: 16),
+                      label: const Text('Depublier'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.warning,
+                        side: const BorderSide(color: AppColors.warning),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            if (!f.isPublished && modulesCount == 0) ...[
+              const SizedBox(height: 8),
+              const Text(
+                'Ajoutez au moins 1 module valide pour pouvoir publier',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppColors.danger,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // NAVIGATION (sans BuildContext apres await)
+  // ============================================================
+  Future<void> _createFormation() async {
+    final formCtrl = context.read<FormationController>();
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const FormationEditorScreen()),
+    );
+    if (result == true && mounted) {
+      formCtrl.load(all: true, refresh: true);
+    }
+  }
+
+  Future<void> _editFormation(Formation f) async {
+    final formCtrl = context.read<FormationController>();
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => FormationEditorScreen(formationId: f.id)),
+    );
+    if (result == true && mounted) {
+      formCtrl.load(all: true, refresh: true);
+    }
+  }
+
+  void _goToValidation() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const DirectorModuleValidationScreen()),
+    );
+  }
+
+  Future<void> _publish(Formation f) async {
+    // Capture AVANT await
+    final formCtrl = context.read<FormationController>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Publier la formation'),
+        content: Text(
+            'Publier "${f.title}" ?\n\nElle sera visible dans le catalogue des apprenants.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
+            child: const Text('Publier'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final ok = await formCtrl.publish(f.id);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(ok ? 'Formation publiee dans le catalogue' : 'Echec de publication'),
+        backgroundColor: ok ? AppColors.success : AppColors.danger,
+      ),
+    );
+  }
+
+  Future<void> _unpublish(Formation f) async {
+    // Capture AVANT await
+    final formCtrl = context.read<FormationController>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final ok = await formCtrl.unpublish(f.id);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(ok ? 'Formation retiree du catalogue' : 'Echec'),
+        backgroundColor: ok ? AppColors.warning : AppColors.danger,
+      ),
+    );
+  }
+}

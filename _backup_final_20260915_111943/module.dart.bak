@@ -1,0 +1,143 @@
+// =============================================================
+// ChefUnitPlus - Modle Module
+// Un module appartient  une formation et est anim par un formateur
+// =============================================================
+
+
+class Module {
+  final String id;
+  final String formationId;
+  final String title;
+  final String? description;
+  final String? trainerId; // Formateur affect
+  final String? trainerName;
+  final int order; // Ordre d'affichage dans la formation
+  final List<String> lessonIds;
+  final int duration; // Dure estime en minutes
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  const Module({
+    required this.id,
+    required this.formationId,
+    required this.title,
+    this.description,
+    this.trainerId,
+    this.trainerName,
+    this.order = 0,
+    this.lessonIds = const [],
+    this.duration = 0,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  // ===========================================================
+  // Y FACTORIES
+  // ===========================================================
+  factory Module.fromJson(Map<String, dynamic> json) {
+    return Module(
+      id: (json['id'] ?? json['_id'] ?? '').toString(),
+      formationId: (json['formationId'] ?? '').toString(),
+      title: json['title'] ?? '',
+      description: json['description'],
+      trainerId: json['trainerId']?.toString(),
+      trainerName: json['trainerName'],
+      order: json['order'] ?? 0,
+      lessonIds: (json['lessonIds'] as List?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
+      duration: json['duration'] ?? 0,
+      createdAt: _parseDate(json['createdAt']),
+      updatedAt: _parseDate(json['updatedAt']),
+    );
+  }
+
+  // ===========================================================
+  // Y" S?RIALISATION
+  // ===========================================================
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'formationId': formationId,
+        'title': title,
+        if (description != null) 'description': description,
+        if (trainerId != null) 'trainerId': trainerId,
+        if (trainerName != null) 'trainerName': trainerName,
+        'order': order,
+        'lessonIds': lessonIds,
+        'duration': duration,
+        if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
+        if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
+      };
+
+  // ===========================================================
+  // Y"< COPYWITH
+  // ===========================================================
+  Module copyWith({
+    String? id,
+    String? formationId,
+    String? title,
+    String? description,
+    String? trainerId,
+    String? trainerName,
+    int? order,
+    List<String>? lessonIds,
+    int? duration,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return Module(
+      id: id ?? this.id,
+      formationId: formationId ?? this.formationId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      trainerId: trainerId ?? this.trainerId,
+      trainerName: trainerName ?? this.trainerName,
+      order: order ?? this.order,
+      lessonIds: lessonIds ?? this.lessonIds,
+      duration: duration ?? this.duration,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  // ===========================================================
+  // Y" GETTERS
+  // ===========================================================
+  bool get hasTrainer => trainerId != null;
+  int get lessonCount => lessonIds.length;
+
+  /// "45 min" ou "1h 30min"
+  String get durationLabel {
+    if (duration < 60) return '${duration}min';
+    final h = duration ~/ 60;
+    final m = duration % 60;
+    return m == 0 ? '${h}h' : '${h}h ${m}min';
+  }
+
+  // ===========================================================
+  // Y COMPARAISON & TRI
+  // ===========================================================
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Module && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  int compareTo(Module other) => order.compareTo(other.order);
+
+  @override
+  String toString() =>
+      'Module(id: $id, title: $title, order: $order, trainer: $trainerName)';
+
+  // ===========================================================
+  // Y HELPERS PRIV?S
+  // ===========================================================
+  static DateTime? _parseDate(dynamic v) {
+    if (v == null) return null;
+    if (v is DateTime) return v;
+    return DateTime.tryParse(v.toString());
+  }
+}

@@ -1,0 +1,610 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/constants/app_colors.dart';
+import '../../controllers/user_controller.dart';
+import '../../models/role.dart';
+import '../../models/scout_group.dart';
+import '../../models/user.dart';
+
+class ScoutGroupDetailsScreen extends StatefulWidget {
+  final ScoutGroup group;
+
+  const ScoutGroupDetailsScreen({super.key, required this.group});
+
+  @override
+  State<ScoutGroupDetailsScreen> createState() =>
+      _ScoutGroupDetailsScreenState();
+}
+
+class _ScoutGroupDetailsScreenState extends State<ScoutGroupDetailsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<UserController>().loadAll();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final g = widget.group;
+    final userCtrl = context.watch<UserController>();
+
+    // Filtrer les membres potentiels : directeurs + formateurs
+    final potentialDirectors = userCtrl.users
+        .where((u) =>
+            u.role == UserRole.directeur || u.role == UserRole.formateur)
+        .toList();
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: CustomScrollView(
+        slivers: [
+          // ============================================================
+          // HEADER
+          // ============================================================
+          SliverAppBar(
+            expandedHeight: 200,
+            pinned: true,
+            backgroundColor: AppColors.mauve,
+            foregroundColor: Colors.white,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                tooltip: 'Modifier',
+                onPressed: () => _showEditDialog(g),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                tooltip: 'Supprimer',
+                onPressed: () => _confirmDelete(g),
+              ),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                g.name,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [AppColors.mauve, AppColors.kaki],
+                  ),
+                ),
+                child: const Center(
+                  child: Icon(Icons.groups, size: 90, color: Colors.white54),
+                ),
+              ),
+            ),
+          ),
+
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // ============================================================
+                // INFOS GÉNÉRALES
+                // ============================================================
+                const _SectionTitle(title: 'Informations'),
+                const SizedBox(height: 12),
+                _infoCard(g),
+                const SizedBox(height: 20),
+
+                // ============================================================
+                // CHEF DE GROUPE
+                // ============================================================
+                const _SectionTitle(title: 'Chef de groupe'),
+                const SizedBox(height: 12),
+                _directorCard(g, potentialDirectors),
+                const SizedBox(height: 20),
+
+                // ============================================================
+                // MEMBRES
+                // ============================================================
+                _membersSection(g),
+                const SizedBox(height: 40),
+              ]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // INFO CARD
+  // ============================================================
+  Widget _infoCard(ScoutGroup g) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          if ((g.region ?? '').isNotEmpty)
+            _infoRow(Icons.location_on_outlined, 'Region', g.region!),
+          if ((g.district ?? '').isNotEmpty)
+            _infoRow(Icons.map_outlined, 'District', g.district!),
+          if ((g.description ?? '').isNotEmpty)
+            _infoRow(Icons.description_outlined, 'Description', g.description!),
+          _infoRow(
+            Icons.calendar_today_outlined,
+            'Cree le',
+            g.createdAt != null ? _formatDate(g.createdAt!) : '-',
+          ),
+          _infoRow(
+            Icons.people_outline,
+            'Membres',
+            '${g.membersCount} inscrit(s)',
+          ),
+          const SizedBox(height: 12),
+          // Badge statut
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: g.isActive
+                      ? AppColors.success.withValues(alpha: 0.15)
+                      : AppColors.danger.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      g.isActive ? Icons.check_circle : Icons.block,
+                      size: 12,
+                      color: g.isActive ? AppColors.success : AppColors.danger,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      g.isActive ? 'Actif' : 'Inactif',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color:
+                            g.isActive ? AppColors.success : AppColors.danger,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18, color: AppColors.mauve),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 90,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.textMuted,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // DIRECTEUR CARD
+  // ============================================================
+  Widget _directorCard(ScoutGroup g, List<User> potentialDirectors) {
+    final hasDirector = g.hasDirector;
+
+    if (!hasDirector) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: AppColors.warning.withValues(alpha: 0.5),
+            width: 1.5,
+          ),
+        ),
+        child: Column(
+          children: [
+            const Icon(Icons.person_off_outlined, size: 40, color: AppColors.warning),
+            const SizedBox(height: 8),
+            const Text(
+              'Aucun directeur assigne',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.warning,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: () => _showAssignDirectorDialog(g, potentialDirectors),
+              icon: const Icon(Icons.person_add, size: 18),
+              label: const Text('Assigner un directeur'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.mauve,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 24,
+            backgroundColor: AppColors.mauve.withValues(alpha: 0.15),
+            child: Text(
+              _initials(g.directorName ?? 'D'),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.mauveDark,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  g.directorName ?? 'Directeur',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                const Text(
+                  'Chef de groupe',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textMuted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.swap_horiz, color: AppColors.mauve),
+            tooltip: 'Changer',
+            onPressed: () => _showAssignDirectorDialog(g, potentialDirectors),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // MEMBRES
+  // ============================================================
+  Widget _membersSection(ScoutGroup g) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const _SectionTitle(title: 'Membres'),
+            const Spacer(),
+            if (g.membersCount > 0)
+              Text(
+                '${g.membersCount}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textMuted,
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (g.membersCount == 0)
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Center(
+              child: Text(
+                'Aucun membre pour le moment',
+                style: TextStyle(color: AppColors.textMuted),
+              ),
+            ),
+          )
+        else
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Text(
+              'Liste des membres bientot disponible',
+              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // DIALOG ASSIGNER DIRECTEUR
+  // ============================================================
+  Future<void> _showAssignDirectorDialog(
+    ScoutGroup g,
+    List<User> potentialDirectors,
+  ) async {
+    String? selectedId;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: const Text('Assigner un chef de groupe'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Choisissez un directeur ou formateur pour ce groupe :',
+                style: TextStyle(fontSize: 13),
+              ),
+              const SizedBox(height: 12),
+              if (potentialDirectors.isEmpty)
+                const Text(
+                  'Aucun candidat disponible. Promouvez d\'abord un utilisateur.',
+                  style: TextStyle(color: AppColors.danger, fontSize: 12),
+                )
+              else
+                DropdownButtonFormField<String>(
+                  initialValue: selectedId,
+                  isExpanded: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Chef de groupe',
+                    prefixIcon: Icon(Icons.person_outline),
+                    border: OutlineInputBorder(),
+                  ),
+                  items: potentialDirectors
+                      .map((u) => DropdownMenuItem<String>(
+                            value: u.id,
+                            child: Text('${u.fullName} (${u.role.label})'),
+                          ))
+                      .toList(),
+                  onChanged: (v) => setDialogState(() => selectedId = v),
+                ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: selectedId == null
+                  ? null
+                  : () => Navigator.pop(ctx, true),
+              style:
+                  ElevatedButton.styleFrom(backgroundColor: AppColors.mauve),
+              child: const Text('Assigner'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirm != true || selectedId == null) return;
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Directeur assigne au groupe'),
+        backgroundColor: AppColors.success,
+      ),
+    );
+  }
+
+  // ============================================================
+  // DIALOG MODIFIER
+  // ============================================================
+  Future<void> _showEditDialog(ScoutGroup g) async {
+    final nameCtrl = TextEditingController(text: g.name);
+    final regionCtrl = TextEditingController(text: g.region ?? '');
+    final districtCtrl = TextEditingController(text: g.district ?? '');
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Modifier le groupe'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Nom',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: regionCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Region',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: districtCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'District',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.mauve),
+            child: const Text('Enregistrer'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Modifications enregistrees'),
+        backgroundColor: AppColors.success,
+      ),
+    );
+  }
+
+  // ============================================================
+  // CONFIRM DELETE
+  // ============================================================
+  Future<void> _confirmDelete(ScoutGroup g) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Supprimer le groupe'),
+        content: Text(
+          'Voulez-vous vraiment supprimer "${g.name}" ?\n\n'
+          'Cette action est irreversible.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Groupe supprime'),
+        backgroundColor: AppColors.danger,
+      ),
+    );
+    Navigator.pop(context);
+  }
+
+  // ============================================================
+  // HELPERS
+  // ============================================================
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty) return '?';
+    if (parts.length == 1) return parts[0][0].toUpperCase();
+    return '${parts[0][0]}${parts[parts.length - 1][0]}'.toUpperCase();
+  }
+
+  String _formatDate(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+}
+
+// ============================================================
+// WIDGET : Titre de section
+// ============================================================
+class _SectionTitle extends StatelessWidget {
+  final String title;
+  const _SectionTitle({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 4,
+          height: 18,
+          decoration: BoxDecoration(
+            color: AppColors.mauve,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+}

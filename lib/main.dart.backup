@@ -1,0 +1,90 @@
+﻿// =============================================================
+// ChefUnitPlus - Point d'entrée
+// =============================================================
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'app.dart';
+import 'controllers/auth_controller.dart';
+import 'controllers/certificate_controller.dart';
+import 'controllers/dashboard_controller.dart';
+import 'controllers/enrollment_controller.dart';
+import 'controllers/formation_controller.dart';
+import 'controllers/module_controller.dart';
+import 'controllers/payment_controller.dart';
+import 'controllers/user_controller.dart';
+import 'core/errors/error_handler.dart';
+import 'services/api_client.dart';
+import 'services/auth_service.dart';
+import 'services/certificate_service.dart';
+import 'services/enrollment_service.dart';
+import 'services/formation_service.dart';
+import 'services/lesson_service.dart';
+import 'services/module_service.dart';
+import 'services/payment_service.dart';
+import 'services/stats_service.dart';
+import 'services/storage_service.dart';
+import 'services/user_service.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  ErrorHandler.installGlobalHandler();
+
+  // --- Instances uniques ---
+  final apiClient = ApiClient();
+  final storageService = StorageService();
+  final authService = AuthService(api: apiClient, storage: storageService);
+
+  runApp(
+    MultiProvider(
+      providers: [
+        // ------------------ SERVICES ------------------
+        Provider<ApiClient>.value(value: apiClient),
+        Provider<StorageService>.value(value: storageService),
+        Provider<AuthService>.value(value: authService),
+        Provider<UserService>(create: (_) => UserService(apiClient)),
+        Provider<FormationService>(create: (_) => FormationService(apiClient)),
+        Provider<ModuleService>(create: (_) => ModuleService(apiClient)),
+        Provider<LessonService>(create: (_) => LessonService(apiClient)),
+        Provider<EnrollmentService>(
+          create: (_) => EnrollmentService(apiClient),
+        ),
+        Provider<PaymentService>(create: (_) => PaymentService()),
+        Provider<CertificateService>(
+          create: (_) => CertificateService(apiClient),
+        ),
+        Provider<StatsService>(create: (_) => StatsService(apiClient)),
+
+        // ------------------ CONTROLLERS ------------------
+        ChangeNotifierProvider(
+          create: (_) => AuthController(service: authService),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) => UserController(ctx.read<UserService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) => FormationController(ctx.read<FormationService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) => ModuleController(ctx.read<ModuleService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) =>
+              EnrollmentController(ctx.read<EnrollmentService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) =>
+              PaymentController(service: ctx.read<PaymentService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) => DashboardController(ctx.read<StatsService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) =>
+              CertificateController(ctx.read<CertificateService>()),
+        ),
+      ],
+      child: const ChefUnitPlusApp(),
+    ),
+  );
+}

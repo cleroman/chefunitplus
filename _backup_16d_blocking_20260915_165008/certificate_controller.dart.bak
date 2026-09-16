@@ -1,0 +1,156 @@
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+
+import 'package:flutter/foundation.dart';
+
+import '../core/errors/app_exception.dart';
+import '../core/errors/error_handler.dart';
+import '../models/certificate.dart';
+import '../services/certificate_service.dart';
+
+class CertificateController extends ChangeNotifier {
+  final CertificateService _service;
+
+  CertificateController(this._service);
+
+  bool _loading = false;
+  bool get isLoading => _loading;
+
+  String? _error;
+  String? get error => _error;
+
+  List<Certificate> _list = [];
+  List<Certificate> get list => _list;
+
+  Future<void> loadMine({bool refresh = false}) async {
+    if (!refresh && _loading) return;
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _list = await _service.myCertificates();
+    } on AppException catch (e) {
+      _error = e.message;
+    } catch (e, st) {
+      _error = ErrorHandler.message(e);
+      ErrorHandler.log(e, st, 'CertificateController.loadMine');
+    }
+
+    _loading = false;
+    notifyListeners();
+  }
+
+  Future<String?> getPdfUrl(String id) async {
+    try {
+      return await _service.getPdfUrl(id);
+    } catch (e, st) {
+      ErrorHandler.log(e, st, 'CertificateController.getPdfUrl');
+      return null;
+    }
+  }
+
+  // ============================================================
+  // Generer le PDF du certificat
+  // ============================================================
+  Future<Uint8List?> generatePdf(Certificate cert) async {
+    try {
+      final doc = pw.Document();
+      final qrData = jsonEncode({
+        'certificate': cert.certificateNumber,
+        'learner': cert.learnerName ?? '',
+        'formation': cert.formationTitle,
+        'date': cert.issuedAt.toIso8601String(),
+      });
+
+      doc.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4.landscape,
+          build: (pw.Context ctx) {
+            return pw.Container(
+              decoration: pw.BoxDecoration(
+                border: pw.Border.all(color: PdfColors.amber, width: 8),
+              ),
+              padding: const pw.EdgeInsets.all(30),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  pw.Text(
+                    'CERTIFICAT DE FORMATION',
+                    style: pw.TextStyle(
+                      fontSize: 36,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.amber900,
+                    ),
+                  ),
+                  pw.SizedBox(height: 20),
+                  pw.Text(
+                    'Ce certificat est decerne a',
+                    style: const pw.TextStyle(fontSize: 16),
+                  ),
+                  pw.SizedBox(height: 15),
+                  pw.Text(
+                    cert.learnerName ?? 'Apprenant',
+                    style: pw.TextStyle(
+                      fontSize: 32,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.blue900,
+                    ),
+                  ),
+                  pw.SizedBox(height: 15),
+                  pw.Text(
+                    'pour avoir complete avec succes la formation',
+                    style: const pw.TextStyle(fontSize: 16),
+                  ),
+                  pw.SizedBox(height: 10),
+                  pw.Text(
+                    cert.formationTitle,
+                    style: pw.TextStyle(
+                      fontSize: 24,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.green800,
+                    ),
+                  ),
+                  pw.SizedBox(height: 30),
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Text('Numero : ' + cert.certificateNumber,
+                              style: const pw.TextStyle(fontSize: 12)),
+                          pw.Text(
+                              'Date : ${cert.issuedAt.day}/${cert.issuedAt.month}/${cert.issuedAt.year}',
+                              style: const pw.TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                      pw.BarcodeWidget(
+                        barcode: pw.Barcode.qrCode(),
+                        data: qrData,
+                        width: 80,
+                        height: 80,
+                      ),
+                    ],
+                  ),
+                  pw.SizedBox(height: 20),
+                  pw.Text(
+                    'Verifiez l\'authenticite en scannant le QR code',
+                    style: const pw.TextStyle(fontSize: 10),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+
+      return doc.save();
+    } catch (e, st) {
+      ErrorHandler.log(e, st, 'CertificateController.generatePdf');
+      return null;
+    }
+  }
+}

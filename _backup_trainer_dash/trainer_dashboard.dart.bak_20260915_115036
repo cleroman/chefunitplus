@@ -1,0 +1,214 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/constants/app_colors.dart';
+import '../../controllers/auth_controller.dart';
+import '../../controllers/module_controller.dart';
+import 'trainer_my_modules_screen.dart';
+import 'students_list_screen.dart';
+
+class TrainerDashboard extends StatefulWidget {
+  const TrainerDashboard({super.key});
+
+  @override
+  State<TrainerDashboard> createState() => _TrainerDashboardState();
+}
+
+class _TrainerDashboardState extends State<TrainerDashboard> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ModuleController>().loadMyModules(refresh: true);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = context.watch<AuthController>().currentUser;
+    final ctrl = context.watch<ModuleController>();
+
+    final pending = ctrl.myModules.where((m) => m.isPending).length;
+    final approved = ctrl.myModules.where((m) => m.isApproved).length;
+    final totalHours = ctrl.myModules
+        .where((m) => m.isApproved)
+        .fold<int>(0, (sum, m) => sum + m.hours);
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: CustomScrollView(
+        slivers: [
+          // Header
+          SliverToBoxAdapter(
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(20, 60, 20, 30),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [AppColors.mauve, AppColors.kaki],
+                ),
+                borderRadius:
+                    BorderRadius.vertical(bottom: Radius.circular(24)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Espace Formateur',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w700)),
+                            const SizedBox(height: 4),
+                            Text(user?.fullName ?? 'Formateur',
+                                style: const TextStyle(
+                                    color: Colors.white70, fontSize: 14)),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.logout, color: Colors.white),
+                        onPressed: () =>
+                            context.read<AuthController>().logout(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      _stat('$approved', 'Modules', Icons.library_books),
+                      const SizedBox(width: 12),
+                      _stat('\', 'En attente',
+                          Icons.hourglass_empty),
+                      const SizedBox(width: 12),
+                      _stat('${totalHours}h', 'Total', Icons.schedule),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Actions
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  _action(
+                    context,
+                    Icons.add_circle_outline,
+                    'Proposer un nouveau module',
+                    'Envoyer au directeur pour validation',
+                    AppColors.mauve,
+                    const TrainerMyModulesScreen(),
+                  ),
+                  const SizedBox(height: 12),
+                  _action(
+                    context,
+                    Icons.library_books_outlined,
+                    'Mes modules',
+                    'Voir tous mes modules (crees + enseignes)',
+                    AppColors.kaki,
+                    const TrainerMyModulesScreen(),
+                  ),
+                  const SizedBox(height: 12),
+                  _action(
+                    context,
+                    Icons.people_outline,
+                    'Mes etudiants',
+                    'Voir les apprenants inscrits',
+                    AppColors.success,
+                    const StudentsListScreen(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _stat(String value, String label, IconData icon) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: Colors.white, size: 22),
+            const SizedBox(height: 6),
+            Text(value,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700)),
+            Text(label,
+                style: const TextStyle(color: Colors.white70, fontSize: 11)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _action(BuildContext context, IconData icon, String title,
+      String subtitle, Color color, Widget screen) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => screen),
+          );
+          if (mounted) {
+            context.read<ModuleController>().loadMyModules(refresh: true);
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 4),
+                    Text(subtitle,
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.textMuted)),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: AppColors.textMuted),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

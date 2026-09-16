@@ -1,0 +1,183 @@
+// =============================================================
+// ChefUnitPlus - Constantes de routes (noms)
+// Ã€ utiliser avec Navigator.pushNamed(context, AppRoutes.login)
+// =============================================================
+
+import 'package:flutter/material.dart';
+
+class AppRoutes {
+  AppRoutes._(); // EmpÃªche l'instanciation
+
+  // ===========================================================
+  // ðŸš€ DÃ‰MARRAGE
+  // ===========================================================
+  static const String splash = '/';
+  static const String onboarding = '/onboarding';
+
+  // ===========================================================
+  // ðŸ” AUTHENTIFICATION
+  // ===========================================================
+  static const String login = '/auth/login';
+  static const String register = '/auth/register';
+  static const String forgotPassword = '/auth/forgot-password';
+
+  // ===========================================================
+  // ðŸ  ACCUEIL PAR RÃ”LE
+  // ===========================================================
+  static const String adminHome = '/admin';
+  static const String directorHome = '/director';
+  static const String trainerHome = '/trainer';
+  static const String learnerHome = '/learner';
+
+  // ===========================================================
+  // ðŸ‘‘ ADMINISTRATEUR
+  // ===========================================================
+  static const String adminUsers = '/admin/users';
+  static const String adminPromote = '/admin/promote';
+  static const String adminStats = '/admin/stats';
+  static const String adminPayments = '/admin/payments';
+  static const String adminSettings = '/admin/settings';
+
+  // ===========================================================
+  // ðŸŽ¬ DIRECTEUR
+  // ===========================================================
+  static const String directorFormationEditor = '/director/formation/editor';
+  static const String directorModuleAssign = '/director/module/assign';
+  static const String directorEnrollments = '/director/enrollments';
+  static const String directorTrainers = '/director/trainers';
+  static const String directorStats = '/director/stats';
+
+  // ===========================================================
+  // ðŸ‘¨â€ðŸ« FORMATEUR
+  // ===========================================================
+  static const String trainerModules = '/trainer/modules';
+  static const String trainerModuleEditor = '/trainer/module/editor';
+  static const String trainerLessonEditor = '/trainer/lesson/editor';
+  static const String trainerStudents = '/trainer/students';
+
+  // ===========================================================
+  // ðŸŽ“ APPRENANT
+  // ===========================================================
+  static const String learnerCatalog = '/learner/catalog';
+  static const String learnerFormationDetail = '/learner/formation';
+  static const String learnerMyEnrollments = '/learner/enrollments';
+  static const String learnerLessonPlayer = '/learner/lesson';
+  static const String learnerCertificates = '/learner/certificates';
+
+  // ===========================================================
+  // ðŸ’³ PAIEMENT (commun apprenant)
+  // ===========================================================
+  static const String payment = '/payment';
+  static const String paymentStatus = '/payment/status';
+
+  // ===========================================================
+  // ðŸ‘¤ PROFIL (commun tous rÃ´les)
+  // ===========================================================
+  static const String profile = '/profile';
+  static const String editProfile = '/profile/edit';
+
+  // ===========================================================
+  // ðŸ§­ HELPERS
+  // ===========================================================
+
+  /// Retourne la route d'accueil selon le nom du rÃ´le
+  static String homeForRole(String roleName) {
+    switch (roleName.toLowerCase()) {
+      case 'admin':
+      case 'administrateur':
+        return adminHome;
+      case 'directeur':
+        return directorHome;
+      case 'formateur':
+        return trainerHome;
+      case 'apprenant':
+      default:
+        return learnerHome;
+    }
+  }
+
+  /// Retourne la route dÃ©tail formation avec paramÃ¨tre
+  static String formationDetail(String formationId) =>
+      '$learnerFormationDetail/$formationId';
+
+  /// Retourne la route lecture leÃ§on avec paramÃ¨tre
+  static String lessonPlayer(String lessonId) =>
+      '$learnerLessonPlayer/$lessonId';
+
+  /// Retourne la route paiement avec formationId
+  static String paymentFor(String formationId, double amount) =>
+      '$payment?formationId=$formationId&amount=$amount';
+
+  /// Retourne la route Ã©dition formation avec ID
+  static String editFormation(String? formationId) =>
+      formationId == null
+          ? directorFormationEditor
+          : '$directorFormationEditor?id=$formationId';
+
+  /// Retourne la route Ã©dition module avec ID
+  static String editModule(String? moduleId) =>
+      moduleId == null
+          ? trainerModuleEditor
+          : '$trainerModuleEditor?id=$moduleId';
+
+  /// Retourne la route Ã©dition leÃ§on avec moduleId
+  static String editLesson(String moduleId, {String? lessonId}) {
+    final base = '$trainerLessonEditor?moduleId=$moduleId';
+    return lessonId == null ? base : '$base&id=$lessonId';
+  }
+}
+
+// =============================================================
+// ðŸŽ¯ ARGUMENTS DE NAVIGATION TYPÃ‰S
+// Utilisez ces classes pour passer des arguments fortement typÃ©s
+// =============================================================
+
+class FormationDetailArgs {
+  final String formationId;
+  const FormationDetailArgs({required this.formationId});
+}
+
+class LessonPlayerArgs {
+  final String lessonId;
+  final String moduleId;
+  const LessonPlayerArgs({required this.lessonId, required this.moduleId});
+}
+
+class PaymentArgs {
+  final String formationId;
+  final String formationTitle;
+  final double amount;
+  const PaymentArgs({
+    required this.formationId,
+    required this.formationTitle,
+    required this.amount,
+  });
+}
+
+class ModuleEditorArgs {
+  final String? moduleId; // null = crÃ©ation
+  final String formationId;
+  const ModuleEditorArgs({this.moduleId, required this.formationId});
+}
+
+class LessonEditorArgs {
+  final String? lessonId; // null = crÃ©ation
+  final String moduleId;
+  const LessonEditorArgs({this.lessonId, required this.moduleId});
+}
+
+/// Extrait les query params d'un ModalRoute
+class RouteArgs {
+  static Map<String, String> queryOf(BuildContext context) {
+    final settings = ModalRoute.of(context)?.settings;
+    return settings?.arguments is Map<String, String>
+        ? settings!.arguments as Map<String, String>
+        : const {};
+  }
+
+  static String? param(BuildContext context, String key) {
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is Map) return args[key]?.toString();
+    return null;
+  }
+}
