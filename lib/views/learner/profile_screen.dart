@@ -5,9 +5,10 @@ import '../../core/constants/app_colors.dart';
 import '../../core/routes/app_routes.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/enrollment_controller.dart';
-import '../shared/change_password_screen.dart';
-import '../../controllers/theme_controller.dart';
 import '../../controllers/locale_controller.dart';
+import '../../controllers/theme_controller.dart';
+import '../shared/change_password_screen.dart';
+import '../shared/user_badge_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -48,14 +49,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             context.read<EnrollmentController>().loadMine(refresh: true),
         child: ListView(
           children: [
-            // ============================================================
             // HEADER PROFIL
-            // ============================================================
             _buildHeader(user),
 
-            // ============================================================
             // STATS
-            // ============================================================
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -72,14 +69,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
 
-            // ============================================================
             // COMPTE
-            // ============================================================
             _section('Compte'),
             _item(
               icon: Icons.person_outline,
               label: 'Modifier mes informations',
               onTap: () => _goTo(AppRoutes.editProfile),
+            ),
+            _item(
+              icon: Icons.qr_code_2,
+              label: 'Mon badge',
+              onTap: () => _goToBadge(),
             ),
             _item(
               icon: Icons.lock_outline,
@@ -94,9 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 8),
 
-            // ============================================================
             // PREFERENCES
-            // ============================================================
             _section('Preferences'),
             _item(
               icon: Icons.notifications_outlined,
@@ -108,9 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 8),
 
-            // ============================================================
             // A PROPOS
-            // ============================================================
             _section('A propos'),
             _item(
               icon: Icons.info_outline,
@@ -126,9 +122,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 24),
 
-            // ============================================================
             // LOGOUT
-            // ============================================================
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SizedBox(
@@ -159,9 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ============================================================
   // HEADER
-  // ============================================================
   Widget _buildHeader(dynamic user) {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -218,9 +210,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ============================================================
   // STAT CARD
-  // ============================================================
   Widget _statCard(String value, String label, IconData icon, Color color) {
     return Expanded(
       child: Container(
@@ -265,9 +255,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ============================================================
   // ITEM MENU
-  // ============================================================
   Widget _section(String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
@@ -324,11 +312,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ============================================================
   // ACTIONS
-  // ============================================================
   void _goTo(String route) {
     Navigator.pushNamed(context, route);
+  }
+
+  void _goToBadge() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const UserBadgeScreen()),
+    );
   }
 
   void _goToChangePassword() {

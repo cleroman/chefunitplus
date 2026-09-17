@@ -47,7 +47,7 @@ class _ModuleAssignScreenState extends State<ModuleAssignScreen> {
 
     await Future.wait([
       formations.loadMine(),
-      users.loadAll(role: 'formateur'),
+      users.loadAll(),
     ]);
 
     if (!mounted) return;

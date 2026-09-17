@@ -52,11 +52,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
 
     final ok = await userCtrl.updateProfile(
-      user.id,
-      {
-        'fullName': _nameCtrl.text.trim(),
-        'phone': _phoneCtrl.text.trim(),
-      },
+      id: user.id,
+      fullName: _nameCtrl.text.trim(),
+      phone: _phoneCtrl.text.trim(),
     );
 
     if (!mounted) return;

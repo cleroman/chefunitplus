@@ -19,6 +19,7 @@ import 'controllers/scout_group_controller.dart';
 import 'controllers/theme_controller.dart';
 import 'controllers/locale_controller.dart';
 import 'controllers/user_controller.dart';
+import 'controllers/user_activation_controller.dart';
 import 'core/errors/error_handler.dart';
 import 'services/api_client.dart';
 import 'services/auth_service.dart';
@@ -36,6 +37,7 @@ import 'services/scout_group_service.dart';
 import 'services/stats_service.dart';
 import 'services/storage_service.dart';
 import 'services/user_service.dart';
+import 'services/user_activation_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,6 +64,7 @@ void main() {
           create: (_) => ScoutGroupService(apiClient),
         ),
         Provider<UserService>(create: (_) => UserService(apiClient)),
+    Provider<UserActivationService>(create: (_) => UserActivationService(apiClient)),
         Provider<FormationService>(create: (_) => FormationService(apiClient)),
         Provider<ModuleService>(create: (_) => ModuleService(apiClient)),
         Provider<LessonService>(create: (_) => LessonService(apiClient)),
@@ -94,6 +97,9 @@ void main() {
         ChangeNotifierProvider(
           create: (ctx) => UserController(ctx.read<UserService>()),
         ),
+    ChangeNotifierProvider(
+      create: (ctx) => UserActivationController(ctx.read<UserActivationService>()),
+    ),
         ChangeNotifierProvider(
           create: (ctx) => FormationController(ctx.read<FormationService>()),
         ),

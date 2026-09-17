@@ -1,8 +1,11 @@
+// =============================================================
+// ChefUnitPlus - User Controller
+// CRUD complet pour les utilisateurs
+// =============================================================
 import 'package:flutter/foundation.dart';
-
 import '../core/errors/error_handler.dart';
-import '../models/role.dart';
 import '../models/user.dart';
+import '../models/role.dart';
 import '../services/user_service.dart';
 
 class UserController extends ChangeNotifier {
@@ -10,6 +13,9 @@ class UserController extends ChangeNotifier {
 
   UserController(this._service);
 
+  // =========================================================
+  // ETAT
+  // =========================================================
   bool _loading = false;
   bool get isLoading => _loading;
 
@@ -20,32 +26,26 @@ class UserController extends ChangeNotifier {
   List<User> _users = [];
   List<User> get users => _users;
 
-  // =========================================================
-  // NORMALISATION role -> String
-  // =========================================================
-  String? _normalizeRole(dynamic role) {
-    if (role == null) return null;
-    if (role is String) return role;
-    // UserRole enum -> .name
-    try {
-      return (role as dynamic).name as String;
-    } catch (_) {
-      return role.toString().split('.').last;
-    }
-  }
+  // Compteurs
+  int get adminCount => _users.where((u) => u.role.name == 'admin').length;
+  int get directeurCount => _users.where((u) => u.role.name == 'directeur').length;
+  int get formateurCount => _users.where((u) => u.role.name == 'formateur').length;
+  int get trainerCount => formateurCount;
+  int get apprenantCount => _users.where((u) => u.role.name == 'apprenant').length;
+  int get activeCount => _users.where((u) => u.isActive).length;
+  int get inactiveCount => _users.where((u) => !u.isActive).length;
 
   // =========================================================
-  // CHARGEMENT
+  // CHARGER TOUS LES UTILISATEURS
   // =========================================================
-  Future<void> loadAll({bool refresh = false, dynamic role}) async {
+  Future<void> loadAll({bool refresh = false}) async {
     if (!refresh && _loading) return;
     _loading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final roleStr = _normalizeRole(role);
-      _users = await _service.listAll(role: roleStr);
+      _users = await _service.list();
     } catch (e, st) {
       _error = ErrorHandler.message(e);
       ErrorHandler.log(e, st, 'UserController.loadAll');
@@ -56,200 +56,112 @@ class UserController extends ChangeNotifier {
   }
 
   // =========================================================
-  // DETAILS
+  // CREER
   // =========================================================
-  Future<Map<String, dynamic>?> getFullProfile(String userId) async {
-    try {
-      return await _service.getFullProfile(userId);
-    } catch (e, st) {
-      _error = ErrorHandler.message(e);
-      notifyListeners();
-      ErrorHandler.log(e, st, 'UserController.getFullProfile');
-      return null;
-    }
-  }
-
-  // =========================================================
-  // PROMOTION - accepte String OU UserRole
-  // =========================================================
-  Future<bool> promote({
-    dynamic userId,
-    dynamic newRole,
-    dynamic actorRole,
-    dynamic id,
-    dynamic role,
+  Future<bool> create({
+    required String email,
+    required String fullName,
+    required String password,
+    required String role,
+    String? phone,
   }) async {
-    final targetUserId = (userId ?? id)?.toString();
-    final targetRole = _normalizeRole(newRole ?? role);
-
-    if (targetUserId == null || targetRole == null) {
-      _error = 'User ID ou role manquant';
-      notifyListeners();
-      return false;
-    }
-
-    _loading = true;
     _error = null;
-    notifyListeners();
-
     try {
-      await _service.promote(targetUserId, targetRole);
+      await _service.create(
+        email: email,
+        fullName: fullName,
+        password: password,
+        role: role,
+        phone: phone,
+      );
       await loadAll(refresh: true);
       return true;
     } catch (e, st) {
       _error = ErrorHandler.message(e);
-      ErrorHandler.log(e, st, 'UserController.promote');
-      return false;
-    } finally {
-      _loading = false;
+      ErrorHandler.log(e, st, 'UserController.create');
       notifyListeners();
+      return false;
     }
   }
 
   // =========================================================
-  // SUSPEND / REACTIVATE
+  // MODIFIER
   // =========================================================
-  Future<bool> suspend(String userId) async {
-    _loading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
-      await _service.suspend(userId);
-      await loadAll(refresh: true);
-      return true;
-    } catch (e, st) {
-      _error = ErrorHandler.message(e);
-      ErrorHandler.log(e, st, 'UserController.suspend');
-      return false;
-    } finally {
-      _loading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<bool> reactivate(String userId) async {
-    _loading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
-      await _service.reactivate(userId);
-      await loadAll(refresh: true);
-      return true;
-    } catch (e, st) {
-      _error = ErrorHandler.message(e);
-      ErrorHandler.log(e, st, 'UserController.reactivate');
-      return false;
-    } finally {
-      _loading = false;
-      notifyListeners();
-    }
-  }
-
-  // =========================================================
-  // MOT DE PASSE - accepte String OU nomme
-  // =========================================================
-  Future<bool> resetPassword({
-    dynamic userId,
-    dynamic newPassword,
-    dynamic id,
-    dynamic password,
+  Future<bool> update({
+    required String id,
+    String? fullName,
+    String? phone,
+    String? role,
   }) async {
-    final targetUserId = (userId ?? id)?.toString();
-    final targetPassword = (newPassword ?? password)?.toString();
-
-    if (targetUserId == null || targetPassword == null) {
-      _error = 'User ID ou mot de passe manquant';
-      notifyListeners();
-      return false;
-    }
-
-    _loading = true;
     _error = null;
-    notifyListeners();
-
     try {
-      await _service.resetPassword(targetUserId, targetPassword);
-      return true;
-    } catch (e, st) {
-      _error = ErrorHandler.message(e);
-      ErrorHandler.log(e, st, 'UserController.resetPassword');
-      return false;
-    } finally {
-      _loading = false;
-      notifyListeners();
-    }
-  }
-
-  // =========================================================
-  // PROFIL
-  // =========================================================
-  Future<bool> updateProfile(
-      String userId, Map<String, dynamic> payload) async {
-    _loading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
-      await _service.updateProfile(userId, payload);
+      await _service.update(
+        id: id,
+        fullName: fullName,
+        phone: phone,
+        role: role,
+      );
       await loadAll(refresh: true);
       return true;
     } catch (e, st) {
       _error = ErrorHandler.message(e);
-      ErrorHandler.log(e, st, 'UserController.updateProfile');
-      return false;
-    } finally {
-      _loading = false;
+      ErrorHandler.log(e, st, 'UserController.update');
       notifyListeners();
+      return false;
     }
   }
 
   // =========================================================
-  // SUPPRESSION
+  // SUPPRIMER
   // =========================================================
-  Future<bool> delete(String userId) async {
-    _loading = true;
+  Future<bool> delete(String id) async {
     _error = null;
-    notifyListeners();
-
     try {
-      await _service.delete(userId);
-      _users = _users.where((u) => u.id != userId).toList();
+      await _service.delete(id);
+      _users = _users.where((u) => u.id != id).toList();
       notifyListeners();
       return true;
     } catch (e, st) {
       _error = ErrorHandler.message(e);
       ErrorHandler.log(e, st, 'UserController.delete');
-      return false;
-    } finally {
-      _loading = false;
       notifyListeners();
+      return false;
     }
   }
 
   // =========================================================
-  // FILTRES / STATS
+  // SUSPENDRE
   // =========================================================
-  List<User> get apprenants =>
-      _users.where((u) => u.role == UserRole.apprenant).toList();
+  Future<bool> suspend(String id) async {
+    _error = null;
+    try {
+      await _service.suspend(id);
+      await loadAll(refresh: true);
+      return true;
+    } catch (e, st) {
+      _error = ErrorHandler.message(e);
+      ErrorHandler.log(e, st, 'UserController.suspend');
+      notifyListeners();
+      return false;
+    }
+  }
 
-  List<User> get formateurs =>
-      _users.where((u) => u.role == UserRole.formateur).toList();
-
-  List<User> get directeurs =>
-      _users.where((u) => u.role == UserRole.directeur).toList();
-
-  List<User> get admins =>
-      _users.where((u) => u.role == UserRole.admin).toList();
-
-  int get totalCount => _users.length;
-  int get activeCount => _users.where((u) => u.isActive).length;
-  int get inactiveCount => _users.where((u) => !u.isActive).length;
-  int get adminCount => admins.length;
-  int get directorCount => directeurs.length;
-  int get trainerCount => formateurs.length;
-  int get learnerCount => apprenants.length;
+  // =========================================================
+  // REACTIVER
+  // =========================================================
+  Future<bool> reactivate(String id) async {
+    _error = null;
+    try {
+      await _service.reactivate(id);
+      await loadAll(refresh: true);
+      return true;
+    } catch (e, st) {
+      _error = ErrorHandler.message(e);
+      ErrorHandler.log(e, st, 'UserController.reactivate');
+      notifyListeners();
+      return false;
+    }
+  }
 
   // =========================================================
   // RESET
@@ -259,5 +171,68 @@ class UserController extends ChangeNotifier {
     _error = null;
     _loading = false;
     notifyListeners();
+  }
+
+  // =========================================================
+  // PROMOUVOIR (signature compatible avec les ecrans existants)
+  // =========================================================
+  Future<bool> promote({
+    required String userId,
+    required UserRole newRole,
+    UserRole? actorRole,
+  }) async {
+    _error = null;
+    try {
+      await _service.promote(userId, newRole.name);
+      await loadAll(refresh: true);
+      return true;
+    } catch (e, st) {
+      _error = ErrorHandler.message(e);
+      ErrorHandler.log(e, st, 'UserController.promote');
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // =========================================================
+  // RESET MOT DE PASSE
+  // =========================================================
+  Future<bool> resetPassword(String userId) async {
+    _error = null;
+    try {
+      await _service.resetPassword(userId);
+      return true;
+    } catch (e, st) {
+      _error = ErrorHandler.message(e);
+      ErrorHandler.log(e, st, 'UserController.resetPassword');
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // =========================================================
+  // UPDATE PROFIL (self-service)
+  // =========================================================
+  Future<bool> updateProfile({
+    required String id,
+    String? fullName,
+    String? phone,
+    String? bio,
+  }) async {
+    _error = null;
+    try {
+      await _service.update(
+        id: id,
+        fullName: fullName,
+        phone: phone,
+      );
+      await loadAll(refresh: true);
+      return true;
+    } catch (e, st) {
+      _error = ErrorHandler.message(e);
+      ErrorHandler.log(e, st, 'UserController.updateProfile');
+      notifyListeners();
+      return false;
+    }
   }
 }

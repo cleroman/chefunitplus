@@ -79,14 +79,14 @@ class _TrainersManagementScreenState
     if (confirm != true || !mounted) return;
 
     setState(() => _processingId = user.id);
-    final actor = context.read<AuthController>().currentUser?.role;
+    final UserRole? actor = context.read<AuthController>().currentUser?.role;
     final ctrl = context.read<UserController>();
 
     try {
       final ok = await ctrl.promote(
         userId: user.id,
-        newRole: 'formateur',
-        actorRole: actor ?? 'directeur',
+        newRole: UserRole.formateur,
+        actorRole: actor,
       );
       if (!mounted) return;
       if (ok) {
@@ -133,14 +133,14 @@ class _TrainersManagementScreenState
     if (confirm != true || !mounted) return;
 
     setState(() => _processingId = user.id);
-    final actor = context.read<AuthController>().currentUser?.role;
+    final UserRole? actor = context.read<AuthController>().currentUser?.role;
     final ctrl = context.read<UserController>();
 
     try {
       final ok = await ctrl.promote(
         userId: user.id,
-        newRole: 'apprenant',
-        actorRole: actor ?? 'directeur',
+        newRole: UserRole.apprenant,
+        actorRole: actor,
       );
       if (!mounted) return;
       if (ok) {

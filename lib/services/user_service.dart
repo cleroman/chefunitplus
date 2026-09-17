@@ -1,4 +1,7 @@
-import '../core/constants/api_constants.dart';
+// =============================================================
+// ChefUnitPlus - User Service
+// CRUD complet pour les utilisateurs
+// =============================================================
 import '../core/errors/error_handler.dart';
 import '../models/user.dart';
 import 'api_client.dart';
@@ -8,137 +11,132 @@ class UserService {
 
   UserService(this._api);
 
-  // =========================================================
-  // LECTURE
-  // =========================================================
-  Future<List<User>> listAll({String? role}) async {
-    try {
-      final data = await _api.get(
-        ApiConstants.users,
-        query: role != null ? {'role': role} : null,
-      );
-      final list = data['users'] as List? ?? data['data'] as List? ?? [];
-      return list
-          .map((e) => User.fromJson(e as Map<String, dynamic>))
-          .toList();
-    } catch (e, st) {
-      ErrorHandler.log(e, st, 'UserService.listAll');
-      rethrow;
-    }
-  }
-
-  Future<User> getById(String id) async {
-    try {
-      final data = await _api.get(
-        ApiConstants.userProfile.replaceAll('{id}', id),
-      );
-      return User.fromJson(
-        (data['user'] ?? data['data'] ?? data) as Map<String, dynamic>,
-      );
-    } catch (e, st) {
-      ErrorHandler.log(e, st, 'UserService.getById');
-      rethrow;
-    }
-  }
-
-  /// Profil complet (user + details + emergency contacts)
-  Future<Map<String, dynamic>> getFullProfile(String id) async {
-    try {
-      final data = await _api.get(
-        '${ApiConstants.userProfile.replaceAll('{id}', id)}/full',
-      );
-      return data;
-    } catch (e, st) {
-      ErrorHandler.log(e, st, 'UserService.getFullProfile');
-      // Fallback : essayer juste /users/:id
-      try {
-        final user = await getById(id);
-        return {'user': user.toJson()};
-      } catch (_) {
-        rethrow;
+  // ============================================================
+  // LIST : tous les utilisateurs
+  // ============================================================
+  Future<List<User>> list({bool refresh = false}) async {
+    return ErrorHandler.guard(() async {
+      final r = await _api.get('/users');
+      final d = r['data'] ?? r;
+      if (d is List) {
+        return d
+            .map((e) => User.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList();
       }
-    }
+      return [];
+    }, context: 'UserService.list');
   }
 
-  // =========================================================
-  // PROMOTION / SUSPENSION
-  // =========================================================
-  Future<User> promote(String userId, String newRole) async {
-    try {
-      final data = await _api.patch(
-        ApiConstants.promoteUser.replaceAll('{id}', userId),
-        body: {'role': newRole},
-      );
-      return User.fromJson(
-        (data['user'] ?? data['data'] ?? data) as Map<String, dynamic>,
-      );
-    } catch (e, st) {
-      ErrorHandler.log(e, st, 'UserService.promote');
-      rethrow;
-    }
+  // ============================================================
+  // READ : un utilisateur par ID
+  // ============================================================
+  Future<User> getById(String id) async {
+    return ErrorHandler.guard(() async {
+      final r = await _api.get('/users/$id');
+      final d = r['data'] ?? r;
+      return User.fromJson(Map<String, dynamic>.from(d as Map));
+    }, context: 'UserService.getById');
   }
 
-  Future<void> suspend(String userId) async {
-    try {
-      await _api.patch(
-        ApiConstants.suspendUser.replaceAll('{id}', userId),
-      );
-    } catch (e, st) {
-      ErrorHandler.log(e, st, 'UserService.suspend');
-      rethrow;
-    }
+  // ============================================================
+  // CREATE : nouveau utilisateur
+  // ============================================================
+  Future<User> create({
+    required String email,
+    required String fullName,
+    required String password,
+    required String role,
+    String? phone,
+  }) async {
+    return ErrorHandler.guard(() async {
+      final r = await _api.post('/users', body: {
+        'email': email,
+        'full_name': fullName,
+        'password': password,
+        'role': role,
+        if (phone != null && phone.isNotEmpty) 'phone': phone,
+      });
+      final d = r['data'] ?? r;
+      return User.fromJson(Map<String, dynamic>.from(d as Map));
+    }, context: 'UserService.create');
   }
 
-  Future<void> reactivate(String userId) async {
-    try {
-      await _api.patch(
-        '${ApiConstants.users}/$userId/reactivate',
-      );
-    } catch (e, st) {
-      ErrorHandler.log(e, st, 'UserService.reactivate');
-      rethrow;
-    }
+  // ============================================================
+  // UPDATE : modifier un utilisateur
+  // ============================================================
+  Future<User> update({
+    required String id,
+    String? fullName,
+    String? phone,
+    String? role,
+  }) async {
+    return ErrorHandler.guard(() async {
+      final body = <String, dynamic>{};
+      if (fullName != null) body['full_name'] = fullName;
+      if (phone != null) body['phone'] = phone;
+      if (role != null) body['role'] = role;
+
+      final r = await _api.patch('/users/$id', body: body);
+      final d = r['data'] ?? r;
+      return User.fromJson(Map<String, dynamic>.from(d as Map));
+    }, context: 'UserService.update');
   }
 
-  // =========================================================
-  // MOT DE PASSE / PROFIL
-  // =========================================================
-  Future<void> resetPassword(String userId, String newPassword) async {
-    try {
-      await _api.patch(
-        '${ApiConstants.users}/$userId/reset-password',
-        body: {'password': newPassword},
-      );
-    } catch (e, st) {
-      ErrorHandler.log(e, st, 'UserService.resetPassword');
-      rethrow;
-    }
+  // ============================================================
+  // DELETE : supprimer un utilisateur
+  // ============================================================
+  Future<void> delete(String id) async {
+    return ErrorHandler.guard(() async {
+      await _api.delete('/users/$id');
+    }, context: 'UserService.delete');
   }
 
-  Future<User> updateProfile(String userId, Map<String, dynamic> payload) async {
-    try {
-      final data = await _api.patch(
-        ApiConstants.userProfile.replaceAll('{id}', userId),
-        body: payload,
-      );
-      return User.fromJson(
-        (data['user'] ?? data['data'] ?? data) as Map<String, dynamic>,
-      );
-    } catch (e, st) {
-      ErrorHandler.log(e, st, 'UserService.updateProfile');
-      rethrow;
-    }
+  // ============================================================
+  // PROMOTE : promouvoir (apprenant -> formateur -> directeur)
+  // ============================================================
+  Future<User> promote(String id, String newRole) async {
+    return ErrorHandler.guard(() async {
+      final r = await _api.patch('/users/$id/promote', body: {'role': newRole});
+      final d = r['data'] ?? r;
+      return User.fromJson(Map<String, dynamic>.from(d as Map));
+    }, context: 'UserService.promote');
   }
 
-  // =========================================================
-  // SUPPRESSION
-  // =========================================================
-  Future<void> delete(String userId) async {
-    try {
-      await _api.delete(ApiConstants.userProfile.replaceAll('{id}', userId));
-    } catch (e, st) {
-      ErrorHandler.log(e, st, 'UserService.delete');
-      rethrow;
-    }
+  // ============================================================
+  // SUSPEND : suspendre un compte
+  // ============================================================
+  Future<void> suspend(String id) async {
+    return ErrorHandler.guard(() async {
+      await _api.patch('/users/$id/suspend');
+    }, context: 'UserService.suspend');
+  }
+
+  // ============================================================
+  // REACTIVATE : reactiver un compte
+  // ============================================================
+  Future<void> reactivate(String id) async {
+    return ErrorHandler.guard(() async {
+      await _api.patch('/users/$id/reactivate');
+    }, context: 'UserService.reactivate');
+  }
+
+  // ============================================================
+  // RESET MOT DE PASSE
+  // ============================================================
+  Future<void> resetPassword(String id) async {
+    return ErrorHandler.guard(() async {
+      await _api.patch('/users/$id/reset-password');
+    }, context: 'UserService.resetPassword');
+  }
+
+  // ============================================================
+  // GET FULL PROFILE (user + details)
+  // ============================================================
+  Future<Map<String, dynamic>> getFullProfile(String id) async {
+    return ErrorHandler.guard(() async {
+      final r = await _api.get('/users/$id/full-profile');
+      final d = r['data'] ?? r;
+      return Map<String, dynamic>.from(d as Map);
+    }, context: 'UserService.getFullProfile');
   }
 }

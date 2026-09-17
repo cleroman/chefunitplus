@@ -448,7 +448,7 @@ class _PromoteScreenState extends State<PromoteScreen> {
     setState(() => _processingId = user.id);
 
     final ctrl = context.read<UserController>();
-    final ok = await ctrl.promote(userId: user.id, newRole: target.name);
+    final ok = await ctrl.promote(userId: user.id, newRole: target);
 
     if (!mounted) return;
     setState(() => _processingId = null);

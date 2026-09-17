@@ -18,8 +18,10 @@ class AppRoutes {
   // ---------------- HOME PAR ROLE ----------------
   static const String adminHome = '/admin';
   static const String directorHome = '/director';
+  static const String directorPendingUsers = '/director/pending-users';
   static const String trainerHome = '/trainer';
   static const String learnerHome = '/learner';
+  static const String userBadge = '/profile/badge';
 
   // ---------------- LEARNER ----------------
   static const String learnerCatalog = '/learner/catalog';

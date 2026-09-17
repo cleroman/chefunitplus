@@ -110,10 +110,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       return;
     }
 
-    final ok = await context.read<UserController>().resetPassword(
-          userId: widget.userId,
-          newPassword: pwdCtrl.text.trim(),
-        );
+    final ok = await context.read<UserController>().resetPassword(widget.userId);
 
     if (!mounted) return;
     if (ok) {
@@ -238,7 +235,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                         icon: Icons.key_outlined,
                         label: 'Reset mdp',
                         color: AppColors.warning,
-                        onTap: _resetPassword,
+                        onTap: () => _resetPassword(),
                       ),
                     ),
                     const SizedBox(width: 8),
