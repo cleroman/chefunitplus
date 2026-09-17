@@ -69,7 +69,7 @@ class _ScoutGroupsScreenState extends State<ScoutGroupsScreen> {
                     ? _buildEmpty()
                     : RefreshIndicator(
                         onRefresh: () =>
-                            context.read<ScoutGroupController>().loadAll(),
+                            context.read<ScoutGroupController>().loadAll(refresh: true),
                         child: ListView.builder(
                           padding: const EdgeInsets.all(16),
                           itemCount: groups.length,
@@ -241,7 +241,7 @@ class _ScoutGroupsScreenState extends State<ScoutGroupsScreen> {
         builder: (_) => ScoutGroupDetailsScreen(group: g),
       ),
     ).then((_) {
-      if (mounted) context.read<ScoutGroupController>().loadAll();
+      if (mounted) context.read<ScoutGroupController>().loadAll(refresh: true);
     });
   }
 
@@ -300,28 +300,18 @@ class _ScoutGroupsScreenState extends State<ScoutGroupsScreen> {
               if (!formKey.currentState!.validate()) return;
               Navigator.pop(ctx);
               final ctrl = context.read<ScoutGroupController>();
-              try {
-                await (ctrl as dynamic).create(
-                  name: nameCtrl.text.trim(),
-                  region: regionCtrl.text.trim(),
-                  district: districtCtrl.text.trim(),
-                );
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Groupe cree'),
-                    backgroundColor: AppColors.success,
-                  ),
-                );
-              } catch (e) {
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Erreur : $e'),
-                    backgroundColor: AppColors.danger,
-                  ),
-                );
-              }
+              final ok = await ctrl.create(
+                name: nameCtrl.text.trim(),
+                region: regionCtrl.text.trim(),
+                district: districtCtrl.text.trim(),
+              );
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(ok ? 'Groupe cree' : 'Erreur'),
+                  backgroundColor: ok ? AppColors.success : AppColors.danger,
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.mauve),
             child: const Text('Creer'),

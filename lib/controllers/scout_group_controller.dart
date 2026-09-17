@@ -1,202 +1,151 @@
-// =============================================================
-// ChefUnitPlus - ScoutGroupController (complet)
-// =============================================================
-
 import 'package:flutter/foundation.dart';
-
-import 'package:chefunitplus/core/errors/error_handler.dart';
-import 'package:chefunitplus/models/scout_group.dart';
-import 'package:chefunitplus/services/scout_group_service.dart';
+import '../core/errors/error_handler.dart';
+import '../models/scout_group.dart';
+import '../services/scout_group_service.dart';
 
 class ScoutGroupController extends ChangeNotifier {
   final ScoutGroupService _service;
-
   ScoutGroupController(this._service);
 
+  // =========================================================
+  // ETAT
+  // =========================================================
+  bool _loading = false;
+  bool get isLoading => _loading;
+
+  String? _error;
+  String? get error => _error;
+  String? get errorMessage => _error;
+
+  // =========================================================
+  // GROUPES PUBLICS (pour inscription)
+  // =========================================================
+  List<ScoutGroup> _publicGroups = [];
+  List<ScoutGroup> get publicGroups => _publicGroups;
+
+  Future<void> loadPublic() async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _publicGroups = await _service.listPublic();
+    } catch (e, st) {
+      _error = ErrorHandler.message(e);
+      ErrorHandler.log(e, st, 'ScoutGroupController.loadPublic');
+    }
+
+    _loading = false;
+    notifyListeners();
+  }
+
+  // =========================================================
+  // TOUS LES GROUPES (admin / directeur)
+  // =========================================================
   List<ScoutGroup> _groups = [];
-  bool _isLoading = false;
-  String? _errorMessage;
-
-  // ===========================================================
-  // GETTERS
-  // ===========================================================
   List<ScoutGroup> get groups => _groups;
-  bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
 
-  int get count => _groups.length;
-  bool get isEmpty => _groups.isEmpty;
-  bool get isNotEmpty => _groups.isNotEmpty;
-
-  // ===========================================================
-  // CHARGEMENT
-  // ===========================================================
-  Future<void> loadAll() async {
-    _isLoading = true;
-    _errorMessage = null;
+  Future<void> loadAll({bool refresh = false}) async {
+    if (!refresh && _loading) return;
+    _loading = true;
+    _error = null;
     notifyListeners();
 
     try {
       _groups = await _service.listAll();
     } catch (e, st) {
-      _errorMessage = ErrorHandler.message(e);
+      _error = ErrorHandler.message(e);
       ErrorHandler.log(e, st, 'ScoutGroupController.loadAll');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
     }
+
+    _loading = false;
+    notifyListeners();
   }
 
-  // ===========================================================
-  // CREATION - TOUS les parametres acceptes
-  // ===========================================================
+  // =========================================================
+  // CREER
+  // =========================================================
   Future<bool> create({
     required String name,
-    String? description,
-    String? province,
-    String? ville,
-    String? commune,
-    String? quartier,
-    String? district,
     String? region,
-    String? association,
-    String? branche,
-    String? groupeScout,
-    String? numeroAffiliation,
+    String? district,
+    String? description,
   }) async {
+    _error = null;
     try {
-      final created = await _service.create(
+      await _service.create(
         name: name,
-        description: description,
-        province: province,
-        ville: ville,
-        commune: commune,
-        quartier: quartier,
-        district: district,
         region: region,
-        association: association,
-        branche: branche,
-        groupeScout: groupeScout,
-        numeroAffiliation: numeroAffiliation,
+        district: district,
+        description: description,
       );
-
-      _groups.insert(0, created);
-      notifyListeners();
+      await loadAll(refresh: true);
       return true;
     } catch (e, st) {
-      _errorMessage = ErrorHandler.message(e);
+      _error = ErrorHandler.message(e);
       ErrorHandler.log(e, st, 'ScoutGroupController.create');
+      notifyListeners();
       return false;
     }
   }
 
-  // ===========================================================
-  // MISE A JOUR
-  // ===========================================================
+  // =========================================================
+  // MODIFIER
+  // =========================================================
   Future<bool> update({
     required String id,
     String? name,
-    String? description,
-    String? province,
-    String? ville,
-    String? commune,
-    String? quartier,
-    String? district,
     String? region,
-    String? association,
-    String? branche,
-    String? groupeScout,
-    String? numeroAffiliation,
+    String? district,
+    String? description,
+    bool? isActive,
   }) async {
+    _error = null;
     try {
-      final updated = await _service.update(
+      await _service.update(
         id: id,
         name: name,
-        description: description,
-        province: province,
-        ville: ville,
-        commune: commune,
-        quartier: quartier,
-        district: district,
         region: region,
-        association: association,
-        branche: branche,
-        groupeScout: groupeScout,
-        numeroAffiliation: numeroAffiliation,
+        district: district,
+        description: description,
+        isActive: isActive,
       );
-
-      final index = _groups.indexWhere((g) => g.id == id);
-      if (index >= 0) {
-        _groups[index] = updated;
-      }
-      notifyListeners();
+      await loadAll(refresh: true);
       return true;
     } catch (e, st) {
-      _errorMessage = ErrorHandler.message(e);
+      _error = ErrorHandler.message(e);
       ErrorHandler.log(e, st, 'ScoutGroupController.update');
+      notifyListeners();
       return false;
     }
   }
 
-  // ===========================================================
-  // SUPPRESSION
-  // ===========================================================
+  // =========================================================
+  // SUPPRIMER
+  // =========================================================
   Future<bool> delete(String id) async {
+    _error = null;
     try {
       await _service.delete(id);
-      _groups.removeWhere((g) => g.id == id);
+      _groups = _groups.where((g) => g.id != id).toList();
       notifyListeners();
       return true;
     } catch (e, st) {
-      _errorMessage = ErrorHandler.message(e);
+      _error = ErrorHandler.message(e);
       ErrorHandler.log(e, st, 'ScoutGroupController.delete');
-      return false;
-    }
-  }
-
-  // ===========================================================
-  // ASSIGNER DIRECTEUR
-  // ===========================================================
-  Future<bool> assignDirector({
-    required String groupId,
-    required String directorId,
-  }) async {
-    try {
-      final updated = await _service.assignDirector(
-        groupId: groupId,
-        directorId: directorId,
-      );
-
-      final index = _groups.indexWhere((g) => g.id == groupId);
-      if (index >= 0) {
-        _groups[index] = updated;
-      }
       notifyListeners();
-      return true;
-    } catch (e, st) {
-      _errorMessage = ErrorHandler.message(e);
-      ErrorHandler.log(e, st, 'ScoutGroupController.assignDirector');
       return false;
     }
   }
 
-  // ===========================================================
-  // RECHERCHE
-  // ===========================================================
-  List<ScoutGroup> search(String query) {
-    if (query.trim().isEmpty) return _groups;
-    final q = query.toLowerCase();
-    return _groups
-        .where((g) =>
-            g.name.toLowerCase().contains(q) ||
-            (g.district?.toLowerCase().contains(q) ?? false) ||
-            (g.region?.toLowerCase().contains(q) ?? false) ||
-            (g.ville?.toLowerCase().contains(q) ?? false))
-        .toList();
-  }
-
-  void clearError() {
-    _errorMessage = null;
+  // =========================================================
+  // RESET
+  // =========================================================
+  void reset() {
+    _publicGroups = [];
+    _groups = [];
+    _error = null;
+    _loading = false;
     notifyListeners();
   }
 }

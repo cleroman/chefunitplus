@@ -14,6 +14,7 @@ import 'package:chefunitplus/models/emergency_contact.dart';
 import 'package:chefunitplus/models/user_details.dart';
 import 'package:chefunitplus/models/scout_camp.dart';
 import 'package:chefunitplus/services/register_service.dart';
+import 'package:chefunitplus/controllers/scout_group_controller.dart';
 
 import 'steps/step1_account.dart';
 import 'steps/step2_identity.dart';
@@ -30,6 +31,15 @@ class RegisterWizardScreen extends StatefulWidget {
 }
 
 class RegisterWizardScreenState extends State<RegisterWizardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        context.read<ScoutGroupController>().loadPublic();
+      } catch (_) {}
+    });
+  }
   int currentStep = 0;
   bool isSubmitting = false;
   String? errorMessage;
@@ -58,8 +68,10 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
 
   // ===== ETAPE 4 : Scout =====
   final groupeScoutCtrl = TextEditingController();
+  String? groupeScoutId;
   final numeroAffiliationCtrl = TextEditingController();
   final districtCtrl = TextEditingController();
+  final regionCtrl = TextEditingController();
   final associationCtrl = TextEditingController();
   ScoutBranch branche = ScoutBranch.troupe;
   DateTime? dateEntreeScout;
@@ -102,6 +114,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
     groupeScoutCtrl.dispose();
     numeroAffiliationCtrl.dispose();
     districtCtrl.dispose();
+    regionCtrl.dispose();
     associationCtrl.dispose();
     fonctionScoutCtrl.dispose();
     professionCtrl.dispose();
@@ -240,6 +253,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
       'numero': numeroCtrl.text.trim(),
       'pays': 'RDC',
       'groupeScout': groupeScoutCtrl.text.trim(),
+      if (groupeScoutId != null) 'groupeScoutId': groupeScoutId,
       'numeroAffiliation': numeroAffiliationCtrl.text.trim(),
       'district': districtCtrl.text.trim(),
       'association': associationCtrl.text.trim(),
