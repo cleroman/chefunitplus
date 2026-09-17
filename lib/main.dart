@@ -44,21 +44,17 @@ void main() {
   final apiClient = ApiClient();
   final storageService = StorageService();
   final authService = AuthService(api: apiClient, storage: storageService);
-  final registerService = RegisterService(
-    api: apiClient,
-    storage: storageService,
-  );
 
   runApp(
     MultiProvider(
       providers: [
-        // ============ INFRASTRUCTURE ============
         Provider<ApiClient>.value(value: apiClient),
         Provider<StorageService>.value(value: storageService),
         Provider<AuthService>.value(value: authService),
-        Provider<RegisterService>.value(value: registerService),
 
-        // ============ SERVICES ============
+        Provider<RegisterService>(
+          create: (_) => RegisterService(apiClient),
+        ),
         Provider<PasswordRequestService>(
           create: (_) => PasswordRequestService(apiClient),
         ),
@@ -82,7 +78,6 @@ void main() {
         Provider<StatsService>(create: (_) => StatsService(apiClient)),
         Provider<ChatService>(create: (_) => ChatService(apiClient)),
 
-        // ============ CONTROLLERS ============
         ChangeNotifierProvider(
           create: (_) => AuthController(
             service: authService,
@@ -90,12 +85,11 @@ void main() {
           ),
         ),
         ChangeNotifierProvider(
-          create: (_) => RegisterController(),
+          create: (ctx) => RegisterController(ctx.read<RegisterService>()),
         ),
         ChangeNotifierProvider(
-          create: (ctx) => PasswordRequestController(
-            ctx.read<PasswordRequestService>(),
-          ),
+          create: (ctx) =>
+              PasswordRequestController(ctx.read<PasswordRequestService>()),
         ),
         ChangeNotifierProvider(
           create: (ctx) => UserController(ctx.read<UserService>()),

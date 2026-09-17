@@ -99,7 +99,7 @@ class ModuleService {
         if (endDate != null) 'endDate': endDate.toIso8601String(),
       };
       final r = await _multipart(
-        path: '${ApiConstants.modules}',
+        path: ApiConstants.modules,
         method: 'POST',
         fields: fields,
         pdfBytes: pdfBytes,

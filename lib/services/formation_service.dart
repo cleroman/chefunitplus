@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -6,6 +7,7 @@ import '../core/constants/api_constants.dart';
 import '../core/errors/error_handler.dart';
 import '../models/formation.dart';
 import 'api_client.dart';
+
 
 class FormationService {
   final ApiClient _api;
@@ -49,43 +51,54 @@ class FormationService {
     }, context: 'FormationService.listModules');
   }
 
-  // Creer une formation (avec 2 PDFs optionnels)
+  // ============================================================
+  // CREER une formation (avec 2 PDFs optionnels - Web compatible)
+  // ============================================================
   Future<Formation> create({
     required String title,
     required String description,
     required double price,
-    required FormationType type,
+    FormationType type = FormationType.training,
     String? trainerId,
     DateTime? startDate,
     DateTime? endDate,
     int maxParticipants = 0,
-    String? pdfFilePath,
-    String? ficheFilePath,
+    Uint8List? pdfBytes,
+    String? pdfFileName,
+    Uint8List? ficheBytes,
+    String? ficheFileName,
   }) async {
     return ErrorHandler.guard(() async {
-      final fields = {
+      final fields = <String, String>{
         'title': title,
         'description': description,
         'price': price.toString(),
         'type': type.value,
         if (trainerId != null) 'trainerId': trainerId,
-        if (startDate != null) 'startDate': _dateStr(startDate),
-        if (endDate != null) 'endDate': _dateStr(endDate),
+        if (startDate != null) 'startDate': startDate.toIso8601String(),
+        if (endDate != null) 'endDate': endDate.toIso8601String(),
         'maxParticipants': maxParticipants.toString(),
       };
+
       final r = await _multipart(
         path: ApiConstants.formations,
         method: 'POST',
         fields: fields,
-        supportFile: pdfFilePath,
-        ficheFile: ficheFilePath,
+        pdfBytes: pdfBytes,
+        pdfFileName: pdfFileName,
+        ficheBytes: ficheBytes,
+        ficheFileName: ficheFileName,
       );
+
       final d = _data(r);
       if (d is Map<String, dynamic>) return Formation.fromJson(d);
       return Formation.fromJson(r);
     }, context: 'FormationService.create');
   }
 
+  // ============================================================
+  // MODIFIER une formation
+  // ============================================================
   Future<Formation> update({
     required String id,
     String? title,
@@ -96,27 +109,32 @@ class FormationService {
     DateTime? startDate,
     DateTime? endDate,
     int? maxParticipants,
-    String? pdfFilePath,
-    String? ficheFilePath,
+    Uint8List? pdfBytes,
+    String? pdfFileName,
+    Uint8List? ficheBytes,
+    String? ficheFileName,
   }) async {
     return ErrorHandler.guard(() async {
-      final fields = {
-        if (title != null) 'title': title,
-        if (description != null) 'description': description,
-        if (price != null) 'price': price.toString(),
-        if (type != null) 'type': type.value,
-        if (trainerId != null) 'trainerId': trainerId,
-        if (startDate != null) 'startDate': _dateStr(startDate),
-        if (endDate != null) 'endDate': _dateStr(endDate),
-        if (maxParticipants != null) 'maxParticipants': maxParticipants.toString(),
-      };
+      final fields = <String, String>{};
+      if (title != null) fields['title'] = title;
+      if (description != null) fields['description'] = description;
+      if (price != null) fields['price'] = price.toString();
+      if (type != null) fields['type'] = type.value;
+      if (trainerId != null) fields['trainerId'] = trainerId;
+      if (startDate != null) fields['startDate'] = startDate.toIso8601String();
+      if (endDate != null) fields['endDate'] = endDate.toIso8601String();
+      if (maxParticipants != null) fields['maxParticipants'] = maxParticipants.toString();
+
       final r = await _multipart(
-        path: ApiConstants.formationById.replaceAll('{id}', id),
+        path: '${ApiConstants.formations}/$id',
         method: 'PATCH',
         fields: fields,
-        supportFile: pdfFilePath,
-        ficheFile: ficheFilePath,
+        pdfBytes: pdfBytes,
+        pdfFileName: pdfFileName,
+        ficheBytes: ficheBytes,
+        ficheFileName: ficheFileName,
       );
+
       final d = _data(r);
       if (d is Map<String, dynamic>) return Formation.fromJson(d);
       return Formation.fromJson(r);
@@ -134,6 +152,7 @@ class FormationService {
 
   String getFicheUrl(String formationId) =>
       '${ApiConstants.apiUrl}${ApiConstants.formations}/$formationId/fiche-technique';
+
   // ============================================================
   // PUBLIER / DEPUBLIER
   // ============================================================
@@ -153,41 +172,55 @@ class FormationService {
     }, context: 'FormationService.unpublish');
   }
 
-
+  // ============================================================
+  // MULTIPART (compatible Web + natif)
+  // ============================================================
   Future<Map<String, dynamic>> _multipart({
     required String path,
     required String method,
     required Map<String, String> fields,
-    String? supportFile,
-    String? ficheFile,
+    Uint8List? pdfBytes,
+    String? pdfFileName,
+    Uint8List? ficheBytes,
+    String? ficheFileName,
   }) async {
     final uri = Uri.parse('${ApiConstants.apiUrl}$path');
     final req = http.MultipartRequest(method, uri);
+
     final token = _api.token;
-    if (token != null) req.headers['Authorization'] = 'Bearer $token';
+    if (token != null) {
+      req.headers['Authorization'] = 'Bearer $token';
+    }
+
     req.fields.addAll(fields);
 
-    if (supportFile != null) {
-      req.files.add(await http.MultipartFile.fromPath(
-        'pdf', supportFile,
+    if (pdfBytes != null && pdfBytes.isNotEmpty) {
+      req.files.add(http.MultipartFile.fromBytes(
+        'pdf',
+        pdfBytes,
+        filename: pdfFileName ?? 'support.pdf',
         contentType: MediaType('application', 'pdf'),
       ));
     }
-    if (ficheFile != null) {
-      req.files.add(await http.MultipartFile.fromPath(
-        'ficheTechnique', ficheFile,
+
+    if (ficheBytes != null && ficheBytes.isNotEmpty) {
+      req.files.add(http.MultipartFile.fromBytes(
+        'ficheTechnique',
+        ficheBytes,
+        filename: ficheFileName ?? 'fiche.pdf',
         contentType: MediaType('application', 'pdf'),
       ));
     }
 
     final streamed = await req.send();
     final res = await http.Response.fromStream(streamed);
+
     if (res.statusCode >= 400) {
-      throw Exception('Erreur upload : ${res.statusCode}');
+      throw Exception('Erreur upload : ${res.statusCode} - ${res.body}');
+    }
+    if (res.body.isEmpty) {
+      return <String, dynamic>{'success': true, 'data': null};
     }
     return jsonDecode(res.body) as Map<String, dynamic>;
   }
-
-  static String _dateStr(DateTime d) =>
-      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 }

@@ -1,5 +1,5 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
@@ -7,6 +7,7 @@ import '../../controllers/formation_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../models/formation.dart';
 import '../../models/role.dart';
+import '../../widgets/utils/pdf_picker.dart';
 
 class FormationEditorScreen extends StatefulWidget {
   final String? formationId;
@@ -28,9 +29,9 @@ class _FormationEditorScreenState extends State<FormationEditorScreen> {
   DateTime? _endDate;
   String? _trainerId;
 
-  String? _pdfFilePath;
+  Uint8List? _pdfBytes;
   String? _pdfFileName;
-  String? _ficheFilePath;
+  Uint8List? _ficheBytes;
   String? _ficheFileName;
 
   bool _saving = false;
@@ -105,32 +106,18 @@ class _FormationEditorScreenState extends State<FormationEditorScreen> {
   // PICK PDF
   // ============================================================
   Future<void> _pickPdf({required bool isSupport}) async {
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf'],
-      );
-
-      if (result == null || result.files.isEmpty) return;
-
-      final file = result.files.first;
-      if (file.path == null) return;
-
-      setState(() {
-        if (isSupport) {
-          _pdfFilePath = file.path;
-          _pdfFileName = file.name;
-        } else {
-          _ficheFilePath = file.path;
-          _ficheFileName = file.name;
-        }
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur : $e'), backgroundColor: AppColors.danger),
-      );
-    }
+    final picked = await PdfPicker.pick();
+    if (picked == null) return;
+    if (!mounted) return;
+    setState(() {
+      if (isSupport) {
+        _pdfBytes = picked.bytes;
+        _pdfFileName = picked.name;
+      } else {
+        _ficheBytes = picked.bytes;
+        _ficheFileName = picked.name;
+      }
+    });
   }
 
   // ============================================================
@@ -177,8 +164,8 @@ class _FormationEditorScreenState extends State<FormationEditorScreen> {
         startDate: _startDate,
         endDate: _endDate,
         maxParticipants: maxPart,
-        pdfFilePath: _pdfFilePath,
-        ficheFilePath: _ficheFilePath,
+        pdfBytes: _pdfBytes, pdfFileName: _pdfFileName,
+        ficheBytes: _ficheBytes, ficheFileName: _ficheFileName,
       );
     } else {
       ok = await ctrl.create(
@@ -190,8 +177,8 @@ class _FormationEditorScreenState extends State<FormationEditorScreen> {
         startDate: _startDate,
         endDate: _endDate,
         maxParticipants: maxPart,
-        pdfFilePath: _pdfFilePath,
-        ficheFilePath: _ficheFilePath,
+        pdfBytes: _pdfBytes, pdfFileName: _pdfFileName,
+        ficheBytes: _ficheBytes, ficheFileName: _ficheFileName,
       );
     }
 
@@ -503,10 +490,10 @@ class _FormationEditorScreenState extends State<FormationEditorScreen> {
                     onPressed: () {
                       setState(() {
                         if (label.contains('Support')) {
-                          _pdfFilePath = null;
+                          _pdfBytes = null;
                           _pdfFileName = null;
                         } else {
-                          _ficheFilePath = null;
+                          _ficheBytes = null;
                           _ficheFileName = null;
                         }
                       });

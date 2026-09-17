@@ -1,28 +1,25 @@
 // =============================================================
 // ChefUnitPlus - UserDetails
-// Informations complÃ©mentaires du profil utilisateur
-// (adresse, scouts, profession, santÃ©, engagement)
 // =============================================================
 
 enum ScoutBranch {
-  louveteaux,
-  eclaireurs,
-  pionniers,
-  routiers,
+  meute,
+  troupe,
+  compagnie,
+  clan,
   autre,
 }
 
 extension ScoutBranchX on ScoutBranch {
-  /// Valeur acceptee par le backend Node.js
   String get backendValue {
     switch (this) {
-      case ScoutBranch.louveteaux:
+      case ScoutBranch.meute:
         return 'meute';
-      case ScoutBranch.eclaireurs:
+      case ScoutBranch.troupe:
         return 'troupe';
-      case ScoutBranch.pionniers:
+      case ScoutBranch.compagnie:
         return 'compagnie';
-      case ScoutBranch.routiers:
+      case ScoutBranch.clan:
         return 'clan';
       case ScoutBranch.autre:
         return 'troupe';
@@ -31,40 +28,52 @@ extension ScoutBranchX on ScoutBranch {
 
   String get label {
     switch (this) {
-      case ScoutBranch.louveteaux:
-        return 'Louveteaux';
-      case ScoutBranch.eclaireurs:
-        return 'Ã‰claireurs';
-      case ScoutBranch.pionniers:
-        return 'Pionniers';
-      case ScoutBranch.routiers:
-        return 'Routiers';
+      case ScoutBranch.meute:
+        return 'Meute';
+      case ScoutBranch.troupe:
+        return 'Troupe';
+      case ScoutBranch.compagnie:
+        return 'Compagnie';
+      case ScoutBranch.clan:
+        return 'Clan';
       case ScoutBranch.autre:
         return 'Autre';
     }
   }
 
+  String get description {
+    switch (this) {
+      case ScoutBranch.meute:
+        return 'Louveteaux (8-11 ans)';
+      case ScoutBranch.troupe:
+        return 'Eclaireurs (12-15 ans)';
+      case ScoutBranch.compagnie:
+        return 'Pionniers (15-17 ans)';
+      case ScoutBranch.clan:
+        return 'Compagnons (17-21 ans)';
+      case ScoutBranch.autre:
+        return 'Autre branche';
+    }
+  }
+
   static ScoutBranch fromString(String? value) {
-    if (value == null) return ScoutBranch.autre;
-    return ScoutBranch.values.firstWhere(
-      (b) => b.name.toLowerCase() == value.toLowerCase(),
-      orElse: () => ScoutBranch.autre,
-    );
+    if (value == null) return ScoutBranch.troupe;
+    final v = value.toLowerCase();
+    for (final b in ScoutBranch.values) {
+      if (b.name == v || b.backendValue == v) return b;
+    }
+    return ScoutBranch.troupe;
   }
 }
 
 class UserDetails {
   final String id;
   final String userId;
-
-  // ------------------ ADRESSE ------------------
   final String province;
   final String commune;
   final String quartier;
   final String avenue;
   final String? numero;
-
-  // ------------------ SCOUT ------------------
   final String groupeScout;
   final String numeroAffiliation;
   final String district;
@@ -72,19 +81,11 @@ class UserDetails {
   final ScoutBranch branche;
   final DateTime? dateEntreeScout;
   final String? fonctionScout;
-
-  // ------------------ PROFESSION ------------------
   final String? profession;
-
-  // ------------------ SANTÃ‰ ------------------
   final String? antecedentsMedicaux;
   final String? attestationCampUrl;
-
-  // ------------------ ENGAGEMENT ------------------
   final bool engagementAccepte;
   final DateTime? engagementDate;
-
-  // ------------------ MÃ‰TADONNÃ‰ES ------------------
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -112,9 +113,6 @@ class UserDetails {
     this.updatedAt,
   });
 
-  // ===========================================================
-  // ðŸ­ FACTORY
-  // ===========================================================
   factory UserDetails.fromJson(Map<String, dynamic> json) {
     return UserDetails(
       id: (json['id'] ?? json['_id'] ?? '').toString(),
@@ -149,9 +147,6 @@ class UserDetails {
     );
   }
 
-  // ===========================================================
-  // ðŸ“¤ SÃ‰RIALISATION (envoyÃ© au backend Node.js)
-  // ===========================================================
   Map<String, dynamic> toJson() => {
         'userId': userId,
         'province': province,
@@ -163,7 +158,7 @@ class UserDetails {
         'numero_affiliation': numeroAffiliation,
         'district': district,
         'association': association,
-        'branche': branche.name,
+        'branche': branche.backendValue,
         if (dateEntreeScout != null)
           'date_entree_scout': dateEntreeScout!.toIso8601String(),
         if (fonctionScout != null) 'fonction_scout': fonctionScout,
@@ -177,9 +172,6 @@ class UserDetails {
           'engagement_date': engagementDate!.toIso8601String(),
       };
 
-  // ===========================================================
-  // ðŸ“‹ COPYWITH
-  // ===========================================================
   UserDetails copyWith({
     String? id,
     String? userId,
@@ -228,13 +220,10 @@ class UserDetails {
     );
   }
 
-  // ===========================================================
-  // ðŸ” GETTERS
-  // ===========================================================
   String get adresseComplete {
     final parts = [
       avenue,
-      if (numero != null && numero!.isNotEmpty) 'nÂ°$numero',
+      if (numero != null && numero!.isNotEmpty) 'n°$numero',
       quartier,
       commune,
       province,
@@ -252,9 +241,6 @@ class UserDetails {
       district.isNotEmpty &&
       association.isNotEmpty;
 
-  // ===========================================================
-  // ðŸ§° HELPERS PRIVÃ‰S
-  // ===========================================================
   static DateTime? _parseDate(dynamic v) {
     if (v == null) return null;
     if (v is DateTime) return v;

@@ -74,18 +74,17 @@ class FormationController extends ChangeNotifier {
     required String title,
     required String description,
     required double price,
-    required FormationType type,
+    FormationType type = FormationType.training,
     String? trainerId,
     DateTime? startDate,
     DateTime? endDate,
     int maxParticipants = 0,
-    String? pdfFilePath,
-    String? ficheFilePath,
+    Uint8List? pdfBytes,
+    String? pdfFileName,
+    Uint8List? ficheBytes,
+    String? ficheFileName,
   }) async {
-    _state = LoadState.loading;
     _error = null;
-    notifyListeners();
-
     try {
       await _service.create(
         title: title,
@@ -96,15 +95,13 @@ class FormationController extends ChangeNotifier {
         startDate: startDate,
         endDate: endDate,
         maxParticipants: maxParticipants,
-        pdfFilePath: pdfFilePath,
-        ficheFilePath: ficheFilePath,
+        pdfBytes: pdfBytes,
+        pdfFileName: pdfFileName,
+        ficheBytes: ficheBytes,
+        ficheFileName: ficheFileName,
       );
-      await load(refresh: true);
+      await load(all: true, refresh: true);
       return true;
-    } on AppException catch (e) {
-      _error = e.message;
-      notifyListeners();
-      return false;
     } catch (e, st) {
       _error = ErrorHandler.message(e);
       notifyListeners();
@@ -126,13 +123,12 @@ class FormationController extends ChangeNotifier {
     DateTime? startDate,
     DateTime? endDate,
     int? maxParticipants,
-    String? pdfFilePath,
-    String? ficheFilePath,
+    Uint8List? pdfBytes,
+    String? pdfFileName,
+    Uint8List? ficheBytes,
+    String? ficheFileName,
   }) async {
-    _state = LoadState.loading;
     _error = null;
-    notifyListeners();
-
     try {
       await _service.update(
         id: id,
@@ -144,15 +140,13 @@ class FormationController extends ChangeNotifier {
         startDate: startDate,
         endDate: endDate,
         maxParticipants: maxParticipants,
-        pdfFilePath: pdfFilePath,
-        ficheFilePath: ficheFilePath,
+        pdfBytes: pdfBytes,
+        pdfFileName: pdfFileName,
+        ficheBytes: ficheBytes,
+        ficheFileName: ficheFileName,
       );
-      await load(refresh: true);
+      await load(all: true, refresh: true);
       return true;
-    } on AppException catch (e) {
-      _error = e.message;
-      notifyListeners();
-      return false;
     } catch (e, st) {
       _error = ErrorHandler.message(e);
       notifyListeners();

@@ -1,6 +1,6 @@
 // =============================================================
-// ChefUnitPlus - Wizard d'inscription
-// TOUS les controllers sont ici (source de verite unique)
+// ChefUnitPlus - Wizard d'inscription (6 Ã©tapes)
+// Fichier complet et corrigÃ© - Version finale
 // =============================================================
 
 import 'package:flutter/material.dart';
@@ -11,8 +11,8 @@ import 'package:chefunitplus/core/constants/app_colors.dart';
 import 'package:chefunitplus/core/routes/app_routes.dart';
 import 'package:chefunitplus/core/utils/snackbar_helper.dart';
 import 'package:chefunitplus/models/emergency_contact.dart';
-import 'package:chefunitplus/models/scout_camp.dart';
 import 'package:chefunitplus/models/user_details.dart';
+import 'package:chefunitplus/models/scout_camp.dart';
 import 'package:chefunitplus/services/register_service.dart';
 
 import 'steps/step1_account.dart';
@@ -34,13 +34,13 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
   bool isSubmitting = false;
   String? errorMessage;
 
-  // ETAPE 1
+  // ===== ETAPE 1 : Compte =====
   final emailCtrl = TextEditingController();
   final phoneCtrl = TextEditingController();
   final passwordCtrl = TextEditingController();
   final confirmPasswordCtrl = TextEditingController();
 
-  // ETAPE 2
+  // ===== ETAPE 2 : Identite =====
   final postNomCtrl = TextEditingController();
   final prenomCtrl = TextEditingController();
   final prenom2Ctrl = TextEditingController();
@@ -48,7 +48,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
   DateTime? dateNaissance;
   final lieuNaissanceCtrl = TextEditingController();
 
-  // ETAPE 3
+  // ===== ETAPE 3 : Adresse =====
   final provinceCtrl = TextEditingController();
   final villeCtrl = TextEditingController();
   final communeCtrl = TextEditingController();
@@ -56,26 +56,31 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
   final avenueCtrl = TextEditingController();
   final numeroCtrl = TextEditingController();
 
-  // ETAPE 4
+  // ===== ETAPE 4 : Scout =====
   final groupeScoutCtrl = TextEditingController();
   final numeroAffiliationCtrl = TextEditingController();
   final districtCtrl = TextEditingController();
   final associationCtrl = TextEditingController();
-  ScoutBranch branche = ScoutBranch.eclaireurs;
+  ScoutBranch branche = ScoutBranch.troupe;
   DateTime? dateEntreeScout;
   final fonctionScoutCtrl = TextEditingController();
 
-  // ETAPE 5
+  // ===== ETAPE 5 : Pro & Sante =====
   final professionCtrl = TextEditingController();
   final antecedentsCtrl = TextEditingController();
   final List<ScoutCamp> camps = [];
   final List<EmergencyContact> contactsUrgence = [];
 
-  // ETAPE 6
+  // ===== ETAPE 6 : Engagement =====
   bool engagementAccepte = false;
 
   static const List<String> _titles = [
-    'Compte', 'Identite', 'Adresse', 'Scout', 'Pro & Sante', 'Engagement',
+    'Compte',
+    'Identite',
+    'Adresse',
+    'Scout',
+    'Pro & Sante',
+    'Engagement',
   ];
 
   @override
@@ -104,7 +109,9 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
     super.dispose();
   }
 
-  /// Methode publique pour les steps (setState est protege)
+  // ===========================================================
+  // Navigation entre les etapes
+  // ===========================================================
   void refresh() {
     if (mounted) setState(() {});
   }
@@ -118,7 +125,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
   }
 
   // ===========================================================
-  // DEBUG - Affiche l'etat des controllers
+  // DEBUG (affiche l'etat des controllers)
   // ===========================================================
   void _showDebugDialog() {
     showDialog(
@@ -207,7 +214,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
   }
 
   // ===========================================================
-  // PAYLOAD
+  // Construction du PAYLOAD envoye au backend
   // ===========================================================
   Map<String, dynamic> _buildPayload() {
     final dateN = dateNaissance ?? DateTime(2000, 1, 1);
@@ -258,17 +265,30 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
   }
 
   // ===========================================================
-  // SUBMIT
+  // SOUMISSION
   // ===========================================================
   Future<void> _submit() async {
+    // Validation engagement
     if (!engagementAccepte) {
-      SnackbarHelper.warning(context, 'Veuillez accepter l\'engagement');
+      SnackbarHelper.warning(context, "Veuillez accepter l'engagement");
       return;
     }
 
-    // Validation password
+    // Validation mot de passe
     if (passwordCtrl.text.length < 6) {
       SnackbarHelper.error(context, 'Mot de passe : minimum 6 caracteres');
+      return;
+    }
+
+    // Validation email
+    if (emailCtrl.text.trim().isEmpty) {
+      SnackbarHelper.error(context, 'Email obligatoire');
+      return;
+    }
+
+    // Validation telephone
+    if (phoneCtrl.text.trim().isEmpty) {
+      SnackbarHelper.error(context, 'Telephone obligatoire');
       return;
     }
 
@@ -276,28 +296,6 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
       isSubmitting = true;
       errorMessage = null;
     });
-
-    debugPrint('');
-    debugPrint('╔══════════════════════════════════════════════════════════╗');
-    debugPrint('║           DIAGNOSTIC SUBMIT - CONTROLLERS                ║');
-    debugPrint('╚══════════════════════════════════════════════════════════╝');
-    debugPrint('EMAIL       : "${emailCtrl.text}"');
-    debugPrint('PHONE       : "${phoneCtrl.text}"');
-    debugPrint('PASSWORD    : "${passwordCtrl.text}"');
-    debugPrint('POSTNOM     : "${postNomCtrl.text}"');
-    debugPrint('PRENOM      : "${prenomCtrl.text}"');
-    debugPrint('LIEU NAISS  : "${lieuNaissanceCtrl.text}"');
-    debugPrint('PROVINCE    : "${provinceCtrl.text}"');
-    debugPrint('VILLE       : "${villeCtrl.text}"');
-    debugPrint('COMMUNE     : "${communeCtrl.text}"');
-    debugPrint('QUARTIER    : "${quartierCtrl.text}"');
-    debugPrint('AVENUE      : "${avenueCtrl.text}"');
-    debugPrint('NUMERO      : "${numeroCtrl.text}"');
-    debugPrint('GROUPE      : "${groupeScoutCtrl.text}"');
-    debugPrint('AFFILIATION : "${numeroAffiliationCtrl.text}"');
-    debugPrint('DISTRICT    : "${districtCtrl.text}"');
-    debugPrint('ASSOCIATION : "${associationCtrl.text}"');
-    debugPrint('═══════════════════════════════════════════════════════════');
 
     try {
       final payload = _buildPayload();
@@ -308,7 +306,12 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
 
       if (!mounted) return;
 
-      if (result.success) {
+      // Verification du succes (plusieurs cles possibles)
+      final isSuccess = result['success'] == true ||
+          result['ok'] == true ||
+          result['status'] == 'success';
+
+      if (isSuccess) {
         final auth = context.read<AuthController>();
         await auth.bootstrap();
         if (!mounted) return;
@@ -317,6 +320,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
           context,
           'Compte cree ! Bienvenue ${prenomCtrl.text}',
         );
+
         Navigator.pushNamedAndRemoveUntil(
           context,
           AppRoutes.homeForRole(
@@ -325,10 +329,15 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
           (route) => false,
         );
       } else {
-        setState(() => errorMessage = result.message ?? 'Erreur');
-        SnackbarHelper.error(context, result.message ?? 'Erreur');
+        final msg = result['message']?.toString() ??
+            result['error']?.toString() ??
+            'Erreur inconnue';
+        setState(() => errorMessage = msg);
+        SnackbarHelper.error(context, msg);
       }
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('Submit error: $e');
+      debugPrint('$st');
       if (!mounted) return;
       setState(() => errorMessage = e.toString());
       SnackbarHelper.error(context, 'Erreur : $e');
@@ -374,13 +383,20 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
 
   Widget _buildCurrentStep() {
     switch (currentStep) {
-      case 0: return Step1Account(state: this);
-      case 1: return Step2Identity(state: this);
-      case 2: return Step3Address(state: this);
-      case 3: return Step4Scout(state: this);
-      case 4: return Step5ProHealth(state: this);
-      case 5: return Step6Engagement(state: this);
-      default: return const SizedBox.shrink();
+      case 0:
+        return Step1Account(state: this);
+      case 1:
+        return Step2Identity(state: this);
+      case 2:
+        return Step3Address(state: this);
+      case 3:
+        return Step4Scout(state: this);
+      case 4:
+        return Step5ProHealth(state: this);
+      case 5:
+        return Step6Engagement(state: this);
+      default:
+        return const SizedBox.shrink();
     }
   }
 
@@ -450,6 +466,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
 
   Widget _buildNav() {
     final isLast = currentStep == 5;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -479,8 +496,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
               child: ElevatedButton(
                 onPressed: isSubmitting ? null : (isLast ? _submit : _next),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      isLast ? AppColors.success : AppColors.mauve,
+                  backgroundColor: isLast ? AppColors.success : AppColors.mauve,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
