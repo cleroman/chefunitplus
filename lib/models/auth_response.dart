@@ -1,6 +1,5 @@
 // =============================================================
-// ChefUnitPlus - Rponse d'authentification
-// Renvoye par les endpoints /auth/login et /auth/register
+// ChefUnitPlus - AuthResponse
 // =============================================================
 
 import 'user.dart';
@@ -19,26 +18,48 @@ class AuthResponse {
   });
 
   // ===========================================================
-  // Y FACTORIES
+  // FACTORY : parsing tolerant (data.user / data.token OU user / token)
   // ===========================================================
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
-    final rawUser = json['user'] as Map<String, dynamic>?;
-    final token = json['token'] as String?;
+    // Chercher d'abord dans json['data'] (format backend)
+    // Puis fallback sur json directement
+    final Map<String, dynamic> data = (json['data'] is Map<String, dynamic>)
+        ? json['data'] as Map<String, dynamic>
+        : json;
+
+    // --- User ---
+    final rawUser = data['user'] as Map<String, dynamic>?;
+
+    // --- Token ---
+    final token = (data['token'] ?? json['token']) as String?;
+
+    // --- Success ---
+    final success = json['success'] == true ||
+        data['success'] == true ||
+        json['status'] == '0' ||
+        json['status'] == 200;
+
+    // --- Message ---
+    final message = json['message'] ??
+        json['error'] ??
+        data['message'] ??
+        data['error'];
 
     return AuthResponse(
-      success: json['success'] == true ||
-          json['status'] == '0' ||
-          json['status'] == 200,
-      message: json['message'] ?? json['error'],
+      success: success,
+      message: message,
       token: token,
       user: rawUser != null
-          ? User.fromJson({...rawUser, if (token != null) 'token': token})
+          ? User.fromJson({
+              ...rawUser,
+              if (token != null) 'token': token,
+            })
           : null,
     );
   }
 
   // ===========================================================
-  // YZ CONSTRUCTEURS RAPIDES
+  // CONSTRUCTEURS RAPIDES
   // ===========================================================
   factory AuthResponse.failure(String message) =>
       AuthResponse(success: false, message: message);
@@ -52,27 +73,13 @@ class AuthResponse {
         success: true,
         user: user,
         token: token,
-        message: message ?? 'Connexion russie',
+        message: message ?? 'Connexion reussie',
       );
 
   // ===========================================================
-  // Y" GETTERS
+  // GETTERS
   // ===========================================================
   bool get isFailure => !success;
   bool get hasUser => user != null;
   bool get hasToken => token != null && token!.isNotEmpty;
-
-  // ===========================================================
-  // Y" S?RIALISATION
-  // ===========================================================
-  Map<String, dynamic> toJson() => {
-        'success': success,
-        if (message != null) 'message': message,
-        if (token != null) 'token': token,
-        if (user != null) 'user': user!.toJson(),
-      };
-
-  @override
-  String toString() =>
-      'AuthResponse(success: $success, user: ${user?.email}, message: $message)';
 }
