@@ -26,6 +26,10 @@ class UserController extends ChangeNotifier {
   List<User> _users = [];
   List<User> get users => _users;
 
+  /// Liste uniquement les utilisateurs ayant le role Formateur
+  List<User> get formateurs =>
+      _users.where((u) => u.role.name == 'formateur').toList();
+
   // Compteurs
   int get adminCount => _users.where((u) => u.role.name == 'admin').length;
   int get directeurCount => _users.where((u) => u.role.name == 'directeur').length;

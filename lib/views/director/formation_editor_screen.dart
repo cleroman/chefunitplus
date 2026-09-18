@@ -106,6 +106,7 @@ class _FormationEditorScreenState extends State<FormationEditorScreen> {
   // PICK PDF
   // ============================================================
   Future<void> _pickPdf({required bool isSupport}) async {
+    debugPrint('[PDF] _pickPdf appele (isSupport: $isSupport)');
     final picked = await PdfPicker.pick();
     if (picked == null) return;
     if (!mounted) return;
@@ -509,8 +510,10 @@ class _FormationEditorScreenState extends State<FormationEditorScreen> {
 
   Widget _buildTrainerDropdown() {
     final userCtrl = context.watch<UserController>();
+        debugPrint('[TRAINER DROPDOWN] total users = ${userCtrl.users.length}');
+    debugPrint('[TRAINER DROPDOWN] formateurs = ${userCtrl.users.where((u) => u.role == UserRole.formateur).length}');
     final trainers = userCtrl.users
-        .where((u) => u.role == UserRole.formateur || u.role == UserRole.directeur)
+        .where((u) => u.role == UserRole.formateur)
         .toList();
 
     if (userCtrl.isLoading && trainers.isEmpty) {

@@ -219,7 +219,7 @@ class ModuleService {
     Uint8List? pdfBytes,
     String? pdfFileName,
   }) async {
-    final uri = Uri.parse('${ApiConstants.baseUrl}$path');
+    final uri = Uri.parse('${ApiConstants.apiUrl}$path');
     final req = http.MultipartRequest(method, uri);
 
     final token = _api.token;

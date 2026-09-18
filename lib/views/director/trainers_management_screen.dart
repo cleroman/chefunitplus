@@ -16,7 +16,6 @@ import '../../core/utils/formatters.dart';
 import '../../core/utils/snackbar_helper.dart';
 import '../../models/user.dart';
 
-
 class TrainersManagementScreen extends StatefulWidget {
   const TrainersManagementScreen({super.key});
 
@@ -25,8 +24,7 @@ class TrainersManagementScreen extends StatefulWidget {
       _TrainersManagementScreenState();
 }
 
-class _TrainersManagementScreenState
-    extends State<TrainersManagementScreen>
+class _TrainersManagementScreenState extends State<TrainersManagementScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabCtrl;
   String? _processingId;
@@ -420,9 +418,7 @@ class _EmptyList extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              isTrainerList
-                  ? Icons.group_outlined
-                  : Icons.people_outline,
+              isTrainerList ? Icons.group_outlined : Icons.people_outline,
               size: 80,
               color: AppColors.textMuted,
             ),

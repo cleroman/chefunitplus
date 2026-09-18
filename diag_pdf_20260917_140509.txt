@@ -1,0 +1,5 @@
+﻿file_picker: False | http: False | http_parser: False
+pdf_picker: withData=True | bytes=True
+Formation Editor (Directeur): PdfPicker=True | _pickPdf=True | onTap=False
+Module Editor (Directeur): PdfPicker=True | _pickPdf=True | onTap=True
+Create Module (Formateur): PdfPicker=True | _pickPdf=True | onTap=True

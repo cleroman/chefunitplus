@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 import '../core/errors/error_handler.dart';
 import '../services/register_service.dart';
 
@@ -39,11 +39,22 @@ class RegisterController extends ChangeNotifier {
 
   Future<bool> register({
     required String fullName,
+    String? nom,
+    String? postNom,
+    String? prenom,
+    String? sexe,
+    String? dateNaissance,
+    String? lieuNaissance,
+    String? numeroAffiliation,
+    String? association,
+    String? branche,
+    String? dateEntreeScout,
     required String email,
     required String password,
     required String phone,
     required String role,
-    required String scoutGroupId,
+    String? scoutGroupId,
+    String? customGroupName,
     required String region,
     required String district,
     required String scoutFunction,
@@ -58,7 +69,12 @@ class RegisterController extends ChangeNotifier {
     try {
       await _service.register(
         fullName: fullName, email: email, password: password, phone: phone,
-        role: role, scoutGroupId: scoutGroupId, region: region,
+        nom: nom, postNom: postNom, prenom: prenom,
+        numeroAffiliation: numeroAffiliation, association: association,
+        branche: branche, dateEntreeScout: dateEntreeScout,
+        sexe: sexe, dateNaissance: dateNaissance, lieuNaissance: lieuNaissance,
+        role: role, scoutGroupId: scoutGroupId,
+        customGroupName: customGroupName, region: region,
         district: district, scoutFunction: scoutFunction,
         photoBytes: photoBytes, photoFileName: photoFileName,
         bio: bio, acceptedTerms: acceptedTerms,
@@ -113,3 +129,4 @@ class RegisterController extends ChangeNotifier {
     notifyListeners();
   }
 }
+

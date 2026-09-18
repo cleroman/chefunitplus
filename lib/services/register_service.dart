@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../core/constants/api_constants.dart';
@@ -10,15 +10,26 @@ class RegisterService {
   RegisterService(this._api);
 
   // ============================================================
-  // INSCRIPTION STANDARD (paramètres individuels)
+  // INSCRIPTION STANDARD (paramÃ¨tres individuels)
   // ============================================================
   Future<Map<String, dynamic>> register({
+    String? nom,
+    String? postNom,
+    String? prenom,
+    String? sexe,
+    String? dateNaissance,
+    String? lieuNaissance,
+    String? numeroAffiliation,
+    String? association,
+    String? branche,
+    String? dateEntreeScout,
     required String fullName,
     required String email,
     required String password,
     required String phone,
     required String role,
     String? scoutGroupId,
+    String? customGroupName,
     String? region,
     String? district,
     String? scoutFunction,
@@ -32,11 +43,22 @@ class RegisterService {
       final req = http.MultipartRequest('POST', uri);
 
       req.fields['fullName'] = fullName;
+      if (nom != null) req.fields['nom'] = nom;
+      if (postNom != null) req.fields['postNom'] = postNom;
+      if (prenom != null) req.fields['prenom'] = prenom;
+      if (sexe != null) req.fields['sexe'] = sexe;
+      if (dateNaissance != null) req.fields['dateNaissance'] = dateNaissance;
+      if (lieuNaissance != null) req.fields['lieuNaissance'] = lieuNaissance;
+      if (numeroAffiliation != null) req.fields['numeroAffiliation'] = numeroAffiliation;
+      if (association != null) req.fields['association'] = association;
+      if (branche != null) req.fields['branche'] = branche;
+      if (dateEntreeScout != null) req.fields['dateEntreeScout'] = dateEntreeScout;
       req.fields['email'] = email;
       req.fields['password'] = password;
       req.fields['phone'] = phone;
       req.fields['role'] = role;
       if (scoutGroupId != null) req.fields['scoutGroupId'] = scoutGroupId;
+      if (customGroupName != null && customGroupName.isNotEmpty) req.fields['customGroupName'] = customGroupName;
       if (region != null) req.fields['region'] = region;
       if (district != null) req.fields['district'] = district;
       if (scoutFunction != null) req.fields['scoutFunction'] = scoutFunction;
@@ -111,3 +133,5 @@ class RegisterService {
     }, context: 'RegisterService.resendVerificationCode');
   }
 }
+
+
