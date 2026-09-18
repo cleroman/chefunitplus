@@ -49,6 +49,15 @@ class RegisterController extends ChangeNotifier {
     String? association,
     String? branche,
     String? dateEntreeScout,
+    String? province,
+    String? ville,
+    String? commune,
+    String? quartier,
+    String? avenue,
+    String? numero,
+    String? profession,
+    String? niveauEtude,
+    String? totem,
     required String email,
     required String password,
     required String phone,
@@ -72,6 +81,9 @@ class RegisterController extends ChangeNotifier {
         nom: nom, postNom: postNom, prenom: prenom,
         numeroAffiliation: numeroAffiliation, association: association,
         branche: branche, dateEntreeScout: dateEntreeScout,
+        province: province, ville: ville, commune: commune,
+        profession: profession, niveauEtude: niveauEtude, totem: totem,
+        quartier: quartier, avenue: avenue, numero: numero,
         sexe: sexe, dateNaissance: dateNaissance, lieuNaissance: lieuNaissance,
         role: role, scoutGroupId: scoutGroupId,
         customGroupName: customGroupName, region: region,
@@ -129,4 +141,6 @@ class RegisterController extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+
 

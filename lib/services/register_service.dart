@@ -23,6 +23,15 @@ class RegisterService {
     String? association,
     String? branche,
     String? dateEntreeScout,
+    String? province,
+    String? ville,
+    String? commune,
+    String? quartier,
+    String? avenue,
+    String? numero,
+    String? profession,
+    String? niveauEtude,
+    String? totem,
     required String fullName,
     required String email,
     required String password,
@@ -39,7 +48,7 @@ class RegisterService {
     bool acceptedTerms = true,
   }) async {
     return ErrorHandler.guard(() async {
-      final uri = Uri.parse('${ApiConstants.baseUrl}/auth/register-scout');
+      final uri = Uri.parse('${ApiConstants.apiUrl}/auth/register-scout');
       final req = http.MultipartRequest('POST', uri);
 
       req.fields['fullName'] = fullName;
@@ -53,6 +62,15 @@ class RegisterService {
       if (association != null) req.fields['association'] = association;
       if (branche != null) req.fields['branche'] = branche;
       if (dateEntreeScout != null) req.fields['dateEntreeScout'] = dateEntreeScout;
+      if (province != null) req.fields['province'] = province;
+      if (ville != null) req.fields['ville'] = ville;
+      if (commune != null) req.fields['commune'] = commune;
+      if (quartier != null) req.fields['quartier'] = quartier;
+      if (avenue != null) req.fields['avenue'] = avenue;
+      if (numero != null) req.fields['numero'] = numero;
+      if (profession != null) req.fields['profession'] = profession;
+      if (niveauEtude != null) req.fields['niveauEtude'] = niveauEtude;
+      if (totem != null) req.fields['totem'] = totem;
       req.fields['email'] = email;
       req.fields['password'] = password;
       req.fields['phone'] = phone;
@@ -133,5 +151,8 @@ class RegisterService {
     }, context: 'RegisterService.resendVerificationCode');
   }
 }
+
+
+
 
 

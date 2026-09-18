@@ -53,6 +53,18 @@ final _nomCtrl = TextEditingController();
   DateTime? _dateEntreeScout;
   final _regionCtrl = TextEditingController();
   final _districtCtrl = TextEditingController();
+  final _provinceCtrl = TextEditingController();
+  final _villeCtrl = TextEditingController();
+  final _communeCtrl = TextEditingController();
+  final _quartierCtrl = TextEditingController();
+  final _avenueCtrl = TextEditingController();
+  final _numeroCtrl = TextEditingController();
+  final _professionCtrl = TextEditingController();
+  String? _niveauEtude;
+  final _totemCtrl = TextEditingController();
+  final List<Map<String, dynamic>> _fonctionsCamps = [];
+  final List<Map<String, dynamic>> _antecedentsMedicaux = [];
+  final List<Map<String, dynamic>> _personnesPrevenir = [];
   String? _scoutFunction;
 
   Uint8List? _photoBytes;
@@ -78,6 +90,9 @@ final _nomCtrl = TextEditingController();
     _emailCtrl.dispose(); _phoneCtrl.dispose();
     _passwordCtrl.dispose(); _confirmCtrl.dispose();
     _regionCtrl.dispose(); _districtCtrl.dispose(); _bioCtrl.dispose();
+    _provinceCtrl.dispose(); _villeCtrl.dispose(); _communeCtrl.dispose();
+    _quartierCtrl.dispose(); _avenueCtrl.dispose(); _numeroCtrl.dispose();
+    _professionCtrl.dispose(); _totemCtrl.dispose();
     _customGroupCtrl.dispose();
     _numeroAffiliationCtrl.dispose(); _associationCtrl.dispose();
     super.dispose();
@@ -119,6 +134,132 @@ final _nomCtrl = TextEditingController();
     if (picked != null) setState(() => _dateEntreeScout = picked);
   }
 
+
+  // ============================================================
+  // DIALOGS POUR LES LISTES DYNAMIQUES
+  // ============================================================
+  Future<void> _addFonctionCamp() async {
+    final fonctionCtrl = TextEditingController();
+    DateTime? date;
+    await showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: const Text('Ajouter une fonction'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: fonctionCtrl,
+                decoration: const InputDecoration(labelText: 'Fonction', border: OutlineInputBorder())),
+              const SizedBox(height: 12),
+              InkWell(
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: ctx,
+                    initialDate: date ?? DateTime.now(),
+                    firstDate: DateTime(1950),
+                    lastDate: DateTime.now(),
+                    locale: const Locale('fr', 'FR'),
+                  );
+                  if (picked != null) setDialogState(() => date = picked);
+                },
+                child: InputDecorator(
+                  decoration: const InputDecoration(labelText: 'Date', border: OutlineInputBorder()),
+                  child: Text(date != null ? _formatDate(date!) : 'Choisir une date'),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
+            ElevatedButton(
+              onPressed: () {
+                if (fonctionCtrl.text.trim().isEmpty) return;
+                setState(() {
+                  _fonctionsCamps.add({
+                    'fonction': fonctionCtrl.text.trim(),
+                    'date': date?.toIso8601String().split('T').first,
+                  });
+                });
+                Navigator.pop(ctx);
+              },
+              child: const Text('Ajouter'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _addAntecedent() async {
+    final descCtrl = TextEditingController();
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Ajouter un antecedent'),
+        content: TextField(controller: descCtrl, maxLines: 3,
+          decoration: const InputDecoration(labelText: 'Description', border: OutlineInputBorder())),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
+          ElevatedButton(
+            onPressed: () {
+              if (descCtrl.text.trim().isEmpty) return;
+              setState(() => _antecedentsMedicaux.add({'description': descCtrl.text.trim()}));
+              Navigator.pop(ctx);
+            },
+            child: const Text('Ajouter'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _addPersonnePrevenir() async {
+    final nomCtrl = TextEditingController();
+    final qualiteCtrl = TextEditingController();
+    final adresseCtrl = TextEditingController();
+    final tel1Ctrl = TextEditingController();
+    final tel2Ctrl = TextEditingController();
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Ajouter une personne'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: nomCtrl, decoration: const InputDecoration(labelText: 'Nom', border: OutlineInputBorder())),
+              const SizedBox(height: 8),
+              TextField(controller: qualiteCtrl, decoration: const InputDecoration(labelText: 'Qualite', border: OutlineInputBorder())),
+              const SizedBox(height: 8),
+              TextField(controller: adresseCtrl, decoration: const InputDecoration(labelText: 'Adresse', border: OutlineInputBorder())),
+              const SizedBox(height: 8),
+              TextField(controller: tel1Ctrl, decoration: const InputDecoration(labelText: 'Telephone 1', border: OutlineInputBorder())),
+              const SizedBox(height: 8),
+              TextField(controller: tel2Ctrl, decoration: const InputDecoration(labelText: 'Telephone 2', border: OutlineInputBorder())),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
+          ElevatedButton(
+            onPressed: () {
+              if (nomCtrl.text.trim().isEmpty) return;
+              setState(() => _personnesPrevenir.add({
+                'nom': nomCtrl.text.trim(),
+                'qualite': qualiteCtrl.text.trim(),
+                'adresse': adresseCtrl.text.trim(),
+                'tel1': tel1Ctrl.text.trim(),
+                'tel2': tel2Ctrl.text.trim(),
+              }));
+              Navigator.pop(ctx);
+            },
+            child: const Text('Ajouter'),
+          ),
+        ],
+      ),
+    );
+  }
   String _formatDate(DateTime d) =>
       '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
   void _nextStep() {
@@ -129,9 +270,8 @@ final _nomCtrl = TextEditingController();
       if (!_useCustomGroup && _scoutGroupId == null) { _snack('Selectionnez un groupe', AppColors.warning); return; }
       if (_useCustomGroup && _customGroupCtrl.text.trim().isEmpty) { _snack('Precisez le nom du groupe', AppColors.warning); return; }
       if (_scoutFunction == null) { _snack('Selectionnez une fonction', AppColors.warning); return; }
-      if (_regionCtrl.text.trim().isEmpty) { _snack('Region requise', AppColors.warning); return; }
     }
-    if (_currentStep < 3) {
+    if (_currentStep < 4) {
       setState(() => _currentStep++);
       _pageCtrl.animateToPage(_currentStep,
         duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
@@ -171,6 +311,15 @@ final _nomCtrl = TextEditingController();
       role: _role,
       scoutGroupId: _useCustomGroup ? null : _scoutGroupId,
       customGroupName: _useCustomGroup ? _customGroupCtrl.text.trim() : null,
+      province: _provinceCtrl.text.trim().isEmpty ? null : _provinceCtrl.text.trim(),
+      ville: _villeCtrl.text.trim().isEmpty ? null : _villeCtrl.text.trim(),
+      commune: _communeCtrl.text.trim().isEmpty ? null : _communeCtrl.text.trim(),
+      quartier: _quartierCtrl.text.trim().isEmpty ? null : _quartierCtrl.text.trim(),
+      avenue: _avenueCtrl.text.trim().isEmpty ? null : _avenueCtrl.text.trim(),
+      numero: _numeroCtrl.text.trim().isEmpty ? null : _numeroCtrl.text.trim(),
+      profession: _professionCtrl.text.trim().isEmpty ? null : _professionCtrl.text.trim(),
+      niveauEtude: _niveauEtude,
+      totem: _totemCtrl.text.trim().isEmpty ? null : _totemCtrl.text.trim(),
       region: _regionCtrl.text.trim(),
       district: _districtCtrl.text.trim(),
       scoutFunction: _scoutFunction!,
@@ -218,7 +367,7 @@ final _nomCtrl = TextEditingController();
               child: PageView(
                 controller: _pageCtrl,
                 physics: const NeverScrollableScrollPhysics(),
-                children: [_step1(), _step2(), _step3(), _step4()],
+                children: [_step1(), _step2(), _stepAdresse(), _step3(), _step4()],
               ),
             ),
             _navBar(ctrl),
@@ -229,7 +378,7 @@ final _nomCtrl = TextEditingController();
   }
 
   Widget _stepper() {
-    final steps = ['Infos', 'Scout', 'Profil', 'CGU'];
+    final steps = ['Infos', 'Scout', 'Adresse', 'Profil', 'CGU'];
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
@@ -543,32 +692,193 @@ final _nomCtrl = TextEditingController();
       onSelected: (_) => setState(() => _branche = value),
     );
   }
-  // ============ ETAPE 3 ============
-  Widget _step3() => ListView(padding: const EdgeInsets.all(20), children: [
-    const Text('Photo & Bio', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+  // ============ ETAPE 3 : ADRESSE ============
+  Widget _stepAdresse() => ListView(padding: const EdgeInsets.all(20), children: [
+    const Text('Adresse', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
     const SizedBox(height: 8),
-    const Text('Optionnel - vous pourrez modifier plus tard.', style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
+    const Text('Votre adresse de residence.', style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
     const SizedBox(height: 24),
-    Center(child: GestureDetector(onTap: _pickPhoto, child: Stack(children: [
-      Container(width: 120, height: 120,
-        decoration: BoxDecoration(
-          color: AppColors.mauve.withValues(alpha: 0.1), shape: BoxShape.circle,
-          border: Border.all(color: AppColors.mauve, width: 2),
-          image: _photoBytes != null ? DecorationImage(image: MemoryImage(_photoBytes!), fit: BoxFit.cover) : null,
-        ),
-        child: _photoBytes == null ? const Icon(Icons.camera_alt_outlined, size: 40, color: AppColors.mauve) : null),
-      Positioned(bottom: 0, right: 0, child: Container(padding: const EdgeInsets.all(8),
-        decoration: const BoxDecoration(color: AppColors.mauve, shape: BoxShape.circle),
-        child: const Icon(Icons.edit, color: Colors.white, size: 16))),
-    ]))),
-    const SizedBox(height: 32),
-    TextFormField(controller: _bioCtrl, maxLines: 4, maxLength: 200,
-      decoration: const InputDecoration(labelText: 'Bio (optionnel)',
-        hintText: 'Quelques mots sur vous...',
-        prefixIcon: Icon(Icons.description_outlined),
-        border: OutlineInputBorder(), alignLabelWithHint: true)),
+    TextFormField(controller: _provinceCtrl, textCapitalization: TextCapitalization.words,
+      decoration: const InputDecoration(labelText: 'Province *', hintText: 'Ex : Kinshasa',
+        prefixIcon: Icon(Icons.location_city_outlined), border: OutlineInputBorder())),
+    const SizedBox(height: 16),
+    TextFormField(controller: _villeCtrl, textCapitalization: TextCapitalization.words,
+      decoration: const InputDecoration(labelText: 'Ville', hintText: 'Ex : Kinshasa',
+        prefixIcon: Icon(Icons.location_on_outlined), border: OutlineInputBorder())),
+    const SizedBox(height: 16),
+    TextFormField(controller: _communeCtrl, textCapitalization: TextCapitalization.words,
+      decoration: const InputDecoration(labelText: 'Commune', hintText: 'Ex : Gombe',
+        prefixIcon: Icon(Icons.map_outlined), border: OutlineInputBorder())),
+    const SizedBox(height: 16),
+    TextFormField(controller: _quartierCtrl, textCapitalization: TextCapitalization.words,
+      decoration: const InputDecoration(labelText: 'Quartier', hintText: 'Ex : Golf',
+        prefixIcon: Icon(Icons.home_outlined), border: OutlineInputBorder())),
+    const SizedBox(height: 16),
+    TextFormField(controller: _avenueCtrl, textCapitalization: TextCapitalization.words,
+      decoration: const InputDecoration(labelText: 'Avenue', hintText: 'Ex : Avenue de la Paix',
+        prefixIcon: Icon(Icons.signpost_outlined), border: OutlineInputBorder())),
+    const SizedBox(height: 16),
+    TextFormField(controller: _numeroCtrl, keyboardType: TextInputType.number,
+      decoration: const InputDecoration(labelText: 'Numero', hintText: 'Ex : 42',
+        prefixIcon: Icon(Icons.numbers_outlined), border: OutlineInputBorder())),
   ]);
+  // ============ ETAPE 3 : FORMATION ============
+  Widget _step3() => ListView(padding: const EdgeInsets.all(20), children: [
+    const Text('Formation & Experience', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+    const SizedBox(height: 8),
+    const Text('Votre parcours professionnel et scout.', style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
+    const SizedBox(height: 24),
 
+    // PROFESSION
+    TextFormField(controller: _professionCtrl, textCapitalization: TextCapitalization.words,
+      decoration: const InputDecoration(labelText: 'Profession', hintText: 'Ex : Enseignant',
+        prefixIcon: Icon(Icons.work_outline), border: OutlineInputBorder())),
+    const SizedBox(height: 16),
+
+    // NIVEAU D'ETUDE
+    DropdownButtonFormField<String>(
+      initialValue: _niveauEtude,
+      isExpanded: true,
+      decoration: const InputDecoration(labelText: 'Niveau d\'etude',
+        prefixIcon: Icon(Icons.school_outlined), border: OutlineInputBorder()),
+      items: const [
+        DropdownMenuItem(value: 'primaire', child: Text('Primaire')),
+        DropdownMenuItem(value: 'secondaire', child: Text('Secondaire')),
+        DropdownMenuItem(value: 'universitaire', child: Text('Universitaire')),
+        DropdownMenuItem(value: 'autre', child: Text('Autre')),
+      ],
+      onChanged: (v) => setState(() => _niveauEtude = v),
+    ),
+    const SizedBox(height: 16),
+
+    // TOTEM
+    TextFormField(controller: _totemCtrl, textCapitalization: TextCapitalization.words,
+      decoration: const InputDecoration(labelText: 'Totem', hintText: 'Ex : Aigle Vaillant',
+        prefixIcon: Icon(Icons.star_outline), border: OutlineInputBorder())),
+    const SizedBox(height: 24),
+
+    // ============================================================
+    // FONCTIONS / CAMPS DE FORMATION
+    // ============================================================
+    const Text('Fonctions et camps de formation', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+    const SizedBox(height: 8),
+    if (_fonctionsCamps.isEmpty)
+      Container(padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(color: AppColors.mauve.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.divider)),
+        child: const Text('Aucune fonction ajoutee',
+          style: TextStyle(fontSize: 12, color: AppColors.textMuted)))
+    else
+      ..._fonctionsCamps.asMap().entries.map((e) {
+        final item = e.value;
+        return Card(
+          margin: const EdgeInsets.only(bottom: 8),
+          child: ListTile(
+            leading: const Icon(Icons.verified_outlined, color: AppColors.mauve),
+            title: Text(item['fonction'] ?? ''),
+            subtitle: Text(item['date'] ?? 'Date non precisee'),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              onPressed: () => setState(() => _fonctionsCamps.removeAt(e.key)),
+            ),
+          ),
+        );
+      }),
+    const SizedBox(height: 8),
+    OutlinedButton.icon(
+      onPressed: _addFonctionCamp,
+      icon: const Icon(Icons.add),
+      label: const Text('Ajouter une fonction'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.mauve,
+        side: const BorderSide(color: AppColors.mauve),
+        minimumSize: const Size(double.infinity, 44),
+      ),
+    ),
+    const SizedBox(height: 24),
+
+    // ============================================================
+    // ANTECEDENTS MEDICAUX
+    // ============================================================
+    const Text('Antecedents medicaux', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+    const SizedBox(height: 8),
+    if (_antecedentsMedicaux.isEmpty)
+      Container(padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(color: AppColors.mauve.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.divider)),
+        child: const Text('Aucun antecedent signale',
+          style: TextStyle(fontSize: 12, color: AppColors.textMuted)))
+    else
+      ..._antecedentsMedicaux.asMap().entries.map((e) {
+        final item = e.value;
+        return Card(
+          margin: const EdgeInsets.only(bottom: 8),
+          child: ListTile(
+            leading: const Icon(Icons.medical_information_outlined, color: Colors.red),
+            title: Text(item['description'] ?? ''),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              onPressed: () => setState(() => _antecedentsMedicaux.removeAt(e.key)),
+            ),
+          ),
+        );
+      }),
+    const SizedBox(height: 8),
+    OutlinedButton.icon(
+      onPressed: _addAntecedent,
+      icon: const Icon(Icons.add),
+      label: const Text('Ajouter un antecedent'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.mauve,
+        side: const BorderSide(color: AppColors.mauve),
+        minimumSize: const Size(double.infinity, 44),
+      ),
+    ),
+    const SizedBox(height: 24),
+
+    // ============================================================
+    // PERSONNES A PREVENIR
+    // ============================================================
+    const Text('Personnes a prevenir', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+    const SizedBox(height: 8),
+    if (_personnesPrevenir.isEmpty)
+      Container(padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(color: AppColors.mauve.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.divider)),
+        child: const Text('Aucune personne ajoutee',
+          style: TextStyle(fontSize: 12, color: AppColors.textMuted)))
+    else
+      ..._personnesPrevenir.asMap().entries.map((e) {
+        final item = e.value;
+        return Card(
+          margin: const EdgeInsets.only(bottom: 8),
+          child: ListTile(
+            leading: const Icon(Icons.contact_phone_outlined, color: Colors.green),
+            title: Text(item['nom'] ?? ''),
+            subtitle: Text('${item['qualite'] ?? ''} - ${item['tel1'] ?? ''}'),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              onPressed: () => setState(() => _personnesPrevenir.removeAt(e.key)),
+            ),
+          ),
+        );
+      }),
+    const SizedBox(height: 8),
+    OutlinedButton.icon(
+      onPressed: _addPersonnePrevenir,
+      icon: const Icon(Icons.add),
+      label: const Text('Ajouter une personne'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.mauve,
+        side: const BorderSide(color: AppColors.mauve),
+        minimumSize: const Size(double.infinity, 44),
+      ),
+    ),
+    const SizedBox(height: 24),
+  ]);
   // ============ ETAPE 4 ============
   Widget _step4() => ListView(padding: const EdgeInsets.all(20), children: [
     const Text('Conditions', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
@@ -585,7 +895,12 @@ final _nomCtrl = TextEditingController();
         _recap('Telephone', _phoneCtrl.text),
         
         _recap('Fonction', _scoutFunction ?? '-'),
-        _recap('Region', _regionCtrl.text),
+        _recap('Province', _provinceCtrl.text.isEmpty ? '-' : _provinceCtrl.text),
+        _recap('Ville', _villeCtrl.text.isEmpty ? '-' : _villeCtrl.text),
+        _recap('Commune', _communeCtrl.text.isEmpty ? '-' : _communeCtrl.text),
+        _recap('Quartier', _quartierCtrl.text.isEmpty ? '-' : _quartierCtrl.text),
+        _recap('Avenue', _avenueCtrl.text.isEmpty ? '-' : _avenueCtrl.text),
+        _recap('Numero', _numeroCtrl.text.isEmpty ? '-' : _numeroCtrl.text),
         _recap('District', _districtCtrl.text.isEmpty ? '-' : _districtCtrl.text),
       ])),
     const SizedBox(height: 24),
@@ -619,17 +934,25 @@ final _nomCtrl = TextEditingController();
             child: const Text('Retour'))),
         if (_currentStep > 0) const SizedBox(width: 12),
         Expanded(flex: 2, child: ElevatedButton(
-          onPressed: ctrl.isLoading ? null : (_currentStep < 3 ? _nextStep : _submit),
+          onPressed: ctrl.isLoading ? null : (_currentStep < 4 ? _nextStep : _submit),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.mauve, foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 14)),
           child: ctrl.isLoading
             ? const SizedBox(width: 20, height: 20,
                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-            : Text(_currentStep < 3 ? 'Suivant' : 'Creer mon compte'))),
+            : Text(_currentStep < 4 ? 'Suivant' : 'Creer mon compte'))),
       ])),
     );
   }
 }
+
+
+
+
+
+
+
+
 
 
