@@ -40,6 +40,13 @@ import '../../views/learner/my_enrollments_screen.dart';
 import '../../views/learner/certificate_screen.dart';
 
 import '../../views/director/director_formations_list_screen.dart';
+import '../../views/learner/learner_payment_list_screen.dart';
+import '../../views/learner/learner_payment_screen.dart';
+import '../../views/learner/formation_detail_screen.dart';
+import '../../views/learner/otp_input_screen.dart';
+import '../../views/learner/receipt_screen.dart';
+import '../../views/learner/my_qr_codes_screen.dart';
+import '../../views/learner/learner_formation_suivi_screen.dart';
 import 'app_routes.dart';
 import '../../views/mobile/shared/scout_videos_screen.dart';
 import '../../views/shared/notifications_screen.dart';
@@ -93,6 +100,28 @@ class AppRouter {
         return _page(const MyEnrollmentsScreen(), settings);
       case AppRoutes.learnerCertificates:
         return _page(const CertificateScreen(), settings);
+      // ============================================================
+      // ROUTES APPRENANT
+      // ============================================================
+      
+      case '/learner/catalog':
+        return _page(const FormationCatalogScreen(), settings);
+      
+      case '/learner/certificates':
+        return _page(const CertificateScreen(), settings);
+      
+      case '/learner/profile':
+        return _page(const ProfileScreen(), settings);
+      
+      case '/learner/messages':
+        return _page(const MessagesScreen(), settings);
+      
+      case '/learner/qr-codes':
+        return _page(const MyQrCodesScreen(), settings);      
+      case '/learner/payment':
+        return _page(const LearnerPaymentListScreen(), settings);
+      
+
       case AppRoutes.learnerProfile:
       case AppRoutes.editProfile:
         return MaterialPageRoute(builder: (_) => const EditProfileScreen());
@@ -145,6 +174,7 @@ class AppRouter {
         return _page(const ScoutVideosScreen(), settings);
       case AppRoutes.notifications:
       case '/directeur/formations':
+      case '/director/formations':
         return _page(const DirectorFormationsListScreen(), settings);
 
       case '/notifications':
