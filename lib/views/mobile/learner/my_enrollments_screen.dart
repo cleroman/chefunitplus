@@ -1,6 +1,10 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_const, use_build_context_synchronously, duplicate_import, unused_element
+// ignore_for_file: use_build_context_synchronously, prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../../core/constants/app_colors.dart';
+import '../../../controllers/enrollment_controller.dart';
+import '../../../models/enrollment.dart';
 
 class MyEnrollmentsScreen extends StatefulWidget {
   const MyEnrollmentsScreen({super.key});
@@ -13,27 +17,13 @@ class _MyEnrollmentsScreenState extends State<MyEnrollmentsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabCtrl;
 
-  // Demo data
-  final List<Map<String, dynamic>> _active = [
-    {
-      'title': 'Leadership Fondamental',
-      'progress': 0.65,
-      'status': 'En cours',
-    },
-  ];
-  final List<Map<String, dynamic>> _pending = [
-    {
-      'title': 'Gestion de Projet',
-      'date': '15/09/2026',
-      'status': 'En attente validation',
-    },
-  ];
-  final List<Map<String, dynamic>> _other = [];
-
   @override
   void initState() {
     super.initState();
     _tabCtrl = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<EnrollmentController>().loadMine(refresh: true);
+    });
   }
 
   @override
@@ -50,9 +40,15 @@ class _MyEnrollmentsScreenState extends State<MyEnrollmentsScreen>
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           tooltip: 'Retour',
-          onPressed: () => Navigator.of(context).maybePop(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              Navigator.of(context).pushReplacementNamed('/learner');
+            }
+          },
         ),
-                title: const Text('Mes formations'),
+        title: const Text('Mes formations'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
@@ -68,18 +64,31 @@ class _MyEnrollmentsScreenState extends State<MyEnrollmentsScreen>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabCtrl,
-        children: [
-          _buildList(_active, 'Aucune formation active'),
-          _buildList(_pending, 'Aucune inscription en attente'),
-          _buildList(_other, 'Aucune formation terminee'),
-        ],
+      body: Consumer<EnrollmentController>(
+        builder: (context, ctrl, _) {
+          if (ctrl.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final mine = ctrl.mine;
+          final active = mine.where((e) => e.isApproved).toList();
+          final pending = mine.where((e) => e.isPending).toList();
+          final completed = active.where((e) => e.progressPercent >= 100).toList();
+
+          return TabBarView(
+            controller: _tabCtrl,
+            children: [
+              _buildList(active, 'Aucune formation active'),
+              _buildList(pending, 'Aucune inscription en attente'),
+              _buildList(completed, 'Aucune formation terminee'),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildList(List<Map<String, dynamic>> items, String emptyMsg) {
+  Widget _buildList(List<Enrollment> items, String emptyMsg) {
     if (items.isEmpty) {
       return Center(
         child: Column(
@@ -100,15 +109,20 @@ class _MyEnrollmentsScreenState extends State<MyEnrollmentsScreen>
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: items.length,
-      itemBuilder: (_, i) => _card(items[i]),
+    return RefreshIndicator(
+      onRefresh: () => context.read<EnrollmentController>().loadMine(refresh: true),
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: items.length,
+        itemBuilder: (_, i) => _card(items[i]),
+      ),
     );
   }
 
-  Widget _card(Map<String, dynamic> item) {
-    final hasProgress = item['progress'] != null;
+  Widget _card(Enrollment e) {
+    final progress = e.progressPercent;
+    final isCompleted = progress >= 100;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -134,7 +148,9 @@ class _MyEnrollmentsScreenState extends State<MyEnrollmentsScreen>
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    item['title'],
+                    e.formationTitle.isNotEmpty
+                        ? e.formationTitle
+                        : 'Formation ${e.formationId.substring(0, 8)}...',
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -143,36 +159,37 @@ class _MyEnrollmentsScreenState extends State<MyEnrollmentsScreen>
                 ),
               ],
             ),
-            if (hasProgress) ...[
-              const SizedBox(height: 16),
-              LinearProgressIndicator(
-                value: item['progress'],
-                backgroundColor: AppColors.background,
-                valueColor:
-                    const AlwaysStoppedAnimation<Color>(AppColors.success),
-                minHeight: 8,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${(item['progress'] * 100).toInt()}% complete',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textMuted,
+            const SizedBox(height: 16),
+            // Progress bar
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Progression',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+                Text(
+                  '$progress%',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: isCompleted ? AppColors.success : AppColors.mauve,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: progress / 100,
+                minHeight: 6,
+                backgroundColor: AppColors.divider,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  isCompleted ? AppColors.success : AppColors.mauve,
                 ),
               ),
-            ],
-            if (item['date'] != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                'Demande le ${item['date']}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textMuted,
-                ),
-              ),
-            ],
+            ),
             const SizedBox(height: 12),
+            // Status badge
             Row(
               children: [
                 Container(
@@ -181,20 +198,25 @@ class _MyEnrollmentsScreenState extends State<MyEnrollmentsScreen>
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: item['status'] == 'En cours'
-                        ? AppColors.success.withValues(alpha: 0.15)
-                        : AppColors.warning.withValues(alpha: 0.15),
+                    color: _statusColor(e.status).withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    item['status'],
+                    _statusLabel(e.status),
                     style: TextStyle(
                       fontSize: 11,
-                      color: item['status'] == 'En cours'
-                          ? AppColors.success
-                          : AppColors.warning,
+                      color: _statusColor(e.status),
                       fontWeight: FontWeight.w700,
                     ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${e.amountPaid.toStringAsFixed(0)} USD',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textMuted,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -205,61 +227,31 @@ class _MyEnrollmentsScreenState extends State<MyEnrollmentsScreen>
     );
   }
 
-  // ============================================================
-  // BARRE DE PROGRESSION
-  // ============================================================
-  Widget _buildProgressBar(Map<String, dynamic> enrollment) {
-    final progress = enrollment['progress_percent'] as int? ?? 0;
-    final completed = progress >= 100;
+  Color _statusColor(String status) {
+    switch (status) {
+      case 'approved':
+        return AppColors.success;
+      case 'pending':
+      case 'pendingPayment':
+        return AppColors.warning;
+      case 'rejected':
+        return AppColors.danger;
+      default:
+        return AppColors.textMuted;
+    }
+  }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Progression',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
-            Text(
-              '$progress%',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: completed ? AppColors.success : AppColors.mauve,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: progress / 100,
-            minHeight: 6,
-            backgroundColor: AppColors.divider,
-            valueColor: AlwaysStoppedAnimation<Color>(
-              completed ? AppColors.success : AppColors.mauve,
-            ),
-          ),
-        ),
-        if (completed) ...[
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              const Icon(Icons.celebration, color: AppColors.success, size: 14),
-              const SizedBox(width: 4),
-              const Text(
-                'Formation terminee !',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.success,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ],
-    );
+  String _statusLabel(String status) {
+    switch (status) {
+      case 'approved':
+        return 'Approuvee';
+      case 'pending':
+      case 'pendingPayment':
+        return 'En attente';
+      case 'rejected':
+        return 'Rejetee';
+      default:
+        return status;
+    }
   }
 }

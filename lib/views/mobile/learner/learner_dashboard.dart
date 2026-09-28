@@ -8,6 +8,7 @@
 // ignore_for_file: invalid_assignment
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../../core/constants/app_colors.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../controllers/auth_controller.dart';
@@ -16,12 +17,13 @@ import '../../../controllers/formation_controller.dart';
 import '../../../widgets/layout/pro_layout.dart';
 import 'formation_catalog_screen.dart';
 import 'my_enrollments_screen.dart';
-import 'certificate_screen.dart';
 import 'profile_screen.dart';
 import 'formation_detail_screen.dart';
 import '../../shared/messages_screen.dart';
+
 class LearnerDashboard extends StatefulWidget {
   const LearnerDashboard({super.key});
+
   @override
   State<LearnerDashboard> createState() => _LearnerDashboardState();
 }
@@ -61,7 +63,6 @@ class _LearnerDashboardState extends State<LearnerDashboard> {
     final myEnrollments = enrollCtrl.mine;
     final active = myEnrollments.where((e) => e.isApproved).length;
     final pending = myEnrollments.where((e) => e.isPending).length;
-    final certificates = active;
 
     final enrolledFormationIds = myEnrollments.map((e) => e.formationId).toSet();
     final recommended = formCtrl.formations
@@ -100,14 +101,6 @@ class _LearnerDashboardState extends State<LearnerDashboard> {
         onTap: () => _navigate(const MyEnrollmentsScreen(), AppRoutes.learnerMyEnrollments),
       ),
       ProMenuItem(
-        icon: Icons.workspace_premium_outlined,
-        label: 'Mes certificats',
-        route: AppRoutes.learnerCertificates,
-        color: Colors.amber,
-        badge: certificates,
-        onTap: () => _navigate(const CertificateScreen(), AppRoutes.learnerCertificates),
-      ),
-      ProMenuItem(
         icon: Icons.person_outline,
         label: 'Mon profil',
         route: AppRoutes.learnerProfile,
@@ -136,7 +129,7 @@ class _LearnerDashboardState extends State<LearnerDashboard> {
           children: [
             _welcomeBanner(user?.fullName ?? 'Apprenant'),
             const SizedBox(height: 20),
-            _statsRow(active, pending, certificates),
+            _statsRow(active, pending),
             const SizedBox(height: 24),
             if (active > 0) ...[
               _banner(Icons.check_circle, Colors.green,
@@ -195,26 +188,30 @@ class _LearnerDashboardState extends State<LearnerDashboard> {
   Widget _sectionTitle(String t) => Row(
         children: [
           Container(
-            width: 4, height: 18,
+            width: 4,
+            height: 18,
             decoration: BoxDecoration(
               color: AppColors.mauve,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
           const SizedBox(width: 10),
-          Text(t, style: const TextStyle(
-              fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+          Text(t,
+              style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary)),
         ],
       );
 
-  Widget _statsRow(int active, int pending, int cert) {
-    return Row(children: [
-      _stat('$active', 'Actives', Icons.play_circle, Colors.green),
-      const SizedBox(width: 12),
-      _stat('$pending', 'En attente', Icons.hourglass_empty, Colors.orange),
-      const SizedBox(width: 12),
-      _stat('$cert', 'Certificats', Icons.workspace_premium, Colors.amber),
-    ]);
+  Widget _statsRow(int active, int pending) {
+    return Row(
+      children: [
+        _stat('$active', 'Actives', Icons.play_circle, Colors.green),
+        const SizedBox(width: 12),
+        _stat('$pending', 'En attente', Icons.hourglass_empty, Colors.orange),
+      ],
+    );
   }
 
   Widget _stat(String value, String label, IconData icon, Color color) {
@@ -224,10 +221,12 @@ class _LearnerDashboardState extends State<LearnerDashboard> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
-          boxShadow: [BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2))],
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2))
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,12 +239,17 @@ class _LearnerDashboardState extends State<LearnerDashboard> {
               child: Icon(icon, color: color, size: 22),
             ),
             const SizedBox(height: 12),
-            Text(value, style: const TextStyle(
-                fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+            Text(value,
+                style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary)),
             const SizedBox(height: 2),
             Text(label,
-                style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
-                maxLines: 1, overflow: TextOverflow.ellipsis),
+                style: const TextStyle(
+                    fontSize: 11, color: AppColors.textMuted),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis),
           ],
         ),
       ),
@@ -266,9 +270,12 @@ class _LearnerDashboardState extends State<LearnerDashboard> {
         child: Row(children: [
           Icon(icon, color: color, size: 20),
           const SizedBox(width: 12),
-          Expanded(child: Text(text,
-              style: TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w600, color: color))),
+          Expanded(
+              child: Text(text,
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: color))),
           Icon(Icons.arrow_forward_ios, size: 13, color: color),
         ]),
       ),
@@ -276,16 +283,15 @@ class _LearnerDashboardState extends State<LearnerDashboard> {
   }
 
   Widget _quickActions() {
-    return Row(children: [
-      _quickCard(Icons.explore_outlined, 'Catalogue', Colors.blue,
-          () => _navigate(const FormationCatalogScreen(), AppRoutes.learnerCatalog)),
-      const SizedBox(width: 12),
-      _quickCard(Icons.assignment_outlined, 'Formations', Colors.green,
-          () => _navigate(const MyEnrollmentsScreen(), AppRoutes.learnerMyEnrollments)),
-      const SizedBox(width: 12),
-      _quickCard(Icons.workspace_premium_outlined, 'Certificats', Colors.amber,
-          () => _navigate(const CertificateScreen(), AppRoutes.learnerCertificates)),
-    ]);
+    return Row(
+      children: [
+        _quickCard(Icons.explore_outlined, 'Catalogue', Colors.blue,
+            () => _navigate(const FormationCatalogScreen(), AppRoutes.learnerCatalog)),
+        const SizedBox(width: 12),
+        _quickCard(Icons.assignment_outlined, 'Formations', Colors.green,
+            () => _navigate(const MyEnrollmentsScreen(), AppRoutes.learnerMyEnrollments)),
+      ],
+    );
   }
 
   Widget _quickCard(IconData icon, String label, Color color, VoidCallback onTap) {
@@ -300,10 +306,12 @@ class _LearnerDashboardState extends State<LearnerDashboard> {
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2))],
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2))
+              ],
             ),
             child: Column(children: [
               Container(
@@ -343,14 +351,17 @@ class _LearnerDashboardState extends State<LearnerDashboard> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              boxShadow: [BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2))],
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2))
+              ],
             ),
             child: Row(children: [
               Container(
-                width: 50, height: 50,
+                width: 50,
+                height: 50,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                       colors: [AppColors.mauve, AppColors.kaki]),
@@ -366,7 +377,8 @@ class _LearnerDashboardState extends State<LearnerDashboard> {
                     Text(f.title ?? 'Formation',
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w700),
-                        maxLines: 1, overflow: TextOverflow.ellipsis),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 4),
                     Text(f.priceLabel ?? '',
                         style: const TextStyle(
@@ -391,7 +403,9 @@ class _LearnerDashboardState extends State<LearnerDashboard> {
         title: const Text('Deconnexion'),
         content: const Text('Voulez-vous vraiment vous deconnecter ?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Annuler')),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
