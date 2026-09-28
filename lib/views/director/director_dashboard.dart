@@ -1,7 +1,17 @@
+﻿// ============================================================
+// ChefUnitPlus - Dashboard Directeur (VERSION PRO)
+// ------------------------------------------------------------
+// - Garde TOUS les services/controleurs/routes existants
+// - Theme Admin (mauve) applique via DirectorThemeAdapter
+// - Header gradient, KPIs modernes, actions rapides, timeline
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../core/constants/app_colors.dart';
 import '../../core/routes/app_routes.dart';
+import '../../core/theme/director_theme_adapter.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/formation_controller.dart';
 import '../../controllers/module_controller.dart';
@@ -14,10 +24,11 @@ import 'trainers_management_screen.dart';
 import 'module_assign_screen.dart';
 import 'formation_stats_screen.dart';
 import 'formation_editor_screen.dart';
-import '../shared/conversations_screen.dart';
+import '../shared/messages_screen.dart';
 
 class DirectorDashboard extends StatefulWidget {
   const DirectorDashboard({super.key});
+
   @override
   State<DirectorDashboard> createState() => _DirectorDashboardState();
 }
@@ -55,6 +66,7 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
     final formCtrl = context.watch<FormationController>();
     final moduleCtrl = context.watch<ModuleController>();
     final enrollCtrl = context.watch<EnrollmentController>();
+
     final formations = formCtrl.formations;
     final published = formations.where((f) => f.isPublished).length;
     final drafts = formations.length - published;
@@ -118,7 +130,7 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
         label: 'Messages',
         route: AppRoutes.directorMessages,
         color: Colors.cyan,
-        onTap: () => _navigate(const ConversationsScreen(), AppRoutes.directorMessages),
+        onTap: () => _navigate(const MessagesScreen(), AppRoutes.directorMessages),
       ),
     ];
 
@@ -137,112 +149,276 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
       ],
       body: RefreshIndicator(
         onRefresh: _loadAll,
+        color: DirectorThemeAdapter.primary,
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(DirectorThemeAdapter.gapMd),
           children: [
-            _statsRow(formations.length, published, drafts, pendingModules),
-            const SizedBox(height: 24),
+            _buildHeader(user?.fullName ?? 'Directeur'),
+            const SizedBox(height: DirectorThemeAdapter.gapLg),
+
+            _buildStatsRow(
+              formations.length,
+              published,
+              drafts,
+              pendingModules,
+            ),
+            const SizedBox(height: DirectorThemeAdapter.gapLg),
+
             if (pendingModules > 0 || pendingEnroll > 0) ...[
               if (pendingModules > 0)
-                _banner(Icons.rule, Colors.orange,
-                    '$pendingModules module(s) en attente de validation',
-                    () => _navigate(const DirectorModuleValidationScreen(), AppRoutes.directorModulesValidation)),
-              if (pendingModules > 0 && pendingEnroll > 0) const SizedBox(height: 10),
+                _buildBanner(
+                  icon: Icons.rule,
+                  color: DirectorThemeAdapter.warning,
+                  text: '$pendingModules module(s) en attente de validation',
+                  onTap: () => _navigate(const DirectorModuleValidationScreen(), AppRoutes.directorModulesValidation),
+                ),
+              if (pendingModules > 0 && pendingEnroll > 0)
+                const SizedBox(height: DirectorThemeAdapter.gapSm),
               if (pendingEnroll > 0)
-                _banner(Icons.assignment_turned_in, Colors.green,
-                    '$pendingEnroll inscription(s) en attente',
-                    () => _navigate(const EnrollmentsValidationScreen(), AppRoutes.directorEnrollments)),
-              const SizedBox(height: 24),
+                _buildBanner(
+                  icon: Icons.assignment_turned_in,
+                  color: DirectorThemeAdapter.success,
+                  text: '$pendingEnroll inscription(s) en attente',
+                  onTap: () => _navigate(const EnrollmentsValidationScreen(), AppRoutes.directorEnrollments),
+                ),
+              const SizedBox(height: DirectorThemeAdapter.gapLg),
             ],
-            _sectionTitle('Actions rapides'),
-            const SizedBox(height: 12),
-            _actionsGrid(pendingModules, pendingEnroll),
-            const SizedBox(height: 24),
-            _sectionTitle('Formations recentes'),
-            const SizedBox(height: 12),
+
+            _buildSectionTitle('Actions rapides'),
+            const SizedBox(height: DirectorThemeAdapter.gapMd),
+            _buildActionsGrid(pendingModules, pendingEnroll),
+
+            const SizedBox(height: DirectorThemeAdapter.gapLg),
+
+            _buildSectionTitle('Formations recentes'),
+            const SizedBox(height: DirectorThemeAdapter.gapMd),
             if (formations.isEmpty)
-              _emptyCard()
+              _buildEmptyCard()
             else
-              ...formations.take(3).map(_formationCard),
-            const SizedBox(height: 40),
+              ...formations.take(3).map(_buildFormationCard),
+
+            const SizedBox(height: DirectorThemeAdapter.gapXl),
           ],
         ),
       ),
     );
   }
 
-  Widget _sectionTitle(String t) => Row(
-        children: [
-          Container(
-            width: 4, height: 18,
-            decoration: BoxDecoration(color: AppColors.mauve, borderRadius: BorderRadius.circular(2)),
-          ),
-          const SizedBox(width: 10),
-          Text(t, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
-        ],
-      );
+  // ------------------------------------------------------------
+  // Header gradient
+  // ------------------------------------------------------------
+  Widget _buildHeader(String name) {
+    final now = DateTime.now();
+    final hour = now.hour;
+    final greeting = hour < 12
+        ? 'Bonjour'
+        : hour < 18
+            ? 'Bon apres-midi'
+            : 'Bonsoir';
 
-  Widget _statsRow(int total, int pub, int draft, int pending) {
-    return Row(children: [
-      _stat('$total', 'Formations', Icons.school, Colors.blue),
-      const SizedBox(width: 12),
-      _stat('$pub', 'Publiees', Icons.check_circle, Colors.green),
-      const SizedBox(width: 12),
-      _stat('$draft', 'Brouillons', Icons.edit, Colors.orange),
-      const SizedBox(width: 12),
-      _stat('$pending', 'A valider', Icons.rule, Colors.red),
-    ]);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(DirectorThemeAdapter.gapLg),
+      decoration: DirectorThemeAdapter.headerDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const CircleAvatar(
+                radius: 24,
+                backgroundColor: Colors.white24,
+                child: Icon(Icons.person, color: Colors.white, size: 28),
+              ),
+              const SizedBox(width: DirectorThemeAdapter.gapMd),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$greeting,',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: DirectorThemeAdapter.gapMd),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: DirectorThemeAdapter.gapMd,
+              vertical: DirectorThemeAdapter.gapSm,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white24,
+              borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusMd),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.calendar_today, color: Colors.white, size: 15),
+                const SizedBox(width: 8),
+                Text(
+                  '${now.day.toString().padLeft(2, "0")}/${now.month.toString().padLeft(2, "0")}/${now.year}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  Widget _stat(String value, String label, IconData icon, Color color) {
+  // ------------------------------------------------------------
+  // Section title
+  // ------------------------------------------------------------
+  Widget _buildSectionTitle(String t) {
+    return Row(
+      children: [
+        Container(
+          width: 4,
+          height: 18,
+          decoration: BoxDecoration(
+            color: DirectorThemeAdapter.primary,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          t,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: DirectorThemeAdapter.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ------------------------------------------------------------
+  // Stats row (KPIs)
+  // ------------------------------------------------------------
+  Widget _buildStatsRow(int total, int pub, int draft, int pending) {
+    return Row(
+      children: [
+        _buildStat('$total', 'Formations', Icons.school, DirectorThemeAdapter.primary),
+        const SizedBox(width: 12),
+        _buildStat('$pub', 'Publiees', Icons.check_circle, DirectorThemeAdapter.success),
+        const SizedBox(width: 12),
+        _buildStat('$draft', 'Brouillons', Icons.edit, DirectorThemeAdapter.warning),
+        const SizedBox(width: 12),
+        _buildStat('$pending', 'A valider', Icons.rule, DirectorThemeAdapter.danger),
+      ],
+    );
+  }
+
+  Widget _buildStat(String value, String label, IconData icon, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
-        ),
+        padding: const EdgeInsets.all(14),
+        decoration: DirectorThemeAdapter.cardDecoration(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
-              child: Icon(icon, color: color, size: 22),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusSm),
+              ),
+              child: Icon(icon, color: color, size: 20),
             ),
-            const SizedBox(height: 12),
-            Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+            const SizedBox(height: 10),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: DirectorThemeAdapter.textPrimary,
+              ),
+            ),
             const SizedBox(height: 2),
-            Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textMuted), maxLines: 1, overflow: TextOverflow.ellipsis),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11,
+                color: DirectorThemeAdapter.textMuted,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _banner(IconData icon, Color color, String text, VoidCallback onTap) {
+  // ------------------------------------------------------------
+  // Banner alerte
+  // ------------------------------------------------------------
+  Widget _buildBanner({
+    required IconData icon,
+    required Color color,
+    required String text,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusMd),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
+          borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusMd),
+          border: Border.all(color: color.withValues(alpha: 0.30), width: 1),
         ),
-        child: Row(children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(width: 12),
-          Expanded(child: Text(text, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: color))),
-          Icon(Icons.arrow_forward_ios, size: 13, color: color),
-        ]),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios, size: 13, color: color),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _actionsGrid(int modules, int enroll) {
+  // ------------------------------------------------------------
+  // Actions grid
+  // ------------------------------------------------------------
+  Widget _buildActionsGrid(int modules, int enroll) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -251,30 +427,41 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
       mainAxisSpacing: 12,
       childAspectRatio: 1.4,
       children: [
-        _card(Icons.school_outlined, 'Formations', 'Gerer le catalogue', Colors.blue, 0,
+        _buildActionCard(Icons.school_outlined, 'Formations', 'Gerer le catalogue',
+            DirectorThemeAdapter.primary, 0,
             () => _navigate(const DirectorFormationsListScreen(), AppRoutes.directorFormations)),
-        _card(Icons.rule_outlined, 'Modules', 'Valider propositions', Colors.orange, modules,
+        _buildActionCard(Icons.rule_outlined, 'Modules', 'Valider propositions',
+            DirectorThemeAdapter.warning, modules,
             () => _navigate(const DirectorModuleValidationScreen(), AppRoutes.directorModulesValidation)),
-        _card(Icons.assignment_turned_in_outlined, 'Inscriptions', 'Valider paiements', Colors.green, enroll,
+        _buildActionCard(Icons.assignment_turned_in_outlined, 'Inscriptions', 'Valider paiements',
+            DirectorThemeAdapter.success, enroll,
             () => _navigate(const EnrollmentsValidationScreen(), AppRoutes.directorEnrollments)),
-        _card(Icons.analytics_outlined, 'Statistiques', 'Voir les analyses', Colors.indigo, 0,
+        _buildActionCard(Icons.analytics_outlined, 'Statistiques', 'Voir les analyses',
+            DirectorThemeAdapter.secondary, 0,
             () => _navigate(const FormationStatsScreen(), AppRoutes.directorStats)),
       ],
     );
   }
 
-  Widget _card(IconData icon, String title, String subtitle, Color color, int badge, VoidCallback onTap) {
+  Widget _buildActionCard(IconData icon, String title, String subtitle, Color color,
+      int badge, VoidCallback onTap) {
     return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(14),
+      color: DirectorThemeAdapter.surface,
+      borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusMd),
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusMd),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
+            borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusMd),
+            boxShadow: [
+              BoxShadow(
+                color: DirectorThemeAdapter.primary.withValues(alpha: 0.06),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Stack(
             children: [
@@ -283,22 +470,51 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusSm),
+                    ),
                     child: Icon(icon, color: color, size: 22),
                   ),
                   const Spacer(),
-                  Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: DirectorThemeAdapter.textPrimary,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.textMuted), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: DirectorThemeAdapter.textMuted,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
               if (badge > 0)
                 Positioned(
-                  top: 0, right: 0,
+                  top: 0,
+                  right: 0,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(color: AppColors.danger, borderRadius: BorderRadius.circular(10)),
-                    child: Text('$badge', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+                    decoration: BoxDecoration(
+                      color: DirectorThemeAdapter.danger,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '$badge',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ),
             ],
@@ -308,61 +524,106 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
     );
   }
 
-  Widget _formationCard(dynamic f) {
+  // ------------------------------------------------------------
+  // Formation card
+  // ------------------------------------------------------------
+  Widget _buildFormationCard(dynamic f) {
+    final isPublished = f.isPublished == true;
+    final color = isPublished ? DirectorThemeAdapter.success : DirectorThemeAdapter.warning;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6, offset: const Offset(0, 2))],
-      ),
-      child: Row(children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: AppColors.mauve.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
-          child: const Icon(Icons.school, color: AppColors.mauve),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(f.title ?? 'Formation', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis),
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: f.isPublished ? Colors.green.withValues(alpha: 0.15) : Colors.orange.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  f.isPublished ? 'Publiee' : 'Brouillon',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: f.isPublished ? Colors.green : Colors.orange),
-                ),
-              ),
-            ],
+      decoration: DirectorThemeAdapter.cardDecoration(),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: DirectorThemeAdapter.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusSm),
+            ),
+            child: const Icon(Icons.school, color: DirectorThemeAdapter.primary),
           ),
-        ),
-        const Icon(Icons.chevron_right, color: AppColors.textMuted),
-      ]),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  f.title ?? 'Formation',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: DirectorThemeAdapter.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    isPublished ? 'Publiee' : 'Brouillon',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Icon(Icons.chevron_right, color: DirectorThemeAdapter.textMuted),
+        ],
+      ),
     );
   }
 
-  Widget _emptyCard() {
+  // ------------------------------------------------------------
+  // Empty card
+  // ------------------------------------------------------------
+  Widget _buildEmptyCard() {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
-      child: Column(children: [
-        Icon(Icons.school_outlined, size: 48, color: AppColors.mauve.withValues(alpha: 0.5)),
-        const SizedBox(height: 12),
-        const Text('Aucune formation', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 4),
-        const Text('Creez votre premiere formation', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
-      ]),
+      decoration: DirectorThemeAdapter.cardDecoration(),
+      child: Column(
+        children: [
+          Icon(
+            Icons.school_outlined,
+            size: 48,
+            color: DirectorThemeAdapter.primary.withValues(alpha: 0.5),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Aucune formation',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: DirectorThemeAdapter.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Creez votre premiere formation',
+            style: TextStyle(
+              fontSize: 12,
+              color: DirectorThemeAdapter.textMuted,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
+  // ------------------------------------------------------------
+  // Logout
+  // ------------------------------------------------------------
   void _logout() {
     showDialog(
       context: context,
@@ -376,7 +637,7 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
               Navigator.pop(ctx);
               context.read<AuthController>().logout();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+            style: ElevatedButton.styleFrom(backgroundColor: DirectorThemeAdapter.danger),
             child: const Text('Se deconnecter'),
           ),
         ],

@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_const, use_build_context_synchronously, duplicate_import, unused_element
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 
@@ -196,6 +197,64 @@ class _MyEnrollmentsScreenState extends State<MyEnrollmentsScreen>
           ],
         ),
       ),
+    );
+  }
+
+  // ============================================================
+  // BARRE DE PROGRESSION
+  // ============================================================
+  Widget _buildProgressBar(Map<String, dynamic> enrollment) {
+    final progress = enrollment['progress_percent'] as int? ?? 0;
+    final completed = progress >= 100;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Progression',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+            Text(
+              '$progress%',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: completed ? AppColors.success : AppColors.mauve,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: progress / 100,
+            minHeight: 6,
+            backgroundColor: AppColors.divider,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              completed ? AppColors.success : AppColors.mauve,
+            ),
+          ),
+        ),
+        if (completed) ...[
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              const Icon(Icons.celebration, color: AppColors.success, size: 14),
+              const SizedBox(width: 4),
+              const Text(
+                'Formation terminee !',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.success,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }

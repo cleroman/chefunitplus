@@ -1,8 +1,10 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - Ecran Utilisateurs en attente
 // Pour le Directeur : activer les nouveaux comptes
 // =============================================================
 import 'package:flutter/material.dart';
+import '../../core/routes/app_routes.dart';
+import '../../controllers/auth_controller.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/role_constants.dart';
@@ -32,7 +34,14 @@ class _PendingUsersScreenState extends State<PendingUsersScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Utilisateurs en attente'),
+        leading: IconButton(
+          icon: const Icon(Icons.home),
+          tooltip: 'Accueil',
+          onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoutes.homeForRole(context.read<AuthController>().currentUser?.role ?? 'learner'),
+            (route) => false,
+          ),
+        ),        title: const Text('Utilisateurs en attente'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
         actions: [

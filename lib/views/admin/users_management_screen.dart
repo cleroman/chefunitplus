@@ -1,9 +1,11 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_const
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../controllers/user_controller.dart';
-import '../../models/role.dart';
+import '../../controllers/auth_controller.dart';
+import 'package:chefunitplus/core/constants/role_constants.dart';
 import '../../models/user.dart';
 import 'user_details_screen.dart';
 import 'promote_screen.dart';
@@ -21,7 +23,7 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
   final _searchCtrl = TextEditingController();
 
   String _query = '';
-  String _filterRole = 'all'; // all | apprenant | formateur | directeur | admin
+  String _filterRole = 'all';
 
   @override
   void initState() {
@@ -44,7 +46,6 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
     final ctrl = context.watch<UserController>();
     final allUsers = ctrl.users;
 
-    // Filtres
     List<User> filtered = allUsers;
     if (_query.isNotEmpty) {
       final q = _query.toLowerCase();
@@ -60,7 +61,6 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
           .toList();
     }
 
-    // Séparer par onglets
     final activeUsers = filtered.where((u) => u.isActive).toList();
     final suspendedUsers = filtered.where((u) => !u.isActive).toList();
 
@@ -118,7 +118,6 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
       color: Colors.white,
       child: Column(
         children: [
-          // Recherche
           TextField(
             controller: _searchCtrl,
             onChanged: (v) => setState(() => _query = v),
@@ -143,7 +142,6 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
             ),
           ),
           const SizedBox(height: 12),
-          // Filtres par rôle
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -330,7 +328,6 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
                     ],
                   ),
                 ),
-                // Menu 3 points
                 PopupMenuButton<String>(
                   icon: const Icon(
                     Icons.more_vert,
@@ -352,12 +349,27 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
                       value: 'promote',
                       child: Row(
                         children: [
-                          Icon(Icons.upgrade_outlined, size: 18),
+                          const Icon(Icons.upgrade_outlined, size: 18),
                           SizedBox(width: 8),
                           Text('Promouvoir'),
                         ],
                       ),
                     ),
+                    if (_canDemote(u))
+                      PopupMenuItem(
+                        value: 'demote',
+                        child: Row(
+                          children: const [
+                            Icon(Icons.person_remove_outlined,
+                                size: 18, color: AppColors.danger),
+                            SizedBox(width: 8),
+                            Text(
+                              'Revoquer',
+                              style: TextStyle(color: AppColors.danger),
+                            ),
+                          ],
+                        ),
+                      ),
                     PopupMenuItem(
                       value: u.isActive ? 'suspend' : 'reactivate',
                       child: Row(
@@ -438,6 +450,24 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
         });
         break;
 
+      case 'demote':
+        final actorRole = context.read<AuthController>().currentUser?.role;
+        final targetRole = _getDemoteTarget(u);
+        final confirmDemote = await _confirmDialog(
+          'Revoquer ${u.fullName} ?',
+          'Cette personne redeviendra ${targetRole.label}.',
+        );
+        if (confirmDemote != true) return;
+        final demoteOk = await ctrl.demote(
+          userId: u.id,
+          newRole: targetRole,
+          actorRole: actorRole,
+        );
+        _showSnack(demoteOk
+            ? '${u.fullName} redevient ${targetRole.label}'
+            : (ctrl.errorMessage ?? 'Echec'));
+        break;
+
       case 'suspend':
         final confirm = await _confirmDialog(
           'Suspendre ${u.fullName} ?',
@@ -446,13 +476,11 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
         if (confirm != true) return;
         final ok = await ctrl.suspend(u.id);
         _showSnack(ok ? 'Utilisateur suspendu' : 'Echec');
-
         break;
 
       case 'reactivate':
         final ok = await ctrl.reactivate(u.id);
         _showSnack(ok ? 'Utilisateur reactive' : 'Echec');
-
         break;
 
       case 'reset':
@@ -461,9 +489,7 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
           'Un mot de passe temporaire sera genere pour ${u.email}.',
         );
         if (confirm != true) return;
-
         _showSnack('Reset demande pour ${u.email}');
-
         break;
 
       case 'delete':
@@ -474,7 +500,6 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
         if (confirm != true) return;
         final ok = await ctrl.delete(u.id);
         _showSnack(ok ? 'Utilisateur supprime' : 'Echec');
-
         break;
     }
   }
@@ -507,9 +532,6 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
     );
   }
 
-  // ============================================================
-  // INVITATION
-  // ============================================================
   void _showInviteDialog() {
     showDialog(
       context: context,
@@ -528,5 +550,26 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
         ],
       ),
     );
+  }
+
+  // ============================================================
+  // VERIFIER SI UN UTILISATEUR PEUT ETRE RETROGRADE
+  // ============================================================
+  bool _canDemote(User u) {
+    return u.role != UserRole.apprenant;
+  }
+
+  // ============================================================
+  // RETOURNE LE ROLE CIBLE POUR LA DEGRADATION
+  // ============================================================
+  UserRole _getDemoteTarget(User u) {
+    switch (u.role) {
+      case UserRole.admin:
+      case UserRole.directeur:
+        return UserRole.formateur;
+      case UserRole.formateur:
+      default:
+        return UserRole.apprenant;
+    }
   }
 }

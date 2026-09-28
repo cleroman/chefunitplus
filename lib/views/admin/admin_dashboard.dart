@@ -12,12 +12,12 @@ import 'users_management_screen.dart';
 import 'promote_screen.dart';
 import 'global_stats_screen.dart';
 import 'payments_log_screen.dart';
+import 'payment_numbers_screen.dart';
 import 'complaints_screen.dart';
 import 'password_requests_screen.dart';
 import 'scout_groups_screen.dart';
 import 'system_settings_screen.dart';
-import '../shared/conversations_screen.dart';
-
+import '../shared/messages_screen.dart';
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
   @override
@@ -101,12 +101,25 @@ class _AdminDashboardState extends State<AdminDashboard> {
         color: Colors.teal,
         onTap: () => _navigate(const GlobalStatsScreen(), AppRoutes.adminStats),
       ),
-      ProMenuItem(
+            ProMenuItem(
         icon: Icons.payments_outlined,
         label: 'Paiements',
         route: AppRoutes.adminPayments,
         color: Colors.green,
-        onTap: () => _navigate(const PaymentsLogScreen(), AppRoutes.adminPayments),
+        onTap: () => _navigate(
+          const PaymentsLogScreen(),
+          AppRoutes.adminPayments,
+        ),
+      ),
+      ProMenuItem(
+        icon: Icons.phone_android,
+        label: 'Numeros Mobile Money',
+        route: '/admin/payment-numbers',
+        color: Colors.teal,
+        onTap: () => _navigate(
+          const PaymentNumbersScreen(),
+          '/admin/payment-numbers',
+        ),
       ),
       ProMenuItem(
         icon: Icons.report_problem_outlined,
@@ -143,7 +156,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         label: 'Messages',
         route: AppRoutes.adminMessages,
         color: Colors.cyan,
-        onTap: () => _navigate(const ConversationsScreen(), AppRoutes.adminMessages),
+        onTap: () => _navigate(const MessagesScreen(), AppRoutes.adminMessages),
       ),
     ];
 

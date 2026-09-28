@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../controllers/user_controller.dart';
-import '../../models/role.dart';
+import 'package:chefunitplus/core/constants/role_constants.dart';
 import '../../models/scout_group.dart';
 import '../../models/user.dart';
 
@@ -90,7 +90,7 @@ class _ScoutGroupDetailsScreenState extends State<ScoutGroupDetailsScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ============================================================
-                // INFOS GÉNÉRALES
+                // INFOS GÃ‰NÃ‰RALES
                 // ============================================================
                 const _SectionTitle(title: 'Informations'),
                 const SizedBox(height: 12),

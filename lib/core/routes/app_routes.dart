@@ -2,7 +2,7 @@
 // ChefUnitPlus - Constantes + helpers de routes
 // =============================================================
 
-import '../../models/role.dart';
+import 'package:chefunitplus/core/constants/role_constants.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -45,6 +45,8 @@ class AppRoutes {
   static const String trainerLessonEditor = '/trainer/lesson/editor';
   static const String trainerCreateModule = '/trainer/module/create';
   static const String trainerMyModules = '/trainer/modules';
+  static const String trainerAttendance = '/trainer/attendance';
+  static const String trainerDepositModule = '/trainer/deposit-module';
 
   // ---------------- ADMIN ----------------
   static const String adminUsers = '/admin/users';
@@ -101,6 +103,8 @@ class AppRoutes {
 
 
   static const String directorFormationsList = '/director/formations';
+  static const String formationReadiness = '/director/formation/readiness';
+  static const String attachDeposit = '/director/attach-deposit';
   static const String directorFormations = '/director/formations';
   static const String directorModulesValidation = '/director/modules/validation';
 
@@ -117,4 +121,11 @@ class AppRoutes {
   static const String trainerMessages = '/trainer/messages';
 
   static const String learnerMessages = '/learner/messages';
+
+  // ---------------- COMMUN (ajouts professionnels) ----------------
+  static const String scoutVideos = '/scout-videos';
+  static const String notifications = '/notifications';
+  static const String messages = '/messages';
+  static const String settings = '/settings';
+  static const String learnerPayment = '/learner/payment';
 }

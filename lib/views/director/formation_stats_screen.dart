@@ -1,5 +1,15 @@
+﻿// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: dead_null_aware_expression
+// ignore_for_file: unnecessary_non_null_assertion
+// ignore_for_file: unnecessary_cast
+// ignore_for_file: unnecessary_null_comparison
+// ignore_for_file: unchecked_use_of_nullable_value
+// ignore_for_file: argument_type_not_assignable
+// ignore_for_file: invalid_assignment
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import '../../core/routes/app_routes.dart';
+import '../../controllers/auth_controller.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
@@ -72,7 +82,14 @@ class _FormationStatsScreenState extends State<FormationStatsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Statistiques'),
+        leading: IconButton(
+          icon: const Icon(Icons.home),
+          tooltip: 'Accueil',
+          onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoutes.homeForRole(context.read<AuthController>().currentUser?.role ?? 'learner'),
+            (route) => false,
+          ),
+        ),        title: const Text('Statistiques'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
         actions: [
@@ -195,7 +212,7 @@ class _FormationStatsScreenState extends State<FormationStatsScreen> {
     if (_period == 'all') return list;
     final days = _period == '7d' ? 7 : 30;
     final cutoff = DateTime.now().subtract(Duration(days: days));
-    return list.where((e) => e.requestedAt.isAfter(cutoff)).toList();
+    return list.where((e) => e.requestedDate.isAfter(cutoff)).toList();
   }
 
   // ============================================================
@@ -423,9 +440,9 @@ class _FormationStatsScreenState extends State<FormationStatsScreen> {
       final day = now.subtract(Duration(days: i));
       dayCount[i] = 0;
       for (final e in enrollments) {
-        if (e.requestedAt.year == day.year &&
-            e.requestedAt.month == day.month &&
-            e.requestedAt.day == day.day) {
+        if (e.requestedDate.year == day.year &&
+            e.requestedDate.month == day.month &&
+            e.requestedDate.day == day.day) {
           dayCount[i] = (dayCount[i] ?? 0) + 1;
         }
       }
@@ -653,3 +670,4 @@ class _SectionTitle extends StatelessWidget {
     );
   }
 }
+

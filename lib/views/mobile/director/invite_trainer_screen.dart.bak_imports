@@ -1,0 +1,255 @@
+﻿// =============================================================
+// ChefUnitPlus - InviteTrainerScreen
+// Le directeur invite un formateur a rediger un module
+// =============================================================
+
+import 'package:flutter/material.dart';
+import '../../core/routes/app_routes.dart';
+import '../../controllers/auth_controller.dart';
+import 'package:provider/provider.dart';
+
+import '../../../core/constants/app_colors.dart';
+import '../../../controllers/user_controller.dart';
+import '../../../services/module_invitation_service.dart';
+
+class InviteTrainerScreen extends StatefulWidget {
+  final String moduleId;
+  final String moduleTitle;
+  final String formationTitle;
+
+  const InviteTrainerScreen({
+    super.key,
+    required this.moduleId,
+    required this.moduleTitle,
+    required this.formationTitle,
+  });
+
+  @override
+  State<InviteTrainerScreen> createState() => _InviteTrainerScreenState();
+}
+
+class _InviteTrainerScreenState extends State<InviteTrainerScreen> {
+  String? _selectedTrainerId;
+  final _messageCtrl = TextEditingController();
+  bool _sending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _messageCtrl.text =
+        'Bonjour, pouvez-vous rediger le module "${widget.moduleTitle}" '
+        'pour la formation "${widget.formationTitle}" ? '
+        'Merci de le faire au plus tard dans les delais convenus.';
+  }
+
+  @override
+  void dispose() {
+    _messageCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _sendInvitation() async {
+    if (_selectedTrainerId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Selectionnez un formateur'),
+          backgroundColor: AppColors.warning,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _sending = true);
+
+    final svc = context.read<ModuleInvitationService>();
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    final result = await svc.inviteTrainer(
+      moduleId: widget.moduleId,
+      trainerId: _selectedTrainerId!,
+      message: _messageCtrl.text.trim(),
+    );
+
+    if (!mounted) return;
+
+    setState(() => _sending = false);
+
+    if (result != null) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Invitation envoyee'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+      navigator.pop(true);
+    } else {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(svc.error ?? 'Erreur'),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final userCtrl = context.watch<UserController>();
+    final trainers = userCtrl.users.where((u) => u.isTrainer).toList();
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.home),
+          tooltip: 'Accueil',
+          onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoutes.homeForRole(context.read<AuthController>().currentUser?.role ?? 'learner'),
+            (route) => false,
+          ),
+        ),        title: const Text('Inviter un formateur'),
+        backgroundColor: AppColors.mauve,
+        foregroundColor: Colors.white,
+      ),
+      body: trainers.isEmpty
+          ? _buildEmpty()
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 20),
+                const Text(
+                  '1. Choisir le formateur',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  initialValue: _selectedTrainerId,
+                  decoration: const InputDecoration(
+                    labelText: 'Formateur',
+                    prefixIcon: Icon(Icons.person_outline),
+                    border: OutlineInputBorder(),
+                  ),
+                  items: trainers.map((t) {
+                    return DropdownMenuItem(
+                      value: t.id,
+                      child: Text(
+                        t.fullName,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (v) => setState(() => _selectedTrainerId = v),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  '2. Message d\'invitation',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _messageCtrl,
+                  maxLines: 5,
+                  decoration: const InputDecoration(
+                    hintText: 'Ecrivez votre message...',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _sending ? null : _sendInvitation,
+                    icon: _sending
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.send),
+                    label: Text(_sending
+                        ? 'Envoi en cours...'
+                        : 'Envoyer l\'invitation'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.mauve,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.mauve.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.info_outline, color: AppColors.mauve),
+              SizedBox(width: 8),
+              Text(
+                'Module a rediger',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.mauve,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            widget.moduleTitle,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Formation : ${widget.formationTitle}',
+            style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmpty() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.people_outline, size: 64, color: AppColors.textMuted),
+            SizedBox(height: 16),
+            Text(
+              'Aucun formateur disponible',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Aucun formateur n\'est enregistre sur la plateforme.',
+              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

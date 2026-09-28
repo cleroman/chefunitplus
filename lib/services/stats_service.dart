@@ -1,57 +1,189 @@
 // =============================================================
-// ChefUnitPlus - Statistiques par rôle
-// Dashboard Admin / Directeur / Formateur
+// ChefUnitPlus - StatsService
+// Consomme les endpoints /api/stats/*
+// Retourne des Map<String, dynamic> pour DashboardController
 // =============================================================
 
-import '../core/constants/api_constants.dart';
-import '../core/errors/error_handler.dart';
+import 'package:flutter/foundation.dart';
+
 import 'api_client.dart';
 
+class StatsService extends ChangeNotifier {
+  final ApiClient _api;
 
-class StatsService {
-  final ApiClient api;
+  StatsService(this._api);
 
-  StatsService(this.api);
+  Map<String, dynamic> _stats = {};
+  bool _loading = false;
+  String? _error;
 
-  // ===========================================================
-  // ðŸŒ GLOBAL (admin)
-  // ===========================================================
-  /// Retourne un ensemble clé/valeur :
-  /// { usersCount, formationsCount, paymentsCount, revenue, ... }
+  Map<String, dynamic> get stats => _stats;
+  bool get loading => _loading;
+  String? get error => _error;
+
+  // ============================================================
+  // ADMIN / GLOBAL
+  // ============================================================
   Future<Map<String, dynamic>> fetchGlobal() async {
-    return ErrorHandler.guard(() async {
-      final data = await api.get(ApiConstants.statsGlobal);
-      return data['stats'] as Map<String, dynamic>? ?? const {};
-    }, context: 'StatsService.fetchGlobal');
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final res = await _api.get('/stats/global');
+      if (res['success'] == true) {
+        _stats = Map<String, dynamic>.from(res['data'] as Map);
+        return _stats;
+      } else {
+        _error = res['error'] as String? ?? 'Erreur inconnue';
+        return {};
+      }
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('[StatsService] fetchGlobal error: $e');
+      return {};
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
   }
 
-  // ===========================================================
-  // ðŸŽ¬ DIRECTEUR
-  // ===========================================================
+  // ============================================================
+  // DIRECTEUR / ADMIN
+  // ============================================================
   Future<Map<String, dynamic>> fetchDirector() async {
-    return ErrorHandler.guard(() async {
-      final data = await api.get(ApiConstants.statsDirector);
-      return data['stats'] as Map<String, dynamic>? ?? const {};
-    }, context: 'StatsService.fetchDirector');
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final res = await _api.get('/stats/admin');
+      if (res['success'] == true) {
+        // Aplatir les groupes en un seul Map
+        final data = res['data'] as Map<String, dynamic>;
+        final flat = <String, dynamic>{};
+        data.forEach((groupKey, groupValue) {
+          if (groupValue is Map<String, dynamic>) {
+            groupValue.forEach((k, v) {
+              if (k != 'source') {
+                flat['${groupKey}_$k'] = v;
+              }
+            });
+            flat['${groupKey}_source'] = groupValue['source'] ?? groupKey;
+          } else {
+            flat[groupKey] = groupValue;
+          }
+        });
+        _stats = flat;
+        return _stats;
+      } else {
+        _error = res['error'] as String? ?? 'Erreur inconnue';
+        return {};
+      }
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('[StatsService] fetchDirector error: $e');
+      return {};
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
   }
 
-  // ===========================================================
-  // ðŸ‘¨â€ðŸ« FORMATEUR
-  // ===========================================================
+  // ============================================================
+  // FORMATEUR
+  // ============================================================
   Future<Map<String, dynamic>> fetchTrainer() async {
-    return ErrorHandler.guard(() async {
-      final data = await api.get(ApiConstants.statsTrainer);
-      return data['stats'] as Map<String, dynamic>? ?? const {};
-    }, context: 'StatsService.fetchTrainer');
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final res = await _api.get('/stats/trainer');
+      if (res['success'] == true) {
+        final data = res['data'] as Map<String, dynamic>;
+        final flat = <String, dynamic>{};
+        data.forEach((groupKey, groupValue) {
+          if (groupValue is Map<String, dynamic>) {
+            groupValue.forEach((k, v) {
+              if (k != 'source') {
+                flat['${groupKey}_$k'] = v;
+              }
+            });
+            flat['${groupKey}_source'] = groupValue['source'] ?? groupKey;
+          } else {
+            flat[groupKey] = groupValue;
+          }
+        });
+        _stats = flat;
+        return _stats;
+      } else {
+        _error = res['error'] as String? ?? 'Erreur inconnue';
+        return {};
+      }
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('[StatsService] fetchTrainer error: $e');
+      return {};
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
   }
 
-  // ===========================================================
-  // ðŸŽ“ APPRENANT
-  // ===========================================================
+  // ============================================================
+  // APPRENANT
+  // ============================================================
   Future<Map<String, dynamic>> fetchLearner() async {
-    return ErrorHandler.guard(() async {
-      final data = await api.get('${ApiConstants.statsGlobal}/me');
-      return data['stats'] as Map<String, dynamic>? ?? const {};
-    }, context: 'StatsService.fetchLearner');
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final res = await _api.get('/stats/learner');
+      if (res['success'] == true) {
+        final data = res['data'] as Map<String, dynamic>;
+        final flat = <String, dynamic>{};
+        data.forEach((groupKey, groupValue) {
+          if (groupValue is Map<String, dynamic>) {
+            groupValue.forEach((k, v) {
+              if (k != 'source') {
+                flat['${groupKey}_$k'] = v;
+              }
+            });
+            flat['${groupKey}_source'] = groupValue['source'] ?? groupKey;
+          } else {
+            flat[groupKey] = groupValue;
+          }
+        });
+        _stats = flat;
+        return _stats;
+      } else {
+        _error = res['error'] as String? ?? 'Erreur inconnue';
+        return {};
+      }
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('[StatsService] fetchLearner error: $e');
+      return {};
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
+  // ============================================================
+  // FORMATION SPECIFIQUE
+  // ============================================================
+  Future<Map<String, dynamic>> fetchFormation(String formationId) async {
+    try {
+      final res = await _api.get('/stats/formation/$formationId');
+      if (res['success'] == true) {
+        return Map<String, dynamic>.from(res['data'] as Map);
+      }
+    } catch (e) {
+      debugPrint('[StatsService] fetchFormation error: $e');
+    }
+    return {};
   }
 }

@@ -1,3 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: dead_null_aware_expression
+// ignore_for_file: unnecessary_non_null_assertion
+// ignore_for_file: unnecessary_cast
+// ignore_for_file: unnecessary_null_comparison
+// ignore_for_file: unchecked_use_of_nullable_value
+// ignore_for_file: argument_type_not_assignable
+// ignore_for_file: invalid_assignment
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

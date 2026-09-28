@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'pro_top_bar.dart';
+import 'pro_bottom_nav.dart';
 import '../../core/constants/app_colors.dart';
 
 /// Item de menu avec icone + label + couleur + badge.
@@ -52,60 +54,15 @@ class ProLayout extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       drawer: isDesktop ? null : Drawer(child: _SidebarContent(items: items, currentRoute: currentRoute, title: title)),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
-        elevation: 0.5,
-        automaticallyImplyLeading: false,
-        leading: showBackButton
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-                tooltip: 'Retour',
-                onPressed: () => Navigator.of(context).maybePop(),
-              )
-            : (!isDesktop
-                ? Builder(
-                    builder: (ctx) => IconButton(
-                      icon: const Icon(Icons.menu, color: AppColors.textPrimary),
-                      tooltip: 'Menu',
-                      onPressed: () => Scaffold.of(ctx).openDrawer(),
-                    ),
-                  )
-                : null),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            if (subtitle.isNotEmpty)
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textMuted,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-          ],
-        ),
-        actions: [
-          if (actions != null) ...actions!,
-          if (onLogout != null)
-            IconButton(
-              icon: const Icon(Icons.logout, color: AppColors.danger),
-              tooltip: 'Deconnexion',
-              onPressed: onLogout,
-            ),
-          const SizedBox(width: 8),
-        ],
+      appBar: ProTopBar(
+        title: title,
+        subtitle: subtitle,
+        showBackButton: showBackButton,
+        actions: actions,
       ),
+      bottomNavigationBar: !isDesktop
+          ? const ProBottomNav(currentIndex: 0)
+          : null,
       body: isDesktop
           ? Row(
               children: [

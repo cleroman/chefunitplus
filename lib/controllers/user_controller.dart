@@ -5,7 +5,7 @@
 import 'package:flutter/foundation.dart';
 import '../core/errors/error_handler.dart';
 import '../models/user.dart';
-import '../models/role.dart';
+import 'package:chefunitplus/core/constants/role_constants.dart';
 import '../services/user_service.dart';
 
 class UserController extends ChangeNotifier {
@@ -193,6 +193,27 @@ class UserController extends ChangeNotifier {
     } catch (e, st) {
       _error = ErrorHandler.message(e);
       ErrorHandler.log(e, st, 'UserController.promote');
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // =========================================================
+  // DEMOTE (retrograder un utilisateur)
+  // =========================================================
+  Future<bool> demote({
+    required String userId,
+    required UserRole newRole,
+    UserRole? actorRole,
+  }) async {
+    _error = null;
+    try {
+      await _service.demote(userId, newRole.name);
+      await loadAll(refresh: true);
+      return true;
+    } catch (e, st) {
+      _error = ErrorHandler.message(e);
+      ErrorHandler.log(e, st, 'UserController.demote');
       notifyListeners();
       return false;
     }

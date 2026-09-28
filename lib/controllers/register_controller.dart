@@ -58,6 +58,10 @@ class RegisterController extends ChangeNotifier {
     String? profession,
     String? niveauEtude,
     String? totem,
+    List<Map<String, dynamic>>? fonctionsCamps,
+    List<Map<String, dynamic>>? personnesPrevenir,
+    List<Map<String, dynamic>>? antecedentsMedicaux,
+    List<bool>? conditionsEngagement,
     required String email,
     required String password,
     required String phone,
@@ -83,6 +87,10 @@ class RegisterController extends ChangeNotifier {
         branche: branche, dateEntreeScout: dateEntreeScout,
         province: province, ville: ville, commune: commune,
         profession: profession, niveauEtude: niveauEtude, totem: totem,
+        fonctionsCamps: fonctionsCamps,
+        personnesPrevenir: personnesPrevenir,
+        antecedentsMedicaux: antecedentsMedicaux,
+        conditionsEngagement: conditionsEngagement,
         quartier: quartier, avenue: avenue, numero: numero,
         sexe: sexe, dateNaissance: dateNaissance, lieuNaissance: lieuNaissance,
         role: role, scoutGroupId: scoutGroupId,
@@ -141,6 +149,7 @@ class RegisterController extends ChangeNotifier {
     notifyListeners();
   }
 }
+
 
 
 

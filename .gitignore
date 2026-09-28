@@ -1,44 +1,66 @@
-# Flutter/Dart
+# ============================================================
+# FLUTTER / DART
+# ============================================================
 .dart_tool/
 .packages
-build/
+.pub-cache/
+.pub/
 .flutter-plugins
 .flutter-plugins-dependencies
 *.iml
 
+# ============================================================
+# BUILD - Exclusions CIBLEES (ne PAS exclure build/web)
+# ============================================================
+build/app/
+build/ios/
+build/android/
+build/linux/
+build/macos/
+build/windows/
+build/test/
+build/unit_test_assets/
+build/flutter_assets/
+build/native_assets/
+build/kernel_snapshot.dill
+build/*.dill
+build/.last_build_id
+build/*.json
+
+# ============================================================
+# ANDROID
+# ============================================================
+android/.gradle/
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/local.properties
+android/key.properties
+*.jks
+*.keystore
+
+# ============================================================
+# IOS
+# ============================================================
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+
+# ============================================================
 # IDE
+# ============================================================
 .idea/
 .vscode/*
 !.vscode/settings.json
 !.vscode/launch.json
+!.vscode/extensions.json
+*.swp
+*.swo
 
+# ============================================================
 # OS
+# ============================================================
 .DS_Store
 Thumbs.db
-
-# Backups (NE PAS COMMITER)
-_backup*/
-*.bak
-*.bak_*
-*.backup
-lib/main.dart.backup
-lib/*.backup
-lib/**/*.backup
-
-# Fichiers de diagnostic
-analyse_*.txt
-diagnostics_*.txt
-run_*.txt
-api_client_DEBUG.txt
-
-# Scripts JS temporaires
-fix_*.js
-02_flutter_*.js
-03_flutter_*.js
-50
-
-# Node modules (si backend dans le repo)
-node_modules/
-
-# Logs
-*.log
+desktop.ini

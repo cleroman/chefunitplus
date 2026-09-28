@@ -12,7 +12,7 @@ import '../../core/constants/role_constants.dart';
 import '../admin/admin_dashboard.dart';
 import '../director/director_dashboard.dart';
 import '../learner/learner_dashboard.dart';
-import '../trainer/trainer_dashboard.dart';
+import '../mobile/trainer/trainer_dashboard.dart';
 
 class RoleRouter extends StatelessWidget {
   const RoleRouter({super.key});

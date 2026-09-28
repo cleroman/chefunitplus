@@ -32,6 +32,10 @@ class RegisterService {
     String? profession,
     String? niveauEtude,
     String? totem,
+    List<Map<String, dynamic>>? fonctionsCamps,
+    List<Map<String, dynamic>>? personnesPrevenir,
+    List<Map<String, dynamic>>? antecedentsMedicaux,
+    List<bool>? conditionsEngagement,
     required String fullName,
     required String email,
     required String password,
@@ -71,6 +75,10 @@ class RegisterService {
       if (profession != null) req.fields['profession'] = profession;
       if (niveauEtude != null) req.fields['niveauEtude'] = niveauEtude;
       if (totem != null) req.fields['totem'] = totem;
+      if (fonctionsCamps != null && fonctionsCamps.isNotEmpty) req.fields['fonctionsCamps'] = jsonEncode(fonctionsCamps);
+      if (personnesPrevenir != null && personnesPrevenir.isNotEmpty) req.fields['personnesPrevenir'] = jsonEncode(personnesPrevenir);
+      if (antecedentsMedicaux != null && antecedentsMedicaux.isNotEmpty) req.fields['antecedentsMedicaux'] = jsonEncode(antecedentsMedicaux);
+      if (conditionsEngagement != null && conditionsEngagement.isNotEmpty) req.fields['conditionsEngagement'] = jsonEncode(conditionsEngagement);
       req.fields['email'] = email;
       req.fields['password'] = password;
       req.fields['phone'] = phone;
@@ -151,6 +159,7 @@ class RegisterService {
     }, context: 'RegisterService.resendVerificationCode');
   }
 }
+
 
 
 

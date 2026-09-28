@@ -1,14 +1,14 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - TrainersManagementScreen
 // Nommer / Rvoquer les formateurs (promotion depuis apprenants)
 // =============================================================
 
 import 'package:flutter/material.dart';
+import '../../core/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 
 import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
-import '../../models/role.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_sizes.dart';
 import '../../core/constants/role_constants.dart';
@@ -135,7 +135,7 @@ class _TrainersManagementScreenState extends State<TrainersManagementScreen>
     final ctrl = context.read<UserController>();
 
     try {
-      final ok = await ctrl.promote(
+      final ok = await ctrl.demote(
         userId: user.id,
         newRole: UserRole.apprenant,
         actorRole: actor,
@@ -165,7 +165,14 @@ class _TrainersManagementScreenState extends State<TrainersManagementScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Gestion des formateurs'),
+        leading: IconButton(
+          icon: const Icon(Icons.home),
+          tooltip: 'Accueil',
+          onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoutes.homeForRole(context.read<AuthController>().currentUser?.role ?? 'learner'),
+            (route) => false,
+          ),
+        ),        title: const Text('Gestion des formateurs'),
         backgroundColor: AppColors.kaki,
         foregroundColor: Colors.white,
         actions: [
@@ -449,3 +456,4 @@ class _EmptyList extends StatelessWidget {
     );
   }
 }
+

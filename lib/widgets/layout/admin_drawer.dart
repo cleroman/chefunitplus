@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import '../../core/routes/app_routes.dart';
 import '../../controllers/user_controller.dart';
 import 'base_drawer.dart';
-import '../../views/shared/conversations_screen.dart';
+import '../../views/admin/payment_numbers_screen.dart';
+import '../../views/shared/messages_screen.dart';
 
 class AdminDrawer extends StatelessWidget {
   final String? currentRoute;
@@ -50,6 +51,18 @@ class AdminDrawer extends StatelessWidget {
           isSelected: currentRoute == AppRoutes.adminPayments,
         ),
         DrawerItem(
+          icon: Icons.phone_android,
+          label: 'Numeros Mobile Money',
+          onTap: () {
+            final navigator = Navigator.of(context);
+            navigator.push(
+              MaterialPageRoute(
+                builder: (_) => const PaymentNumbersScreen(),
+              ),
+            );
+          },
+        ),
+        DrawerItem(
           icon: Icons.report_problem_outlined,
           label: 'Reclamations',
           route: AppRoutes.adminComplaints,
@@ -74,7 +87,7 @@ class AdminDrawer extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const ConversationsScreen(),
+                builder: (_) => const MessagesScreen(),
               ),
             );
           },

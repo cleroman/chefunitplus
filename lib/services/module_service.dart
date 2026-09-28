@@ -53,7 +53,7 @@ class ModuleService {
   // ============================================================
   Future<List<Module>> listMyModules() async {
     return ErrorHandler.guard(() async {
-      final r = await _api.get('${ApiConstants.modules}/mine');
+      final r = await _api.get('${ApiConstants.modules}/my');
       return _list(r)
           .map((e) => Module.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList();

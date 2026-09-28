@@ -2,7 +2,7 @@
 // ChefUnitPlus - Modele User (propre + safe parsing)
 // =============================================================
 
-import 'package:chefunitplus/models/role.dart';
+import 'package:chefunitplus/core/constants/role_constants.dart';
 
 enum UserSexe { masculin, feminin }
 
@@ -29,6 +29,9 @@ class User {
   final DateTime? dateNaissance;
   final String? lieuNaissance;
   final String? photoUrl;
+  final String? adresse;
+  final String? totem;
+  final String? groupId;
   final String email;
   final String phone;
   final UserRole role;
@@ -48,6 +51,9 @@ class User {
     this.dateNaissance,
     this.lieuNaissance,
     this.photoUrl,
+    this.adresse,
+    this.totem,
+    this.groupId,
     required this.email,
     required this.phone,
     this.role = UserRole.apprenant,
@@ -83,7 +89,10 @@ class User {
       sexe: UserSexeX.fromString(json['sexe'] as String?),
       dateNaissance: _parseDate(json['dateNaissance'] ?? json['date_naissance']),
       lieuNaissance: json['lieuNaissance'] ?? json['lieu_naissance'],
-      photoUrl: json['photoUrl'] ?? json['photo_url'],
+      photoUrl: json['photoUrl'] ?? json['photo_url'] ?? json['avatarUrl'] ?? json['avatar_url'],
+      adresse: json['adresse'],
+      totem: json['totem'],
+      groupId: json['groupId']?.toString() ?? json['group_id']?.toString(),
       email: json['email'] ?? '',
       phone: json['phone'] ?? json['telephone'] ?? '',
       role: UserRoleExtension.fromString(json['role'] as String?),
@@ -121,6 +130,9 @@ class User {
           'dateNaissance': dateNaissance!.toIso8601String(),
         if (lieuNaissance != null) 'lieuNaissance': lieuNaissance,
         if (photoUrl != null) 'photoUrl': photoUrl,
+        if (adresse != null) 'adresse': adresse,
+        if (totem != null) 'totem': totem,
+        if (groupId != null) 'groupId': groupId,
         'email': email,
         'phone': phone,
         'role': role.name,
@@ -145,6 +157,9 @@ class User {
     DateTime? dateNaissance,
     String? lieuNaissance,
     String? photoUrl,
+    String? adresse,
+    String? totem,
+    String? groupId,
     String? email,
     String? phone,
     UserRole? role,
@@ -164,6 +179,9 @@ class User {
         dateNaissance: dateNaissance ?? this.dateNaissance,
         lieuNaissance: lieuNaissance ?? this.lieuNaissance,
         photoUrl: photoUrl ?? this.photoUrl,
+        adresse: adresse ?? this.adresse,
+        totem: totem ?? this.totem,
+        groupId: groupId ?? this.groupId,
         email: email ?? this.email,
         phone: phone ?? this.phone,
         role: role ?? this.role,
@@ -206,6 +224,9 @@ class User {
     }
     return a;
   }
+
+  // Alias pour compatibilite avec avatarUrl
+  String? get avatarUrl => photoUrl;
 
   // ===========================================================
   // HELPERS PRIVES

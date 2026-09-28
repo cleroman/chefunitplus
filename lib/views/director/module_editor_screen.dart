@@ -1,12 +1,14 @@
-import 'dart:typed_data';
+﻿import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import '../../core/routes/app_routes.dart';
+import '../../controllers/auth_controller.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../controllers/module_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../models/module.dart';
-import '../../models/role.dart';
+import 'package:chefunitplus/core/constants/role_constants.dart';
 import '../../widgets/utils/pdf_picker.dart';
 
 class ModuleEditorScreen extends StatefulWidget {
@@ -164,7 +166,14 @@ class _ModuleEditorScreenState extends State<ModuleEditorScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(_isEditing ? 'Modifier le module' : 'Nouveau module'),
+        leading: IconButton(
+          icon: const Icon(Icons.home),
+          tooltip: 'Accueil',
+          onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoutes.homeForRole(context.read<AuthController>().currentUser?.role ?? 'learner'),
+            (route) => false,
+          ),
+        ),        title: Text(_isEditing ? 'Modifier le module' : 'Nouveau module'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
       ),

@@ -1,0 +1,194 @@
+// =============================================================
+// ChefUnitPlus - Routeur central + Guards par rôle
+// =============================================================
+
+import 'package:flutter/material.dart';
+
+import '../constants/role_constants.dart';
+import '../../models/user.dart';
+import 'app_routes.dart';
+
+// ------------------ IMPORTS DES ÉCRANS ------------------
+import '../../views/splash/splash_screen.dart';
+import '../../views/onboarding/onboarding_screen.dart';
+import '../../views/auth/login_screen.dart';
+import '../../views/auth/register_screen.dart';
+import '../../views/auth/forgot_password_screen.dart';
+import '../../views/common/role_router.dart';
+import '../../views/learner/formation_detail_screen.dart';
+import '../../views/learner/lesson_player_screen.dart';
+
+// =============================================================
+// 🛡️ GUARD : Vérification des rôles
+// =============================================================
+class RoleGuard {
+  RoleGuard._();
+
+  static bool check({
+    required BuildContext context,
+    required User? currentUser,
+    required List<UserRole> allowed,
+    bool showMessage = true,
+  }) {
+    if (currentUser == null) {
+      if (showMessage) _showDenied(context, 'Vous devez être connecté');
+      return false;
+    }
+    if (!allowed.contains(currentUser.role)) {
+      if (showMessage) _showDenied(context, 'Accès non autorisé');
+      return false;
+    }
+    if (!currentUser.isActive) {
+      if (showMessage) _showDenied(context, 'Compte suspendu');
+      return false;
+    }
+    return true;
+  }
+
+  static void _showDenied(BuildContext context, String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: Colors.red.shade700,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+}
+
+// =============================================================
+// 🧭 ROUTEUR PRINCIPAL
+// =============================================================
+class AppRouter {
+  AppRouter._();
+
+  static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
+    final name = settings.name ?? '';
+
+    // ------------------ ROUTES PARAMÉTRÉES ------------------
+    if (name.startsWith('${AppRoutes.learnerFormationDetail}/')) {
+      final id = name.split('/').last;
+      return _route(FormationDetailScreen(formationId: id), settings);
+    }
+
+    if (name.startsWith('${AppRoutes.learnerLessonPlayer}/')) {
+      final id = name.split('/').last;
+      return _route(LessonPlayerScreen(lessonId: id), settings);
+    }
+
+    // ------------------ ROUTES FIXES ------------------
+    switch (name) {
+      case AppRoutes.splash:
+        return _route(const SplashScreen(), settings);
+
+      case AppRoutes.onboarding:
+        return _route(const OnboardingScreen(), settings);
+
+      case AppRoutes.login:
+        return _route(const LoginScreen(), settings);
+
+      case AppRoutes.register:
+        return _route(const RegisterScreen(), settings);
+
+      case AppRoutes.forgotPassword:
+        return _route(const ForgotPasswordScreen(), settings);
+
+      // --- Home par rôle (redirige vers le bon dashboard) ---
+      case AppRoutes.adminHome:
+      case AppRoutes.directorHome:
+      case AppRoutes.trainerHome:
+      case AppRoutes.learnerHome:
+        return _route(const RoleRouter(), settings);
+
+      default:
+        return _unknownRoute(settings);
+    }
+  }
+
+  // ===========================================================
+  // 🏠 HELPERS
+  // ===========================================================
+  static Widget homeFor(User user) => const RoleRouter();
+
+  static String homeRouteName(User user) {
+    switch (user.role) {
+      case UserRole.admin:
+        return AppRoutes.adminHome;
+      case UserRole.directeur:
+        return AppRoutes.directorHome;
+      case UserRole.formateur:
+        return AppRoutes.trainerHome;
+      case UserRole.apprenant:
+        return AppRoutes.learnerHome;
+    }
+  }
+
+  // ===========================================================
+  // 🧰 HELPERS INTERNES (maintenant UTILISÉS)
+  // ===========================================================
+  static MaterialPageRoute _route(Widget screen, RouteSettings settings) {
+    return MaterialPageRoute(
+      builder: (_) => screen,
+      settings: settings,
+    );
+  }
+
+  static Route<dynamic> _unknownRoute(RouteSettings settings) {
+    return MaterialPageRoute(
+      builder: (_) => Scaffold(
+        appBar: AppBar(title: const Text('Page introuvable')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: Colors.red,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Aucune route définie pour :\n${settings.name}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      settings: settings,
+    );
+  }
+}
+
+// =============================================================
+// 🛡️ MIXIN DE GUARD POUR WIDGETS
+// =============================================================
+mixin RoleGuardMixin<T extends StatefulWidget> on State<T> {
+  List<UserRole> get allowedRoles;
+  User? get currentUser;
+
+  bool _checked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _verify());
+  }
+
+  void _verify() {
+    if (_checked || !mounted) return;
+    _checked = true;
+
+    if (!RoleGuard.check(
+      context: context,
+      currentUser: currentUser,
+      allowed: allowedRoles,
+    )) {
+      Navigator.of(context).maybePop();
+    }
+  }
+}

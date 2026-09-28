@@ -19,6 +19,7 @@ import '../../views/admin/complaints_screen.dart';
 import '../../views/admin/password_requests_screen.dart';
 import '../../views/admin/scout_groups_screen.dart';
 import '../../views/learner/profile_screen.dart';
+import '../../views/learner/edit_profile_screen.dart';
 
 import '../../views/director/director_dashboard.dart';
 import '../../views/director/formation_editor_screen.dart';
@@ -26,17 +27,27 @@ import '../../views/director/enrollments_validation_screen.dart';
 import '../../views/director/trainers_management_screen.dart';
 import '../../views/director/module_assign_screen.dart';
 import '../../views/director/formation_stats_screen.dart';
+import '../../views/director/director_module_validation_screen.dart';
 
-import '../../views/trainer/trainer_dashboard.dart';
-import '../../views/trainer/my_modules_screen.dart';
-import '../../views/trainer/students_list_screen.dart';
+import '../../views/mobile/trainer/trainer_dashboard.dart';
+import '../../views/mobile/trainer/my_modules_screen.dart';
+import '../../views/mobile/trainer/students_list_screen.dart';
+import '../../views/mobile/trainer/trainer_create_module_screen.dart';
 
 import '../../views/learner/learner_dashboard.dart';
 import '../../views/learner/formation_catalog_screen.dart';
 import '../../views/learner/my_enrollments_screen.dart';
 import '../../views/learner/certificate_screen.dart';
 
+import '../../views/director/director_formations_list_screen.dart';
 import 'app_routes.dart';
+import '../../views/mobile/shared/scout_videos_screen.dart';
+import '../../views/shared/notifications_screen.dart';
+import '../../views/shared/messages_screen.dart';
+import '../../views/mobile/shared/settings_screen.dart';
+import '../../views/shared/change_password_screen.dart';
+import '../layout_detector.dart';
+import '../../views/web/web_director_dashboard.dart';
 
 class AppRouter {
   AppRouter._();
@@ -62,7 +73,13 @@ class AppRouter {
       case AppRoutes.adminHome:
         return _page(const AdminDashboard(), settings);
       case AppRoutes.directorHome:
-        return _page(const DirectorDashboard(), settings);
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const LayoutDetector(
+            webChild: WebDirectorDashboard(),
+            mobileChild: DirectorDashboard(),
+          ),
+        );
       case AppRoutes.trainerHome:
         return _page(const TrainerDashboard(), settings);
       case AppRoutes.learnerHome:
@@ -72,11 +89,13 @@ class AppRouter {
       case AppRoutes.learnerCatalog:
         return _page(const FormationCatalogScreen(), settings);
       case AppRoutes.learnerEnrollments:
+      case '/learner/enrollments':
         return _page(const MyEnrollmentsScreen(), settings);
       case AppRoutes.learnerCertificates:
         return _page(const CertificateScreen(), settings);
       case AppRoutes.learnerProfile:
-        return _page(const ProfileScreen(), settings);
+      case AppRoutes.editProfile:
+        return MaterialPageRoute(builder: (_) => const EditProfileScreen());
 
       // ---------------- DIRECTOR ----------------
       case AppRoutes.directorFormationEditor:
@@ -92,9 +111,12 @@ class AppRouter {
 
       // ---------------- TRAINER ----------------
       case AppRoutes.trainerModules:
+      case '/trainer/modules':
         return _page(const MyModulesScreen(), settings);
       case AppRoutes.trainerStudents:
         return _page(const StudentsListScreen(), settings);
+      case '/trainer/module/create':
+        return _page(const TrainerCreateModuleScreen(), settings);
 
       // ---------------- ADMIN ----------------
       case AppRoutes.adminUsers:
@@ -114,7 +136,28 @@ class AppRouter {
         return _page(const PasswordRequestsScreen(), settings);
 
       case AppRoutes.profile:
+      case '/profile':
         return _page(const ProfileScreen(), settings);
+
+      // ---------------- COMMUNS ----------------
+      case AppRoutes.scoutVideos:
+      case '/scout-videos':
+        return _page(const ScoutVideosScreen(), settings);
+      case AppRoutes.notifications:
+      case '/directeur/formations':
+        return _page(const DirectorFormationsListScreen(), settings);
+
+      case '/notifications':
+        return _page(const NotificationsScreen(), settings);
+      case AppRoutes.settings:
+      case '/settings':
+        return _page(const SettingsScreen(), settings);
+      case '/messages':
+        return _page(const MessagesScreen(), settings);
+      case '/change-password':
+        return _page(const ChangePasswordScreen(), settings);
+      case '/director/modules/validation':
+        return _page(const DirectorModuleValidationScreen(), settings);
 
       // ---------------- INCONNUE ----------------
       default:

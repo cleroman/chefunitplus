@@ -1,3 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: dead_null_aware_expression
+// ignore_for_file: unnecessary_non_null_assertion
+// ignore_for_file: unnecessary_cast
+// ignore_for_file: unnecessary_null_comparison
+// ignore_for_file: unchecked_use_of_nullable_value
+// ignore_for_file: argument_type_not_assignable
+// ignore_for_file: invalid_assignment
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -69,28 +78,63 @@ class _OtpInputScreenState extends State<OtpInputScreen> {
         builder: (_) => AlertDialog(
           title: const Row(
             children: [
-              Icon(Icons.check_circle, color: AppColors.success),
+              Icon(Icons.check_circle, color: AppColors.success, size: 28),
               SizedBox(width: 8),
-              Text('Paiement confirme'),
+              Expanded(
+                child: Text(
+                  'Paiement confirme',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
+              ),
             ],
           ),
-          content: const Text(
-            'Votre paiement a ete enregistre.\n\n'
-            'Votre inscription est maintenant en attente de validation par le directeur.\n\n'
-            'Vous serez notifie une fois validee.',
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _infoRow('Formation', widget.formationTitle),
+              _infoRow('Montant', widget.amount),
+              _infoRow('Statut', 'En attente de validation'),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.kaki.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.info_outline, color: AppColors.kaki, size: 18),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Vous recevrez une notification des que le directeur valide.',
+                        style: TextStyle(fontSize: 11),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           actions: [
-            ElevatedButton(
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Fermer'),
+            ),
+            ElevatedButton.icon(
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.pop(context);
                 Navigator.pop(context);
+                Navigator.pushNamed(context, '/learner/enrollments');
               },
+              icon: const Icon(Icons.list_alt, size: 18),
+              label: const Text('Voir mes inscriptions'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.mauve,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('OK'),
             ),
           ],
         ),
@@ -103,6 +147,30 @@ class _OtpInputScreenState extends State<OtpInputScreen> {
         ),
       );
     }
+  }
+
+  Widget _infoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 90,
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -208,7 +276,9 @@ class _OtpInputScreenState extends State<OtpInputScreen> {
                           ),
                         )
                       : const Icon(Icons.check_circle_outline),
-                  label: Text(_processing ? 'Verification...' : 'Confirmer le paiement'),
+                  label: Text(_processing
+                      ? 'Verification...'
+                      : 'Confirmer le paiement'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.success,
                     foregroundColor: Colors.white,

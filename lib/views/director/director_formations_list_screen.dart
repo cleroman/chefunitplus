@@ -1,10 +1,13 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import '../../core/routes/app_routes.dart';
+import '../../controllers/auth_controller.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../controllers/formation_controller.dart';
 import '../../models/formation.dart';
 import 'formation_editor_screen.dart';
+import 'formation_readiness_screen.dart';
 
 class DirectorFormationsListScreen extends StatefulWidget {
   const DirectorFormationsListScreen({super.key});
@@ -58,7 +61,14 @@ class _DirectorFormationsListScreenState
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Mes formations'),
+        leading: IconButton(
+          icon: const Icon(Icons.home),
+          tooltip: 'Accueil',
+          onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoutes.homeForRole(context.read<AuthController>().currentUser?.role ?? 'learner'),
+            (route) => false,
+          ),
+        ),        title: const Text('Mes formations'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
         bottom: TabBar(
@@ -204,6 +214,7 @@ class _DirectorFormationsListScreenState
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
           onTap: () => _openEditor(f),
+                  onLongPress: () => _openReadiness(f),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
@@ -276,6 +287,21 @@ class _DirectorFormationsListScreenState
                   ],
                 ),
                 const SizedBox(height: 12),
+                // Bouton "Verifier la preparation"
+                if (!f.isPublished)
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => _openReadiness(f),
+                      icon: const Icon(Icons.check_circle_outline, size: 16),
+                      label: const Text('Verifier la preparation'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.mauve,
+                        side: const BorderSide(color: AppColors.mauve),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                      ),
+                    ),
+                  ),
                 // Stats ligne
                 Row(
                   children: [
@@ -433,7 +459,7 @@ class _DirectorFormationsListScreenState
       context,
       MaterialPageRoute(
         builder: (_) => FormationEditorScreen(
-          formationId: formation?.id,
+          formation: formation,
         ),
       ),
     );
@@ -441,4 +467,15 @@ class _DirectorFormationsListScreenState
       context.read<FormationController>().load(all: true, refresh: true);
     }
   }
-}
+
+  void _openReadiness(dynamic f) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => FormationReadinessScreen(
+          formationId: f.id,
+          formationTitle: f.title,
+        ),
+      ),
+    );
+  }}

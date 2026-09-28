@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import '../../core/routes/app_routes.dart';
+import '../../controllers/auth_controller.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
@@ -6,7 +8,7 @@ import '../../controllers/formation_controller.dart';
 import '../../controllers/module_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../models/module.dart';
-import '../../models/role.dart';
+import 'package:chefunitplus/core/constants/role_constants.dart';
 
 class DirectorModuleValidationScreen extends StatefulWidget {
   const DirectorModuleValidationScreen({super.key});
@@ -35,7 +37,14 @@ class _DirectorModuleValidationScreenState
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Validation des modules'),
+        leading: IconButton(
+          icon: const Icon(Icons.home),
+          tooltip: 'Accueil',
+          onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoutes.homeForRole(context.read<AuthController>().currentUser?.role ?? 'learner'),
+            (route) => false,
+          ),
+        ),        title: const Text('Validation des modules'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
       ),

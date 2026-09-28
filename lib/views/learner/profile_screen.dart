@@ -9,6 +9,8 @@ import '../../controllers/locale_controller.dart';
 import '../../controllers/theme_controller.dart';
 import '../shared/change_password_screen.dart';
 import '../shared/user_badge_screen.dart';
+import '../../core/constants/role_constants.dart';
+import 'edit_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -40,6 +42,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Mon profil'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            tooltip: 'Modifier',
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const EditProfileScreen(),
+                ),
+              );
+              if (result == true && mounted) {
+                setState(() {});
+              }
+            },
+          ),
+        ],
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
@@ -197,7 +216,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              user?.role?.label ?? 'Apprenant',
+              _getRoleLabel(user?.role),
               style: const TextStyle(
                 color: AppColors.mauveDark,
                 fontWeight: FontWeight.w600,
@@ -411,5 +430,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (!mounted) return;
     context.read<AuthController>().logout();
+  }
+
+  // ============================================================
+  // Helper : label du role (contourne bug Flutter Web)
+  // ============================================================
+  String _getRoleLabel(UserRole? role) {
+    if (role == null) return 'Apprenant';
+    switch (role) {
+      case UserRole.admin:
+        return 'Administrateur';
+      case UserRole.directeur:
+        return 'Directeur';
+      case UserRole.formateur:
+        return 'Formateur';
+      case UserRole.apprenant:
+    return 'Apprenant'; // fallback
+    }
   }
 }

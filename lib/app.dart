@@ -4,12 +4,12 @@ import 'package:provider/provider.dart';
 
 import 'core/routes/app_routes.dart';
 import 'core/routes/app_router.dart';
-import 'core/theme/app_theme.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/locale_controller.dart';
 import 'controllers/theme_controller.dart';
 import 'views/auth/login_screen.dart';
 import 'views/splash/splash_screen.dart';
+import 'core/theme/director_theme_adapter.dart';
 
 class ChefUnitPlusApp extends StatefulWidget {
   const ChefUnitPlusApp({super.key});
@@ -56,8 +56,8 @@ class _ChefUnitPlusAppState extends State<ChefUnitPlusApp> {
       title: 'ChefUnitPlus',
       debugShowCheckedModeBanner: false,
       navigatorKey: _navigatorKey,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
+      theme: DirectorThemeAdapter.theme(),
+      darkTheme: DirectorThemeAdapter.theme(),
       themeMode: themeMode,
       locale: locale,
       localizationsDelegates: const [
@@ -84,3 +84,5 @@ class _ChefUnitPlusAppState extends State<ChefUnitPlusApp> {
     );
   }
 }
+
+

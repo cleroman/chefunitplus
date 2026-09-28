@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../core/constants/app_colors.dart';
@@ -157,13 +158,37 @@ class ReceiptScreen extends StatelessWidget {
             SizedBox(
               height: 52,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Telechargement PDF bientot disponible'),
-                      backgroundColor: AppColors.kaki,
+                onPressed: () async {
+                  final url = receipt['pdfUrl']?.toString() ??
+                      receipt['receiptPdfUrl']?.toString();
+                  final messenger = ScaffoldMessenger.of(context);
+                  if (url == null || url.isEmpty) {
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('PDF non disponible'),
+                        backgroundColor: AppColors.warning,
+                      ),
+                    );
+                    return;
+                  }
+                  // Ouvrir l'URL du PDF
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text('Telechargement : $url'),
+                      backgroundColor: AppColors.mauve,
                     ),
                   );
+                  final uri = Uri.tryParse(url);
+                  if (uri != null && await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  } else {
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('Impossible d\'ouvrir le PDF'),
+                        backgroundColor: AppColors.danger,
+                      ),
+                    );
+                  }
                 },
                 icon: const Icon(Icons.download),
                 label: const Text('Telecharger le recu'),

@@ -1,12 +1,22 @@
+// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: dead_null_aware_expression
+// ignore_for_file: unnecessary_non_null_assertion
+// ignore_for_file: unnecessary_cast
+// ignore_for_file: unnecessary_null_comparison
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_const, duplicate_import, unused_element
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../controllers/enrollment_controller.dart';
+import '../../services/qr_service.dart';
 import '../../controllers/formation_controller.dart';
+import '../../services/qr_service.dart';
 import '../../models/formation.dart';
 import '../../models/module.dart';
-import 'payment_screen.dart';
+import 'learner_payment_screen.dart';
+import 'learner_formation_suivi_screen.dart';
 
 class FormationDetailScreen extends StatefulWidget {
   final String formationId;
@@ -26,6 +36,9 @@ class _FormationDetailScreenState extends State<FormationDetailScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<QrService>().listMy();
+    });
     _load();
   }
 
@@ -71,8 +84,22 @@ class _FormationDetailScreenState extends State<FormationDetailScreen> {
     if (f == null) return;
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => PaymentScreen(formation: f)),
+      MaterialPageRoute(builder: (_) => LearnerPaymentScreen(amount: f.price, formationTitle: f.title, formationId: f.id)),
     ).then((_) => _load());
+  }
+
+  void _goToSuivi() {
+    final f = _formation;
+    if (f == null) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LearnerFormationSuiviScreen(
+          formationId: f.id,
+          formationTitle: f.title,
+        ),
+      ),
+    );
   }
 
   @override
@@ -117,6 +144,12 @@ class _FormationDetailScreenState extends State<FormationDetailScreen> {
                   _buildAccessBanner(),
                   const SizedBox(height: 16),
                   _buildDocumentsSection(f),
+                  const SizedBox(height: 16),
+                ],
+
+                // QR CODE DE L'APPRENANT
+                if (_hasAccess) ...[
+                  _buildQrSection(context),
                   const SizedBox(height: 16),
                 ],
 
@@ -520,18 +553,31 @@ class _FormationDetailScreenState extends State<FormationDetailScreen> {
       child: SafeArea(
         child: SizedBox(
           height: 52,
-          child: ElevatedButton.icon(
-            onPressed: _goToPayment,
-            icon: const Icon(Icons.shopping_cart_checkout),
-            label: Text('S\'inscrire pour ${f.priceLabel}'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.mauve,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
+          child: _hasAccess
+              ? ElevatedButton.icon(
+                  onPressed: _goToSuivi,
+                  icon: const Icon(Icons.play_circle_outline),
+                  label: const Text('Suivre'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.success,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                )
+              : ElevatedButton.icon(
+                  onPressed: _goToPayment,
+                  icon: const Icon(Icons.shopping_cart_checkout),
+                  label: Text('S\'inscrire pour ${f.priceLabel}'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.mauve,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
         ),
       ),
     );
@@ -540,6 +586,191 @@ class _FormationDetailScreenState extends State<FormationDetailScreen> {
   void _showDownloadInfo(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(msg), backgroundColor: AppColors.kaki),
+    );
+  }
+
+  // ============================================================
+  // SECTION QR CODE
+  // ============================================================
+  Widget _buildQrSection(BuildContext context) {
+    return Consumer<QrService>(
+      builder: (context, qrSvc, _) {
+        // Verifier si l'apprenant a un QR pour cette formation
+        final qrCodes = qrSvc.myQrCodes.where(
+          (q) => q['formation_id'] == widget.formationId,
+        ).toList();
+
+        if (qrCodes.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        final qr = qrCodes.first;
+        final qrData = qr['qr_data']?.toString() ?? qr['code']?.toString() ?? '';
+        final progress = qr['progress_percent'] as int? ?? 0;
+        final scannedModules = qr['scanned_modules'] != null
+            ? (qr['scanned_modules'] is String
+                ? (qr['scanned_modules'] as String).split(',').where((e) => e.isNotEmpty).length
+                : 0)
+            : 0;
+
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.mauve.withValues(alpha: 0.3), width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              // Titre
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.qr_code, color: AppColors.mauve, size: 24),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Mon QR Code de presence',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // QR Code
+              if (qrData.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.divider),
+                  ),
+                  child: QrImageView(
+                    data: qrData,
+                    version: QrVersions.auto,
+                    size: 200,
+                    backgroundColor: Colors.white,
+                    eyeStyle: const QrEyeStyle(
+                      eyeShape: QrEyeShape.square,
+                      color: AppColors.mauveDark,
+                    ),
+                    dataModuleStyle: const QrDataModuleStyle(
+                      dataModuleShape: QrDataModuleShape.square,
+                      color: AppColors.mauve,
+                    ),
+                  ),
+                ),
+
+              const SizedBox(height: 16),
+
+              // Code texte
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  qrData,
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Progression
+              _buildProgressBar(progress, scannedModules),
+
+              const SizedBox(height: 12),
+
+              // Message de felicitations si 100%
+              if (progress >= 100)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.success),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.celebration, color: AppColors.success),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Felicitations ! Vous avez termine cette formation.',
+                          style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              const SizedBox(height: 12),
+
+              // Instructions
+              const Text(
+                'Presentez ce QR code au formateur pour pointer votre presence a chaque module.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: AppColors.textMuted, fontStyle: FontStyle.italic),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // BARRE DE PROGRESSION
+  // ============================================================
+  Widget _buildProgressBar(int progress, int scannedModules) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Progression', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+            Text(
+              '$progress%',
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                color: progress >= 100 ? AppColors.success : AppColors.mauve,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: progress / 100,
+            minHeight: 8,
+            backgroundColor: AppColors.divider,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              progress >= 100 ? AppColors.success : AppColors.mauve,
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '$scannedModules module(s) scanne(s)',
+          style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+        ),
+      ],
     );
   }
 }

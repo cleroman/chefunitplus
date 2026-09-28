@@ -1,7 +1,9 @@
+// =============================================================
+// ChefUnitPlus - EnrollmentController
+// =============================================================
+
 import 'package:flutter/foundation.dart';
 
-import '../core/errors/app_exception.dart';
-import '../core/errors/error_handler.dart';
 import '../models/enrollment.dart';
 import '../services/enrollment_service.dart';
 
@@ -10,158 +12,193 @@ class EnrollmentController extends ChangeNotifier {
 
   EnrollmentController(this._service);
 
-  bool _loading = false;
-  bool get isLoading => _loading;
-
-  String? _error;
-  String? get error => _error;
-  String? get errorMessage => _error;
-
   List<Enrollment> _mine = [];
-  List<Enrollment> get mine => _mine;
-
   List<Enrollment> _pending = [];
+  bool _isLoading = false;
+  String? _errorMessage;
+  Map<String, dynamic>? _lastEnrollment;
+
+  List<Enrollment> get mine => _mine;
   List<Enrollment> get pending => _pending;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  Map<String, dynamic>? get lastEnrollment => _lastEnrollment;
 
-  List<Enrollment> get approved =>
-      _mine.where((e) => e.status == EnrollmentStatus.approved).toList();
+  List<Enrollment> get approved => _mine.where((e) => e.isApproved).toList();
+  List<Enrollment> get awaiting => _mine.where((e) => e.isAwaiting).toList();
 
-  List<Enrollment> get awaiting =>
-      _mine.where((e) => e.status == EnrollmentStatus.pendingDirector).toList();
-
-  List<Enrollment> get pendingPayment =>
-      _mine.where((e) => e.status == EnrollmentStatus.pendingPayment).toList();
-
-  // Charger mes inscriptions
+  // ============================================================
+  // CHARGER MES ENROLLMENTS
+  // ============================================================
   Future<void> loadMine({bool refresh = false}) async {
-    if (!refresh && _loading) return;
-    _loading = true;
-    _error = null;
+    _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
 
     try {
-      _mine = await _service.myEnrollments();
-    } on AppException catch (e) {
-      _error = e.message;
-    } catch (e, st) {
-      _error = ErrorHandler.message(e);
-      ErrorHandler.log(e, st, 'EnrollmentController.loadMine');
+      _mine = await _service.loadMyEnrollments();
+    } catch (e) {
+      _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    _loading = false;
-    notifyListeners();
   }
 
-  // Charger pending (directeur)
+  // ============================================================
+  // CHARGER LES PAIEMENTS EN ATTENTE
+  // ============================================================
   Future<void> loadPending({bool refresh = false}) async {
-    if (!refresh && _loading) return;
-    _loading = true;
-    _error = null;
+    _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
 
     try {
-      _pending = await _service.pendingForDirector();
-    } on AppException catch (e) {
-      _error = e.message;
-    } catch (e, st) {
-      _error = ErrorHandler.message(e);
-      ErrorHandler.log(e, st, 'EnrollmentController.loadPending');
+      _pending = await _service.loadPending();
+    } catch (e) {
+      _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    _loading = false;
-    notifyListeners();
   }
 
-  // Creer une inscription
+  // ============================================================
+  // DEMANDER INSCRIPTION (flexible)
+  // ============================================================
   Future<Enrollment?> request(
-    String formationId, {
-    required String phone,
-    required String accountName,
+    dynamic formationIdOrMap, {
+    String? phone,
+    String? accountName,
   }) async {
-    _error = null;
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
     try {
-      final enrollment = await _service.request(
-        formationId,
+      final res = await _service.request(
+        formationIdOrMap,
         phone: phone,
         accountName: accountName,
       );
-      await loadMine(refresh: true);
-      return enrollment;
-    } catch (e, st) {
-      _error = ErrorHandler.message(e);
-      notifyListeners();
-      ErrorHandler.log(e, st, 'EnrollmentController.request');
+      if (res['success'] == true) {
+        final data = res['data'];
+        if (data is Map) {
+          final enrollment = Enrollment.fromMap(Map<String, dynamic>.from(data));
+          _lastEnrollment = enrollment.toMap();
+          return enrollment;
+        }
+      }
+      _errorMessage = res['message'] as String? ?? 'Erreur';
       return null;
-    }
-  }
-
-  // Confirmer OTP apprenant
-  Future<bool> confirmOtp(String enrollmentId, String otp) async {
-    _error = null;
-    try {
-      await _service.confirmOtp(enrollmentId, otp);
-      await loadMine(refresh: true);
-      return true;
-    } catch (e, st) {
-      _error = ErrorHandler.message(e);
-      notifyListeners();
-      ErrorHandler.log(e, st, 'EnrollmentController.confirmOtp');
-      return false;
-    }
-  }
-
-  // Valider (directeur) avec OTP
-  Future<bool> validate(
-    String id, {
-    String? otp,
-    String? comment,
-    String? reason,
-  }) async {
-    _error = null;
-    try {
-      await _service.validate(id, otp: otp ?? '', comment: comment ?? reason);
-      await loadPending(refresh: true);
-      return true;
-    } catch (e, st) {
-      _error = ErrorHandler.message(e);
-      notifyListeners();
-      ErrorHandler.log(e, st, 'EnrollmentController.validate');
-      return false;
-    }
-  }
-
-  // Refuser (directeur)
-  Future<bool> reject(String id, {String? comment, String? reason}) async {
-    _error = null;
-    try {
-      await _service.reject(id, comment: comment ?? reason);
-      await loadPending(refresh: true);
-      return true;
-    } catch (e, st) {
-      _error = ErrorHandler.message(e);
-      notifyListeners();
-      ErrorHandler.log(e, st, 'EnrollmentController.reject');
-      return false;
-    }
-  }
-
-  // Recu (avec QR data)
-  Future<Map<String, dynamic>?> getReceipt(String enrollmentId) async {
-    try {
-      return await _service.getReceipt(enrollmentId);
-    } catch (e, st) {
-      _error = ErrorHandler.message(e);
-      notifyListeners();
-      ErrorHandler.log(e, st, 'EnrollmentController.getReceipt');
+    } catch (e) {
+      _errorMessage = e.toString();
       return null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  void reset() {
-    _mine = [];
-    _pending = [];
-    _error = null;
-    _loading = false;
+  // ============================================================
+  // CONFIRMER OTP (flexible)
+  // ============================================================
+  Future<bool> confirmOtp(
+    dynamic enrollmentIdOrMap, [
+    String? otpPositional,
+  ]) async {
+    _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
+
+    try {
+      final res = await _service.confirmOtp(
+        enrollmentIdOrMap,
+        otpPositional,
+      );
+      if (res['success'] == true) return true;
+      _errorMessage = res['message'] as String? ?? 'Erreur';
+      return false;
+    } catch (e) {
+      _errorMessage = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ============================================================
+  // VALIDER
+  // ============================================================
+  Future<bool> validate(
+    String enrollmentId, {
+    String? comment,
+    String? otp,
+  }) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final ok = await _service.validate(enrollmentId, comment: comment, otp: otp);
+      if (ok) await loadPending();
+      return ok;
+    } catch (e) {
+      _errorMessage = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ============================================================
+  // REJETER
+  // ============================================================
+  Future<bool> reject(
+    String enrollmentId, {
+    String? reason,
+    String? comment,
+  }) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final ok = await _service.reject(enrollmentId, reason: reason, comment: comment);
+      if (ok) await loadPending();
+      return ok;
+    } catch (e) {
+      _errorMessage = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ============================================================
+  // RECU
+  // ============================================================
+  Future<Map<String, dynamic>?> getReceipt(String enrollmentId) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final res = await _service.getReceipt(enrollmentId);
+      if (res['success'] == true) {
+        return Map<String, dynamic>.from(res['data'] ?? {});
+      }
+      _errorMessage = res['message'] as String? ?? 'Erreur';
+      return null;
+    } catch (e) {
+      _errorMessage = e.toString();
+      return null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }

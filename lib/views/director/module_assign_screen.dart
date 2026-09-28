@@ -1,15 +1,16 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - ModuleAssignScreen
-// Affecter un formateur à chaque module d'une formation
+// Affecter un formateur ÃƒÂ  chaque module d'une formation
 // =============================================================
 
 import 'package:flutter/material.dart';
+import '../../core/routes/app_routes.dart';
+import '../../controllers/auth_controller.dart';
 import 'package:provider/provider.dart';
 
 import '../../controllers/formation_controller.dart';
 import '../../controllers/module_controller.dart';
 import '../../controllers/user_controller.dart';
-import '../../models/role.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_sizes.dart';
 import '../../core/constants/role_constants.dart';
@@ -37,7 +38,7 @@ class _ModuleAssignScreenState extends State<ModuleAssignScreen> {
   }
 
   // ===========================================================
-  // 🚀 BOOTSTRAP
+  // Ã°Å¸Å¡â‚¬ BOOTSTRAP
   // ===========================================================
   Future<void> _bootstrap() async {
     if (!mounted) return;
@@ -58,7 +59,7 @@ class _ModuleAssignScreenState extends State<ModuleAssignScreen> {
   }
 
   // ===========================================================
-  // 🎯 SÉLECTION FORMATION
+  // Ã°Å¸Å½Â¯ SÃƒâ€°LECTION FORMATION
   // ===========================================================
   Future<void> _selectFormation(Formation f) async {
     if (!mounted) return;
@@ -71,7 +72,7 @@ class _ModuleAssignScreenState extends State<ModuleAssignScreen> {
   }
 
   // ===========================================================
-  // ✅ AFFECTATION — CORRIGÉ
+  // Ã¢Å“â€¦ AFFECTATION Ã¢â‚¬â€ CORRIGÃƒâ€°
   // ===========================================================
   Future<void> _assign(Module module, User trainer) async {
     // Capture AVANT await
@@ -86,13 +87,13 @@ class _ModuleAssignScreenState extends State<ModuleAssignScreen> {
       final ok = await ctrl.assignTrainer(module.id, trainer.id,
       );
 
-      // ✅ LA LIGNE MANQUANTE — vérification après await
+      // Ã¢Å“â€¦ LA LIGNE MANQUANTE Ã¢â‚¬â€ vÃƒÂ©rification aprÃƒÂ¨s await
       if (!mounted) return;
 
       if (ok) {
         SnackbarHelper.success(
           context,
-          '${trainer.fullName} affecté(e) à "${module.title}"',
+          '${trainer.fullName} affectÃƒÂ©(e) ÃƒÂ  "${module.title}"',
         );
       } else {
         SnackbarHelper.error(
@@ -108,7 +109,7 @@ class _ModuleAssignScreenState extends State<ModuleAssignScreen> {
   }
 
   // ===========================================================
-  // 🗑️ RETRAIT
+  // Ã°Å¸â€”â€˜Ã¯Â¸Â RETRAIT
   // ===========================================================
   Future<void> _unassign(Module module) async {
     if (!mounted) return;
@@ -145,7 +146,7 @@ class _ModuleAssignScreenState extends State<ModuleAssignScreen> {
     if (!mounted) return;
 
     if (ok) {
-      SnackbarHelper.info(context, 'Formateur retiré du module');
+      SnackbarHelper.info(context, 'Formateur retirÃƒÂ© du module');
     } else {
       SnackbarHelper.error(
         context,
@@ -155,7 +156,7 @@ class _ModuleAssignScreenState extends State<ModuleAssignScreen> {
   }
 
   // ===========================================================
-  // 🎨 BUILD
+  // Ã°Å¸Å½Â¨ BUILD
   // ===========================================================
   @override
   Widget build(BuildContext context) {
@@ -170,13 +171,20 @@ class _ModuleAssignScreenState extends State<ModuleAssignScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Affecter un formateur'),
+        leading: IconButton(
+          icon: const Icon(Icons.home),
+          tooltip: 'Accueil',
+          onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoutes.homeForRole(context.read<AuthController>().currentUser?.role ?? 'learner'),
+            (route) => false,
+          ),
+        ),        title: const Text('Affecter un formateur'),
         backgroundColor: AppColors.kaki,
         foregroundColor: Colors.white,
       ),
       body: Column(
         children: [
-          // ------------------ SÉLECTION FORMATION ------------------
+          // ------------------ SÃƒâ€°LECTION FORMATION ------------------
           Container(
             padding: const EdgeInsets.all(AppSizes.md),
             color: Colors.white,
@@ -213,7 +221,7 @@ class _ModuleAssignScreenState extends State<ModuleAssignScreen> {
                 ? const _HintState(
                     icon: Icons.touch_app_outlined,
                     message:
-                        'Sélectionnez une formation pour gérer les affectations.',
+                        'SÃƒÂ©lectionnez une formation pour gÃƒÂ©rer les affectations.',
                   )
                 : modules.isLoading
                     ? const Center(child: CircularProgressIndicator())
@@ -221,7 +229,7 @@ class _ModuleAssignScreenState extends State<ModuleAssignScreen> {
                         ? const _HintState(
                             icon: Icons.menu_book_outlined,
                             message:
-                                'Aucun module dans cette formation.\nCréez d\'abord des modules depuis votre espace formateur.',
+                                'Aucun module dans cette formation.\nCrÃƒÂ©ez d\'abord des modules depuis votre espace formateur.',
                           )
                         : RefreshIndicator(
                             color: AppColors.kaki,
@@ -254,7 +262,7 @@ class _ModuleAssignScreenState extends State<ModuleAssignScreen> {
 }
 
 // =============================================================
-// 🎴 CARTE MODULE
+// Ã°Å¸Å½Â´ CARTE MODULE
 // =============================================================
 class _ModuleAssignCard extends StatelessWidget {
   final Module module;
@@ -323,7 +331,7 @@ class _ModuleAssignCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${module.lessonCount} leçons · ${module.durationLabel}',
+                      '${module.lessonCount} leÃƒÂ§ons Ã‚Â· ${module.durationLabel}',
                       style: const TextStyle(
                         fontSize: 11,
                         color: AppColors.textMuted,
@@ -363,8 +371,8 @@ class _ModuleAssignCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     hasTrainer
-                        ? 'Formateur : ${module.trainerName ?? "assigné"}'
-                        : 'Aucun formateur affecté',
+                        ? 'Formateur : ${module.trainerName ?? "assignÃƒÂ©"}'
+                        : 'Aucun formateur affectÃƒÂ©',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -430,7 +438,7 @@ class _ModuleAssignCard extends StatelessWidget {
   }
 
   // ===========================================================
-  // 👥 SÉLECTEUR DE FORMATEUR
+  // Ã°Å¸â€˜Â¥ SÃƒâ€°LECTEUR DE FORMATEUR
   // ===========================================================
   void _showTrainerPicker(BuildContext context) {
     if (trainers.isEmpty) {
@@ -454,7 +462,7 @@ class _ModuleAssignCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Sélectionner un formateur',
+                'SÃƒÂ©lectionner un formateur',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -516,7 +524,7 @@ class _ModuleAssignCard extends StatelessWidget {
 }
 
 // =============================================================
-// 🧩 ÉTATS VIDES
+// Ã°Å¸Â§Â© Ãƒâ€°TATS VIDES
 // =============================================================
 class _NoFormationsBanner extends StatelessWidget {
   const _NoFormationsBanner();
@@ -535,7 +543,7 @@ class _NoFormationsBanner extends StatelessWidget {
           SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Aucune formation. Créez-en une depuis votre tableau de bord.',
+              'Aucune formation. CrÃƒÂ©ez-en une depuis votre tableau de bord.',
               style: TextStyle(fontSize: 12, color: AppColors.warning),
             ),
           ),
@@ -576,3 +584,4 @@ class _HintState extends StatelessWidget {
     );
   }
 }
+

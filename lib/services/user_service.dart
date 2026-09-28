@@ -103,6 +103,31 @@ class UserService {
   }
 
   // ============================================================
+  // DEMOTE : degrader un utilisateur
+  // ============================================================
+  Future<User> demote(String id, String newRole) async {
+    return ErrorHandler.guard(() async {
+      final r = await _api.patch('/users/$id/demote', body: {'role': newRole});
+      final d = r['data'] ?? r;
+      return User.fromJson(Map<String, dynamic>.from(d as Map));
+    }, context: 'UserService.demote');
+  }
+
+  // ============================================================
+  // GET ROLES : liste des roles avec priorites
+  // ============================================================
+  Future<List<Map<String, dynamic>>> getRoles() async {
+    return ErrorHandler.guard(() async {
+      final r = await _api.get('/users/roles');
+      final d = r['data'] ?? r;
+      if (d is List) {
+        return d.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      }
+      return [];
+    }, context: 'UserService.getRoles');
+  }
+
+  // ============================================================
   // SUSPEND : suspendre un compte
   // ============================================================
   Future<void> suspend(String id) async {

@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - Constantes API
 // Centralise toutes les URLs, tokens et endpoints de l'application
 // =============================================================
@@ -9,7 +9,7 @@ class ApiConstants {
   // -----------------------------------------------------------
   // BACKEND PRINCIPAL
   // -----------------------------------------------------------
-  static const String baseUrl = 'http://localhost:3000';
+  static const String baseUrl = 'https://chefunitplus-v1-0.onrender.com';
   static const String apiVersion = '/api';
   static const String apiUrl = '$baseUrl$apiVersion';
 

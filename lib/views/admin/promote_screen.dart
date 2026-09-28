@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../controllers/user_controller.dart';
-import '../../models/role.dart';
+import 'package:chefunitplus/core/constants/role_constants.dart';
 import '../../models/user.dart';
 
 class PromoteScreen extends StatefulWidget {

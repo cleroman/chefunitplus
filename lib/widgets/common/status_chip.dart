@@ -15,6 +15,7 @@ class StatusChip extends StatelessWidget {
   Color get _color {
     switch (status) {
       case EnrollmentStatus.approved:
+      case EnrollmentStatus.completed:
         return AppColors.success;
       case EnrollmentStatus.pendingDirector:
       case EnrollmentStatus.pendingPayment:
@@ -23,6 +24,7 @@ class StatusChip extends StatelessWidget {
       case EnrollmentStatus.failed:
         return AppColors.danger;
       case EnrollmentStatus.cancelled:
+      case EnrollmentStatus.unknown:
         return AppColors.textMuted;
     }
   }
@@ -41,6 +43,10 @@ class StatusChip extends StatelessWidget {
         return Icons.error_outline;
       case EnrollmentStatus.cancelled:
         return Icons.block;
+      case EnrollmentStatus.completed:
+        return Icons.emoji_events_outlined;
+      case EnrollmentStatus.unknown:
+        return Icons.help_outline;
     }
   }
 
@@ -49,22 +55,22 @@ class StatusChip extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: compact ? 6 : 10,
-        vertical: compact ? 3 : 5,
+        vertical: compact ? 2 : 4,
       ),
       decoration: BoxDecoration(
-        color: _color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
+        color: _color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(_icon, size: compact ? 12 : 14, color: _color),
-          SizedBox(width: compact ? 3 : 5),
+          Icon(_icon, color: _color, size: compact ? 10 : 14),
+          SizedBox(width: compact ? 4 : 6),
           Text(
             status.label,
             style: TextStyle(
-              fontSize: compact ? 10 : 12,
-              fontWeight: FontWeight.w600,
+              fontSize: compact ? 9 : 11,
+              fontWeight: FontWeight.w700,
               color: _color,
             ),
           ),

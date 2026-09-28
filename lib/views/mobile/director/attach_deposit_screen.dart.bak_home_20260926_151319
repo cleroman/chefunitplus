@@ -1,0 +1,274 @@
+// =============================================================
+// ChefUnitPlus - AttachDepositScreen
+// Le directeur attache un depot de module a une formation
+// =============================================================
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../core/constants/app_colors.dart';
+import '../../../services/deposit_module_service.dart';
+
+class AttachDepositScreen extends StatefulWidget {
+  final String formationId;
+  final String formationTitle;
+
+  const AttachDepositScreen({
+    super.key,
+    required this.formationId,
+    required this.formationTitle,
+  });
+
+  @override
+  State<AttachDepositScreen> createState() => _AttachDepositScreenState();
+}
+
+class _AttachDepositScreenState extends State<AttachDepositScreen> {
+  String? _selectedDepositId;
+  bool _attaching = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DepositModuleService>().loadAvailableDeposits();
+    });
+  }
+
+  Future<void> _attach() async {
+    if (_selectedDepositId == null) {
+      setState(() => _error = 'Selectionnez un module');
+      return;
+    }
+
+    setState(() {
+      _attaching = true;
+      _error = null;
+    });
+
+    final svc = context.read<DepositModuleService>();
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    final result = await svc.attachToFormation(
+      formationId: widget.formationId,
+      depositId: _selectedDepositId!,
+    );
+
+    if (!mounted) return;
+
+    setState(() => _attaching = false);
+
+    if (result != null) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Module attache avec succes'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+      navigator.pop(true);
+    } else {
+      setState(() => _error = svc.error ?? 'Erreur');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Attacher un module'),
+        backgroundColor: AppColors.mauve,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => context.read<DepositModuleService>().loadAvailableDeposits(),
+          ),
+        ],
+      ),
+      body: Consumer<DepositModuleService>(
+        builder: (context, svc, _) {
+          if (svc.loading && svc.availableDeposits.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (svc.availableDeposits.isEmpty) {
+            return _buildEmpty();
+          }
+
+          return _buildContent(svc);
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmpty() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.inbox_outlined, size: 64, color: AppColors.textMuted),
+            SizedBox(height: 16),
+            Text('Aucun module disponible',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            SizedBox(height: 8),
+            Text(
+              'Les modules deposes par les formateurs apparaitront ici.',
+              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(DepositModuleService svc) {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _buildHeader(),
+        const SizedBox(height: 20),
+
+        const Text('Selectionnez un module',
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+        const SizedBox(height: 12),
+
+        ...svc.availableDeposits.map((d) => _buildDepositCard(d)),
+
+        const SizedBox(height: 20),
+
+        if (_error != null) ...[
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.danger.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.danger),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.error_outline, color: AppColors.danger),
+                const SizedBox(width: 8),
+                Expanded(child: Text(_error!, style: const TextStyle(color: AppColors.danger))),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: (_selectedDepositId == null || _attaching) ? null : _attach,
+            icon: _attaching
+                ? const SizedBox(width: 20, height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                : const Icon(Icons.attach_file),
+            label: Text(_attaching ? 'Attachement...' : 'Attacher a la formation'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.success,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.mauve.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.school_outlined, color: AppColors.mauve),
+              SizedBox(width: 8),
+              Text('Formation',
+                  style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.mauve)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(widget.formationTitle,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDepositCard(Map<String, dynamic> d) {
+    final isSelected = _selectedDepositId == d['id'];
+    final trainerName = d['trainer_name'] as String? ?? 'Formateur inconnu';
+    final hours = d['hours'] ?? 0;
+    final title = d['title'] as String? ?? 'Module';
+
+    return InkWell(
+      onTap: () => setState(() => _selectedDepositId = d['id'] as String),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.mauve.withValues(alpha: 0.1) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? AppColors.mauve : Colors.grey.shade300,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 24, height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected ? AppColors.mauve : Colors.transparent,
+                border: Border.all(color: isSelected ? AppColors.mauve : Colors.grey),
+              ),
+              child: isSelected
+                  ? const Icon(Icons.check, size: 14, color: Colors.white)
+                  : null,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.person_outline, size: 12, color: AppColors.textMuted),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(trainerName,
+                            style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                            overflow: TextOverflow.ellipsis),
+                      ),
+                      const Icon(Icons.schedule, size: 12, color: AppColors.textMuted),
+                      const SizedBox(width: 4),
+                      Text('${hours}h',
+                          style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -4,6 +4,7 @@
 // =============================================================
 
 import 'package:chefunitplus/core/constants/api_constants.dart';
+import 'package:flutter/foundation.dart';
 import 'package:chefunitplus/core/errors/error_handler.dart';
 import 'package:chefunitplus/models/auth_response.dart';
 import 'package:chefunitplus/models/user.dart';
@@ -20,7 +21,7 @@ class AuthService {
   });
 
   // ===========================================================
-  // 🔑 CONNEXION
+  // Ã°Å¸â€â€˜ CONNEXION
   // ===========================================================
   Future<AuthResponse> login({
     required String email,
@@ -48,7 +49,7 @@ class AuthService {
   }
 
   // ===========================================================
-  // 📝 INSCRIPTION
+  // Ã°Å¸â€œÂ INSCRIPTION
   // ===========================================================
   Future<AuthResponse> register({
     required String fullName,
@@ -80,7 +81,7 @@ class AuthService {
   }
 
   // ===========================================================
-  // 🚪 DÉCONNEXION
+  // Ã°Å¸Å¡Âª DÃƒâ€°CONNEXION
   // ===========================================================
   Future<void> logout() async {
     try {
@@ -88,7 +89,7 @@ class AuthService {
         await api.post(ApiConstants.logout);
       }
     } catch (_) {
-      // On ignore les erreurs réseau côté logout
+      // On ignore les erreurs rÃƒÂ©seau cÃƒÂ´tÃƒÂ© logout
     } finally {
       await storage.clearSession();
       api.clearToken();
@@ -96,7 +97,7 @@ class AuthService {
   }
 
   // ===========================================================
-  // 🔄 RESTAURATION DE SESSION
+  // Ã°Å¸â€â€ž RESTAURATION DE SESSION
   // ===========================================================
   Future<User?> restoreSession() async {
     final user = await storage.getUser();
@@ -106,7 +107,7 @@ class AuthService {
   }
 
   // ===========================================================
-  // 👤 PROFIL COURANT (refresh serveur)
+  // Ã°Å¸â€˜Â¤ PROFIL COURANT (refresh serveur)
   // ===========================================================
   Future<User?> fetchMe() async {
     return ErrorHandler.guard(() async {
@@ -126,7 +127,7 @@ class AuthService {
   }
 
   // ===========================================================
-  // 🔐 MOT DE PASSE OUBLIÉ
+  // Ã°Å¸â€Â MOT DE PASSE OUBLIÃƒâ€°
   // ===========================================================
   Future<void> forgotPassword(String email) async {
     return ErrorHandler.guard(() async {
@@ -150,5 +151,50 @@ class AuthService {
         },
       );
     }, context: 'AuthService.resetPassword');
+  }
+
+  // ============================================================
+  // UPDATE PROFILE
+  // ============================================================
+  Future<User?> updateProfile({
+    String? fullName,
+    String? prenom,
+    String? postNom,
+    String? phone,
+    String? sexe,
+    DateTime? dateNaissance,
+    String? lieuNaissance,
+    String? adresse,
+    String? totem,
+    String? avatarUrl,
+  }) async {
+    try {
+      final body = <String, dynamic>{};
+      if (fullName != null) body['fullName'] = fullName;
+      if (prenom != null) body['prenom'] = prenom;
+      if (postNom != null) body['postNom'] = postNom;
+      if (phone != null) body['phone'] = phone;
+      if (sexe != null) body['sexe'] = sexe;
+      if (dateNaissance != null) {
+        body['dateNaissance'] = dateNaissance.toIso8601String();
+      }
+      if (lieuNaissance != null) body['lieuNaissance'] = lieuNaissance;
+      if (adresse != null) body['adresse'] = adresse;
+      if (totem != null) body['totem'] = totem;
+      if (avatarUrl != null) body['avatarUrl'] = avatarUrl;
+
+      final res = await api.put('/users/me', body: body);
+
+      if (res['success'] == true) {
+        final data = res['data'] as Map<String, dynamic>?;
+        if (data != null) {
+          return User.fromJson(data);
+        }
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[AuthService] updateProfile error: $e');
+      rethrow;
+    }
   }
 }

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../core/routes/app_routes.dart';
 import '../../controllers/module_controller.dart';
 import 'base_drawer.dart';
-import '../../views/shared/conversations_screen.dart';
+import '../../views/shared/messages_screen.dart';
 
 class TrainerDrawer extends StatelessWidget {
   final String? currentRoute;
@@ -56,7 +56,7 @@ class TrainerDrawer extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const ConversationsScreen(),
+                builder: (_) => const MessagesScreen(),
               ),
             );
           },

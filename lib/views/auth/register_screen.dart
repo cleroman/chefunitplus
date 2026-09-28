@@ -201,8 +201,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       profession: _professionCtrl.text.trim().isEmpty ? null : _professionCtrl.text.trim(),
       niveauEtude: _niveauEtude,
       totem: _totemCtrl.text.trim().isEmpty ? null : _totemCtrl.text.trim(),
+      fonctionsCamps: _fonctionsCamps,
+      personnesPrevenir: _personnesPrevenir,
+      antecedentsMedicaux: _antecedentsMedicaux,
+      conditionsEngagement: [true, true], // TODO: remplacer par les 8 conditions
       district: _districtCtrl.text.trim(),
-      region: _provinceCtrl.text.trim(),
       region: _provinceCtrl.text.trim(),
       scoutFunction: _scoutFunction!,
       photoBytes: _photoBytes,
@@ -890,4 +893,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
+
 

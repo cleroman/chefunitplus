@@ -1,41 +1,33 @@
 // =============================================================
-// ChefUnitPlus - PaymentScreen
-// Ecran temporaire - a remplacer par l'implementation finale
+// ChefUnitPlus - PaymentScreen (redirection)
+// Ce fichier redirige vers LearnerPaymentScreen
+// (conserve pour compatibilite avec les anciens imports)
 // =============================================================
 
 import 'package:flutter/material.dart';
+import '../learner/learner_payment_screen.dart';
 
 class PaymentScreen extends StatelessWidget {
-  const PaymentScreen({super.key});
+  final double amount;
+  final String formationTitle;
+  final String? formationId;
+  final String? enrollmentId;
+
+  const PaymentScreen({
+    super.key,
+    this.amount = 0,
+    this.formationTitle = '',
+    this.formationId,
+    this.enrollmentId,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('PaymentScreen'),
-      ),
-      body: const Center(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.construction, size: 64, color: Colors.orange),
-              SizedBox(height: 16),
-              Text(
-                'Ecran en construction',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Cet ecran sera complete prochainement.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return LearnerPaymentScreen(
+      amount: amount,
+      formationTitle: formationTitle,
+      formationId: formationId,
+      enrollmentId: enrollmentId,
     );
   }
 }

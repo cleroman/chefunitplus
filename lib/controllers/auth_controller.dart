@@ -28,7 +28,7 @@ class AuthController extends ChangeNotifier {
         _api = api;
 
   // ===========================================================
-  // 🔍 ÉTAT
+  // ðŸ” Ã‰TAT
   // ===========================================================
   AuthState _state = AuthState.unknown;
   User? _currentUser;
@@ -42,7 +42,7 @@ class AuthController extends ChangeNotifier {
   bool get isAuthenticated => _state == AuthState.authenticated;
 
   // ===========================================================
-  // 🚀 BOOTSTRAP
+  // ðŸš€ BOOTSTRAP
   // ===========================================================
   Future<void> bootstrap() async {
     _isLoading = true;
@@ -69,7 +69,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // ===========================================================
-  // 🔑 CONNEXION
+  // ðŸ”‘ CONNEXION
   // ===========================================================
   Future<bool> login({
     required String email,
@@ -99,7 +99,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // ===========================================================
-  // 📝 INSCRIPTION
+  // ðŸ“ INSCRIPTION
   // ===========================================================
   Future<bool> register({
     required String fullName,
@@ -133,7 +133,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // ===========================================================
-  // 🚪 DÉCONNEXION
+  // ðŸšª DÃ‰CONNEXION
   // ===========================================================
   Future<void> logout() async {
     _isLoading = true;
@@ -151,7 +151,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // ===========================================================
-  // 🔄 REFRESH
+  // ðŸ”„ REFRESH
   // ===========================================================
   Future<void> refreshUser() async {
     try {
@@ -167,7 +167,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // ===========================================================
-  // 🔐 MOT DE PASSE OUBLIÉ
+  // ðŸ” MOT DE PASSE OUBLIÃ‰
   // ===========================================================
   Future<bool> forgotPassword(String email) async {
     _isLoading = true;
@@ -187,7 +187,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // ===========================================================
-  // 🧰 HELPERS
+  // ðŸ§° HELPERS
   // ===========================================================
   bool _handleAuthResponse(AuthResponse response) {
     if (response.success && response.user != null) {
@@ -198,12 +198,62 @@ class AuthController extends ChangeNotifier {
       _state = AuthState.authenticated;
       return true;
     }
-    _errorMessage = response.message ?? 'Authentification échouée';
+    _errorMessage = response.message ?? 'Authentification Ã©chouÃ©e';
     return false;
   }
 
   void clearError() {
     _errorMessage = null;
     notifyListeners();
+  }
+
+  // ============================================================
+  // UPDATE PROFILE
+  // ============================================================
+  Future<bool> updateProfile({
+    String? fullName,
+    String? prenom,
+    String? postNom,
+    String? phone,
+    String? sexe,
+    DateTime? dateNaissance,
+    String? lieuNaissance,
+    String? adresse,
+    String? totem,
+    String? avatarUrl,
+  }) async {
+    _errorMessage = null;
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final updated = await _service.updateProfile(
+        fullName: fullName,
+        prenom: prenom,
+        postNom: postNom,
+        phone: phone,
+        sexe: sexe,
+        dateNaissance: dateNaissance,
+        lieuNaissance: lieuNaissance,
+        adresse: adresse,
+        totem: totem,
+        avatarUrl: avatarUrl,
+      );
+
+      if (updated != null) {
+        _currentUser = updated;
+        notifyListeners();
+        return true;
+      }
+      _errorMessage = 'Echec de la mise a jour';
+      return false;
+    } catch (e, st) {
+      _errorMessage = ErrorHandler.message(e);
+      ErrorHandler.log(e, st, 'AuthController.updateProfile');
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }

@@ -1,11 +1,15 @@
-// ChefUnitPlus - Point d'entree
+﻿// ChefUnitPlus - Point d'entree
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'services/deposit_module_service.dart';
+import 'services/module_invitation_service.dart';
+import 'services/qr_service.dart';
+import 'services/notification_service.dart';
+import 'services/message_service.dart';
 
 import 'app.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/certificate_controller.dart';
-import 'controllers/chat_controller.dart';
 import 'controllers/complaint_controller.dart';
 import 'controllers/dashboard_controller.dart';
 import 'controllers/enrollment_controller.dart';
@@ -24,7 +28,6 @@ import 'core/errors/error_handler.dart';
 import 'services/api_client.dart';
 import 'services/auth_service.dart';
 import 'services/certificate_service.dart';
-import 'services/chat_service.dart';
 import 'services/complaint_service.dart';
 import 'services/enrollment_service.dart';
 import 'services/formation_service.dart';
@@ -32,13 +35,14 @@ import 'services/lesson_service.dart';
 import 'services/module_service.dart';
 import 'services/password_request_service.dart';
 import 'services/payment_service.dart';
+import 'services/payment_request_service.dart';
 import 'services/register_service.dart';
 import 'services/scout_group_service.dart';
 import 'services/stats_service.dart';
 import 'services/storage_service.dart';
 import 'services/user_service.dart';
+import 'services/payment_numbers_service.dart';
 import 'services/user_activation_service.dart';
-
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   ErrorHandler.installGlobalHandler();
@@ -50,39 +54,40 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
+          ChangeNotifierProvider(create: (_) => ModuleInvitationService(apiClient)),
+        ChangeNotifierProvider(create: (_) => DepositModuleService(apiClient)),
+        ChangeNotifierProvider(create: (_) => NotificationService(apiClient)),
+        Provider(create: (_) => PaymentRequestService(apiClient)),
+        ChangeNotifierProvider(create: (_) => MessageService(apiClient)),
+        ChangeNotifierProvider(create: (_) => QrService(apiClient)),
         Provider<ApiClient>.value(value: apiClient),
         Provider<StorageService>.value(value: storageService),
         Provider<AuthService>.value(value: authService),
 
-        Provider<RegisterService>(
-          create: (_) => RegisterService(apiClient),
+        Provider<RegisterService>(create: (_) => RegisterService(apiClient),
         ),
-        Provider<PasswordRequestService>(
-          create: (_) => PasswordRequestService(apiClient),
+        Provider<PasswordRequestService>(create: (_) => PasswordRequestService(apiClient),
         ),
-        Provider<ScoutGroupService>(
-          create: (_) => ScoutGroupService(apiClient),
+        Provider<ScoutGroupService>(create: (_) => ScoutGroupService(apiClient),
         ),
-        Provider<UserService>(create: (_) => UserService(apiClient)),
+        Provider<UserService>(create: (_) => UserService(apiClient),
+        ),
+        Provider<PaymentNumbersService>(create: (_) => PaymentNumbersService(apiClient),
+        ),
     Provider<UserActivationService>(create: (_) => UserActivationService(apiClient)),
         Provider<FormationService>(create: (_) => FormationService(apiClient)),
         Provider<ModuleService>(create: (_) => ModuleService(apiClient)),
         Provider<LessonService>(create: (_) => LessonService(apiClient)),
-        Provider<EnrollmentService>(
+        ChangeNotifierProvider(
           create: (_) => EnrollmentService(apiClient),
         ),
         Provider<PaymentService>(create: (_) => PaymentService()),
-        Provider<CertificateService>(
-          create: (_) => CertificateService(apiClient),
+        Provider<CertificateService>(create: (_) => CertificateService(apiClient),
         ),
-        Provider<ComplaintService>(
-          create: (_) => ComplaintService(apiClient),
+        Provider<ComplaintService>(create: (_) => ComplaintService(apiClient),
         ),
-        Provider<StatsService>(create: (_) => StatsService(apiClient)),
-        Provider<ChatService>(create: (_) => ChatService(apiClient)),
-
-        ChangeNotifierProvider(
-          create: (_) => AuthController(
+        ChangeNotifierProvider(create: (_) => StatsService(apiClient)),
+        ChangeNotifierProvider(create: (_) => AuthController(
             service: authService,
             api: apiClient,
           ),
@@ -129,9 +134,6 @@ void main() {
         ChangeNotifierProvider(
           create: (ctx) => ScoutGroupController(ctx.read<ScoutGroupService>()),
         ),
-        ChangeNotifierProvider(
-          create: (ctx) => ChatController(ctx.read<ChatService>()),
-        ),
         ChangeNotifierProvider(create: (_) => ThemeController()),
         ChangeNotifierProvider(create: (_) => LocaleController()),
       ],
@@ -139,3 +141,5 @@ void main() {
     ),
   );
 }
+
+
