@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
@@ -10,6 +10,7 @@ import 'controllers/theme_controller.dart';
 import 'views/auth/login_screen.dart';
 import 'views/splash/splash_screen.dart';
 import 'core/theme/director_theme_adapter.dart';
+import 'widgets/inactivity_detector.dart';
 
 class ChefUnitPlusApp extends StatefulWidget {
   const ChefUnitPlusApp({super.key});
@@ -52,37 +53,38 @@ class _ChefUnitPlusAppState extends State<ChefUnitPlusApp> {
     }
     _lastState = authState;
 
-    return MaterialApp(
-      title: 'ChefUnitPlus',
-      debugShowCheckedModeBanner: false,
-      navigatorKey: _navigatorKey,
-      theme: DirectorThemeAdapter.theme(),
-      darkTheme: DirectorThemeAdapter.theme(),
-      themeMode: themeMode,
-      locale: locale,
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('fr', 'FR'),
-        Locale('en', 'US'),
-      ],
-      onGenerateInitialRoutes: (initialRoute) {
-        return [
-          MaterialPageRoute(
-            builder: (_) => const SplashScreen(),
-            settings: const RouteSettings(name: AppRoutes.splash),
-          ),
-        ];
-      },
-      onGenerateRoute: AppRouter.onGenerateRoute,
-      onUnknownRoute: (settings) => MaterialPageRoute(
-        builder: (_) => const LoginScreen(),
+    return InactivityDetector(
+      timeout: const Duration(minutes: 3),
+      child: MaterialApp(
+        title: 'ChefUnitPlus',
+        debugShowCheckedModeBanner: false,
+        navigatorKey: _navigatorKey,
+        theme: DirectorThemeAdapter.theme(),
+        darkTheme: DirectorThemeAdapter.theme(),
+        themeMode: themeMode,
+        locale: locale,
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('fr', 'FR'),
+          Locale('en', 'US'),
+        ],
+        onGenerateInitialRoutes: (initialRoute) {
+          return [
+            MaterialPageRoute(
+              builder: (_) => const SplashScreen(),
+              settings: const RouteSettings(name: AppRoutes.splash),
+            ),
+          ];
+        },
+        onGenerateRoute: AppRouter.onGenerateRoute,
+        onUnknownRoute: (settings) => MaterialPageRoute(
+          builder: (_) => const LoginScreen(),
+        ),
       ),
     );
   }
 }
-
-

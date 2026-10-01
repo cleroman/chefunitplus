@@ -1,0 +1,29 @@
+<variant
+    name="release"
+    package="com.crazecoder.openfile"
+    minSdkVersion="16"
+    targetSdkVersion="34"
+    mergedManifest="C:\Users\asdf\chefunitplus_scout\chefunitplus_v1\build\open_filex\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml"
+    manifestMergeReport="C:\Users\asdf\chefunitplus_scout\chefunitplus_v1\build\open_filex\outputs\logs\manifest-merger-release-report.txt"
+    proguardFiles="C:\Users\asdf\chefunitplus_scout\chefunitplus_v1\build\open_filex\intermediates\default_proguard_files\global\proguard-android-optimize.txt-9.0.1"
+    partialResultsDir="C:\Users\asdf\chefunitplus_scout\chefunitplus_v1\build\open_filex\intermediates\lint_partial_results\release\lintAnalyzeRelease\out">
+  <buildFeatures/>
+  <sourceProviders>
+    <sourceProvider
+        manifests="src\main\AndroidManifest.xml"
+        javaDirectories="src\main\java;src\release\java;src\main\kotlin;src\release\kotlin"
+        resDirectories="src\main\res;src\release\res"
+        assetsDirectories="src\main\assets;src\release\assets"/>
+  </sourceProviders>
+  <testSourceProviders>
+  </testSourceProviders>
+  <testFixturesSourceProviders>
+  </testFixturesSourceProviders>
+  <artifact
+      classOutputs="C:\Users\asdf\chefunitplus_scout\chefunitplus_v1\build\open_filex\intermediates\javac\release\compileReleaseJavaWithJavac\classes;C:\Users\asdf\chefunitplus_scout\chefunitplus_v1\build\open_filex\tmp\kotlin-classes\release;C:\Users\asdf\chefunitplus_scout\chefunitplus_v1\build\open_filex\intermediates\compile_r_class_jar\release\generateReleaseRFile\R.jar"
+      type="MAIN"
+      applicationId="com.crazecoder.openfile"
+      generatedSourceFolders="C:\Users\asdf\chefunitplus_scout\chefunitplus_v1\build\open_filex\generated\ap_generated_sources\release\out"
+      desugaredMethodsFiles="C:\Users\asdf\.gradle\caches\9.1.0\transforms\0489fcfd7d598395ad48c03f07db19fd\workspace\transformed\D8BackportedDesugaredMethods.txt">
+  </artifact>
+</variant>

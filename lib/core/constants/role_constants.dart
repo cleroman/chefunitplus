@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 enum UserRole {
+  utilisateur,
   apprenant,
   formateur,
   directeur,
@@ -16,6 +17,8 @@ extension UserRoleExtension on UserRole {
   // ---------------- LABEL ----------------
   String get label {
     switch (this) {
+      case UserRole.utilisateur:
+        return 'Utilisateur';
       case UserRole.apprenant:
         return 'Apprenant';
       case UserRole.formateur:
@@ -30,6 +33,8 @@ extension UserRoleExtension on UserRole {
   // ---------------- DESCRIPTION ----------------
   String get description {
     switch (this) {
+      case UserRole.utilisateur:
+        return 'Explore les formations et actualites';
       case UserRole.apprenant:
         return 'Suit les formations et paie via FlexPaie';
       case UserRole.formateur:
@@ -44,6 +49,8 @@ extension UserRoleExtension on UserRole {
   // ---------------- ICON ----------------
   IconData get icon {
     switch (this) {
+      case UserRole.utilisateur:
+        return Icons.person_outline;
       case UserRole.apprenant:
         return Icons.school_outlined;
       case UserRole.formateur:
@@ -58,6 +65,8 @@ extension UserRoleExtension on UserRole {
   // ---------------- NIVEAU HIERARCHIQUE ----------------
   int get level {
     switch (this) {
+      case UserRole.utilisateur:
+        return 0;
       case UserRole.apprenant:
         return 1;
       case UserRole.formateur:
@@ -128,9 +137,12 @@ extension UserRoleExtension on UserRole {
     }
     return const [];
   }
-  // ---------------- COULEUR (associee au role) ----------------
+
+  // ---------------- COULEUR ----------------
   Color get color {
     switch (this) {
+      case UserRole.utilisateur:
+        return AppColors.kaki;
       case UserRole.apprenant:
         return AppColors.textMuted;
       case UserRole.formateur:
@@ -141,13 +153,16 @@ extension UserRoleExtension on UserRole {
         return AppColors.mauve;
     }
   }
+
   // ---------------- FROM STRING ----------------
   static UserRole fromString(String? value) {
-    if (value == null) return UserRole.apprenant;
+    if (value == null) return UserRole.utilisateur;
     final v = value.toLowerCase();
     if (v == 'admin' || v == 'administrateur') return UserRole.admin;
     if (v == 'directeur' || v == 'director') return UserRole.directeur;
     if (v == 'formateur' || v == 'trainer') return UserRole.formateur;
-    return UserRole.apprenant;
+    if (v == 'apprenant' || v == 'learner') return UserRole.apprenant;
+    if (v == 'utilisateur' || v == 'user') return UserRole.utilisateur;
+    return UserRole.utilisateur;
   }
 }

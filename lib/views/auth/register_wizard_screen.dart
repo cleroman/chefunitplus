@@ -1,9 +1,10 @@
 // =============================================================
-// ChefUnitPlus - Wizard d'inscription (6 Ã©tapes)
-// Fichier complet et corrigÃ© - Version finale
+// ChefUnitPlus - Wizard d'inscription (6 ÃƒÆ’Ã‚Â©tapes)
+// Fichier complet et corrigÃƒÆ’Ã‚Â© - Version finale
 // =============================================================
 
 import 'package:flutter/material.dart';
+import '../../widgets/email_with_domain_controller.dart';
 import 'package:provider/provider.dart';
 
 import 'package:chefunitplus/controllers/auth_controller.dart';
@@ -45,7 +46,8 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
   String? errorMessage;
 
   // ===== ETAPE 1 : Compte =====
-  final emailCtrl = TextEditingController();
+  final emailCtrl = EmailWithDomainController();
+  final confirmationEmailCtrl = TextEditingController();
   final phoneCtrl = TextEditingController();
   final passwordCtrl = TextEditingController();
   final confirmPasswordCtrl = TextEditingController();
@@ -98,6 +100,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
   @override
   void dispose() {
     emailCtrl.dispose();
+    confirmationEmailCtrl.dispose();
     phoneCtrl.dispose();
     passwordCtrl.dispose();
     confirmPasswordCtrl.dispose();
@@ -158,7 +161,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
             children: [
               _debugRow('Etape', '$currentStep'),
               const Divider(),
-              _debugRow('email', emailCtrl.text),
+              _debugRow('email', emailCtrl.fullEmail),
               _debugRow('phone', phoneCtrl.text),
               _debugRow('password', passwordCtrl.text),
               const Divider(),
@@ -242,7 +245,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
       'sexe': sexe,
       'dateNaissance': dateN.toIso8601String().split('T')[0],
       'lieuNaissance': lieuNaissanceCtrl.text.trim(),
-      'email': emailCtrl.text.trim().toLowerCase(),
+      'email': emailCtrl.fullEmail.trim().toLowerCase(),
       'phone': phoneCtrl.text.trim(),
       'password': passwordCtrl.text,
       'province': provinceCtrl.text.trim(),
@@ -265,6 +268,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
         'profession': professionCtrl.text.trim(),
       if (antecedentsCtrl.text.trim().isNotEmpty)
         'antecedentsMedicaux': antecedentsCtrl.text.trim(),
+      'confirmationEmail': confirmationEmailCtrl.text.trim().toLowerCase(),
       'engagementAccepte': engagementAccepte,
     };
 
@@ -295,7 +299,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
     }
 
     // Validation email
-    if (emailCtrl.text.trim().isEmpty) {
+    if (emailCtrl.fullEmail.trim().isEmpty) {
       SnackbarHelper.error(context, 'Email obligatoire');
       return;
     }

@@ -1,0 +1,2 @@
+C:/Users/asdf/chefunitplus_scout/chefunitplus_v1/build/.cxx/release/321e675t/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/asdf/chefunitplus_scout/chefunitplus_v1/build/.cxx/release/321e675t/armeabi-v7a/CMakeFiles/rebuild_cache.dir

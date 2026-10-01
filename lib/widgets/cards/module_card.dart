@@ -106,7 +106,7 @@ class ModuleCard extends StatelessWidget {
                         children: [
                           _MiniStat(
                             icon: Icons.play_lesson_outlined,
-                            label: '${module.lessonCount} leons',
+                            label: '${module.lessonCount} leçons',
                           ),
                           const SizedBox(width: 10),
                           _MiniStat(

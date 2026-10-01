@@ -135,7 +135,7 @@ class AppGradients {
   // ===========================================================
 
   /// Retourne le gradient correspondant  un rle
-  /// (utile pour les headers personnaliss des dashboards)
+  /// (utile pour les headers personnalisés des dashboards)
   static LinearGradient forRole(String roleName) {
     switch (roleName.toLowerCase()) {
       case 'admin':

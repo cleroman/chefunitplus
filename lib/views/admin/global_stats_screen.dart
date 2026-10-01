@@ -125,9 +125,9 @@ class _GlobalStatsScreenState extends State<GlobalStatsScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Rpartition par rle
+            // Rpartition par rôle
             const Text(
-              'Rpartition par rle',
+              'Rpartition par rôle',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,

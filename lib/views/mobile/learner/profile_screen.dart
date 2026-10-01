@@ -445,7 +445,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       case UserRole.formateur:
         return 'Formateur';
       case UserRole.apprenant:
-    return 'Apprenant'; // fallback
+    case UserRole.utilisateur:
+      return 'Apprenant'; // fallback
     }
   }
 }

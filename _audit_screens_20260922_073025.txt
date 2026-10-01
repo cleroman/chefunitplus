@@ -1,0 +1,484 @@
+﻿AUDIT DES ECRANS CHEFUNITPLUS
+Date : 2026-09-22 07:30:22
+============================================================
+
+ECRAN : complaints_screen.dart
+  Chemin : \lib\views\admin\complaints_screen.dart
+  Services : ComplaintController
+  Donnees en dur : 2 occurrences
+
+ECRAN : global_stats_screen.dart
+  Chemin : \lib\views\admin\global_stats_screen.dart
+  Services : FormationController, UserController
+
+ECRAN : password_requests_screen.dart
+  Chemin : \lib\views\admin\password_requests_screen.dart
+  Services : PasswordRequestController
+
+ECRAN : payments_log_screen.dart
+  Chemin : \lib\views\admin\payments_log_screen.dart
+  Services : EnrollmentController
+  Stats : _buildStat, _statCard(
+  Donnees en dur : 4 occurrences
+
+ECRAN : payment_numbers_screen.dart
+  Chemin : \lib\views\admin\payment_numbers_screen.dart
+  Services : PaymentNumbersService
+
+ECRAN : promote_director_screen.dart
+  Chemin : \lib\views\admin\promote_director_screen.dart
+  Services : AuthController, UserController
+
+ECRAN : promote_screen.dart
+  Chemin : \lib\views\admin\promote_screen.dart
+  Services : UserController
+
+ECRAN : scout_groups_screen.dart
+  Chemin : \lib\views\admin\scout_groups_screen.dart
+  Services : ScoutGroupController
+
+ECRAN : scout_group_details_screen.dart
+  Chemin : \lib\views\admin\scout_group_details_screen.dart
+  Services : UserController
+  Donnees en dur : 2 occurrences
+
+ECRAN : system_settings_screen.dart
+  Chemin : \lib\views\admin\system_settings_screen.dart
+
+ECRAN : users_management_screen.dart
+  Chemin : \lib\views\admin\users_management_screen.dart
+  Services : AuthController, UserController
+
+ECRAN : user_details_screen.dart
+  Chemin : \lib\views\admin\user_details_screen.dart
+  Services : UserController, UserService
+
+ECRAN : forgot_password_screen.dart
+  Chemin : \lib\views\auth\forgot_password_screen.dart
+  Services : AuthController
+
+ECRAN : login_screen.dart
+  Chemin : \lib\views\auth\login_screen.dart
+  Services : AuthController
+
+ECRAN : register_screen.dart
+  Chemin : \lib\views\auth\register_screen.dart
+  Services : RegisterController
+  Donnees en dur : 2 occurrences
+
+ECRAN : register_wizard_screen.dart
+  Chemin : \lib\views\auth\register_wizard_screen.dart
+  Services : AuthController, RegisterService, ScoutGroupController
+
+ECRAN : verify_email_screen.dart
+  Chemin : \lib\views\auth\verify_email_screen.dart
+  Services : RegisterController
+  Donnees en dur : 1 occurrences
+
+ECRAN : director_formations_list_screen.dart
+  Chemin : \lib\views\director\director_formations_list_screen.dart
+  Services : FormationController
+
+ECRAN : director_module_validation_screen.dart
+  Chemin : \lib\views\director\director_module_validation_screen.dart
+  Services : FormationController, ModuleController, UserController
+  Donnees en dur : 5 occurrences
+
+ECRAN : enrollments_validation_screen.dart
+  Chemin : \lib\views\director\enrollments_validation_screen.dart
+  Services : EnrollmentController
+  Donnees en dur : 1 occurrences
+
+ECRAN : formation_editor_screen.dart
+  Chemin : \lib\views\director\formation_editor_screen.dart
+  Services : FormationController, UserController
+  Donnees en dur : 3 occurrences
+
+ECRAN : formation_stats_screen.dart
+  Chemin : \lib\views\director\formation_stats_screen.dart
+  Services : EnrollmentController, FormationController
+  Stats : _buildStat, _statCard(
+
+ECRAN : module_assign_screen.dart
+  Chemin : \lib\views\director\module_assign_screen.dart
+  Services : FormationController, ModuleController, UserController
+
+ECRAN : module_editor_screen.dart
+  Chemin : \lib\views\director\module_editor_screen.dart
+  Services : ModuleController, UserController
+  Donnees en dur : 5 occurrences
+
+ECRAN : pending_users_screen.dart
+  Chemin : \lib\views\director\pending_users_screen.dart
+  Services : UserActivationController
+  Donnees en dur : 2 occurrences
+
+ECRAN : trainers_management_screen.dart
+  Chemin : \lib\views\director\trainers_management_screen.dart
+  Services : AuthController, UserController
+
+ECRAN : certificate_screen.dart
+  Chemin : \lib\views\learner\certificate_screen.dart
+  Services : CertificateController
+  Donnees en dur : 2 occurrences
+
+ECRAN : edit_profile_screen.dart
+  Chemin : \lib\views\learner\edit_profile_screen.dart
+  Services : AuthController
+
+ECRAN : formation_catalog_screen.dart
+  Chemin : \lib\views\learner\formation_catalog_screen.dart
+  Services : AuthController, FormationController
+
+ECRAN : formation_detail_screen.dart
+  Chemin : \lib\views\learner\formation_detail_screen.dart
+  Services : EnrollmentController, FormationController
+
+ECRAN : learner_formation_suivi_screen.dart
+  Chemin : \lib\views\learner\learner_formation_suivi_screen.dart
+  Services : AttendanceService, MaterialService, QuestionService
+  Stats : _statBox(
+  Donnees en dur : 2 occurrences
+
+ECRAN : learner_payment_screen.dart
+  Chemin : \lib\views\learner\learner_payment_screen.dart
+  Services : PaymentNumbersService, PaymentRequestService
+
+ECRAN : lesson_player_screen.dart
+  Chemin : \lib\views\learner\lesson_player_screen.dart
+
+ECRAN : my_enrollments_screen.dart
+  Chemin : \lib\views\learner\my_enrollments_screen.dart
+
+ECRAN : my_qr_codes_screen.dart
+  Chemin : \lib\views\learner\my_qr_codes_screen.dart
+  Services : QrService
+
+ECRAN : otp_input_screen.dart
+  Chemin : \lib\views\learner\otp_input_screen.dart
+  Services : EnrollmentController
+  Donnees en dur : 1 occurrences
+
+ECRAN : payment_screen.dart
+  Chemin : \lib\views\learner\payment_screen.dart
+  Services : EnrollmentController
+
+ECRAN : profile_screen.dart
+  Chemin : \lib\views\learner\profile_screen.dart
+  Services : AuthController, EnrollmentController
+  Stats : _statCard(
+
+ECRAN : receipt_screen.dart
+  Chemin : \lib\views\learner\receipt_screen.dart
+
+ECRAN : onboarding_screen.dart
+  Chemin : \lib\views\onboarding\onboarding_screen.dart
+  Services : StorageService
+
+ECRAN : payment_screen.dart
+  Chemin : \lib\views\payment\payment_screen.dart
+
+ECRAN : edit_profile_screen.dart
+  Chemin : \lib\views\profile\edit_profile_screen.dart
+  Services : AuthController, UserController
+
+ECRAN : profile_screen.dart
+  Chemin : \lib\views\profile\profile_screen.dart
+  Services : AuthController
+
+ECRAN : change_password_screen.dart
+  Chemin : \lib\views\shared\change_password_screen.dart
+  Services : AuthController
+
+ECRAN : chat_screen.dart
+  Chemin : \lib\views\shared\chat_screen.dart
+  Services : ChatController
+  Donnees en dur : 2 occurrences
+
+ECRAN : conversations_screen.dart
+  Chemin : \lib\views\shared\conversations_screen.dart
+  Services : ChatController
+
+ECRAN : user_badge_screen.dart
+  Chemin : \lib\views\shared\user_badge_screen.dart
+
+ECRAN : splash_screen.dart
+  Chemin : \lib\views\splash\splash_screen.dart
+  Services : AuthController
+
+ECRAN : lesson_editor_screen.dart
+  Chemin : \lib\views\trainer\lesson_editor_screen.dart
+  Services : LessonController
+  Donnees en dur : 4 occurrences
+
+ECRAN : module_editor_screen.dart
+  Chemin : \lib\views\trainer\module_editor_screen.dart
+
+ECRAN : my_modules_screen.dart
+  Chemin : \lib\views\trainer\my_modules_screen.dart
+
+ECRAN : students_list_screen.dart
+  Chemin : \lib\views\trainer\students_list_screen.dart
+  Services : EnrollmentController
+  Stats : _buildStat, _statCard(
+
+ECRAN : student_detail_screen.dart
+  Chemin : \lib\views\trainer\student_detail_screen.dart
+  Donnees en dur : 2 occurrences
+
+ECRAN : trainer_create_module_screen.dart
+  Chemin : \lib\views\trainer\trainer_create_module_screen.dart
+  Services : FormationController, ModuleController
+
+ECRAN : trainer_my_modules_screen.dart
+  Chemin : \lib\views\trainer\trainer_my_modules_screen.dart
+  Services : ModuleController
+
+ECRAN : test_pdf_picker_screen.dart
+  Chemin : \lib\views\test_pdf_picker_screen.dart
+
+SERVICE : api_client
+  Methodes : Function
+
+SERVICE : attendance_service
+  Endpoints : /attendance/$id/check-out, /attendance/check-in, /attendance/my, /attendance/my?formation_id=$formationId, /attendance/stats/$formationId
+
+SERVICE : auth_service
+  Methodes : fetchMe, forgotPassword, login, logout, register, resetPassword, restoreSession, updateProfile
+  Endpoints : /users/me
+
+SERVICE : certificate_service
+  Methodes : getPdfUrl
+
+SERVICE : chat_service
+  Methodes : createConversation, sendMessage
+  Endpoints : /chat/conversations, /chat/conversations/$conversationId/messages
+
+SERVICE : complaint_service
+  Methodes : create, delete, updateStatus
+  Endpoints : /complaints, /complaints/$id
+
+SERVICE : enrollment_service
+  Methodes : confirmOtp, reject, request, validate
+
+SERVICE : formation_service
+  Methodes : create, delete, getById, publish, unpublish, update
+
+SERVICE : lesson_service
+  Methodes : create, delete, update
+
+SERVICE : material_service
+  Endpoints : /materials/formation/$formationId, /materials/formation/$formationId/modules, /materials/module/$moduleId
+
+SERVICE : module_service
+  Methodes : approve, create, delete, reject, update
+
+SERVICE : password_request_service
+  Methodes : approve, reject, requestReset
+
+SERVICE : payment_numbers_service
+  Methodes : delete
+  Endpoints : /payment-numbers, /payment-numbers/$id, /payment-numbers/active, /payment-numbers/operators, /payment-numbers/validate-reference
+
+SERVICE : payment_request_service
+  Endpoints : /payment-requests, /payment-requests/$id/reject, /payment-requests/$id/validate, /payment-requests/my, /payment-requests?status=$status
+
+SERVICE : payment_service
+  Methodes : checkStatus, initiate, pollUntilComplete
+
+SERVICE : qr_service
+  Endpoints : /qr-codes/$id, /qr-codes/my, /qr-codes/scan
+
+SERVICE : question_service
+  Endpoints : /questions, /questions/$id, /questions/$id/answer, /questions/my
+
+SERVICE : register_service
+  Methodes : resendVerificationCode, verifyEmail
+  Endpoints : /auth/register-scout, /auth/resend-verification, /auth/verify-email, /scout-groups/public
+
+SERVICE : scout_group_service
+  Methodes : create, delete, update
+  Endpoints : /scout-groups, /scout-groups/$id, /scout-groups/public
+
+SERVICE : stats_service
+
+SERVICE : storage_service
+  Methodes : clearAll, clearSession, getLastSync, getToken, getUser, hasSeenOnboarding, markOnboardingSeen, saveUser, setLastSync
+
+SERVICE : user_activation_service
+  Methodes : activate, deactivate
+  Endpoints : /auth/activate/$userId, /auth/deactivate/$userId, /auth/pending-users
+
+SERVICE : user_details_service
+  Methodes : resetPassword, updateDetails
+  Endpoints : /users/$userId/details
+
+SERVICE : user_service
+  Methodes : create, delete, demote, getById, promote, reactivate, resetPassword, suspend, update
+  Endpoints : /users, /users/$id, /users/$id/demote, /users/$id/full-profile, /users/$id/promote, /users/$id/reactivate, /users/$id/reset-password, /users/$id/suspend, /users/roles
+
+ROUTE : attendance.routes.js
+  POST /check-in
+  PATCH /:id/check-out
+  GET /my
+  GET /formation/:formation_id
+  GET /stats/:formation_id
+
+ROUTE : auth.routes.js
+  POST /login
+  POST /register-scout
+  POST /verify-email
+  POST /resend-verification
+  GET /me
+  GET /pending-users
+  PATCH /activate/:userId
+  PATCH /deactivate/:userId
+
+ROUTE : certificate.routes.js
+
+ROUTE : chat.routes.js
+  GET /conversations
+  POST /conversations
+  GET /conversations/:id/messages
+  POST /conversations/:id/messages
+
+ROUTE : complaint.routes.js
+  GET /me
+  POST /
+  GET /
+  GET /:id
+  PATCH /:id/respond
+  PATCH /:id/close
+
+ROUTE : enrollment.routes.js
+  POST /
+  PATCH /:id/confirm-otp
+  GET /me
+  GET /:id/receipt
+  GET /pending
+  PATCH /:id/validate
+  PATCH /:id/reject
+
+ROUTE : formation.routes.js
+  GET /
+  GET /:id
+  GET /:id/modules
+  GET /:id/fiche-technique
+  GET /:id/pdf
+  POST /
+  PATCH /:id
+  DELETE /:id
+  POST /:id/recalculate-hours
+  PATCH /:id/publish
+  PATCH /:id/unpublish
+
+ROUTE : formationValidation.routes.js
+  GET /:id/can-publish
+  PATCH /:id/publish
+  PATCH /:id/unpublish
+
+ROUTE : index.js
+  GET /health
+
+ROUTE : lesson.routes.js
+  GET /module/:moduleId
+  GET /:id
+  POST /
+  PATCH /:id
+  DELETE /:id
+
+ROUTE : material.routes.js
+  GET /formation/:formation_id
+  POST /formation
+  DELETE /formation/:id
+  GET /module/:module_id
+  GET /formation/:formation_id/modules
+  POST /module
+  DELETE /module/:id
+
+ROUTE : module.routes.js
+  GET /by-formation/:id
+  GET /my
+  GET /pending
+  GET /all
+  GET /:id
+  POST /
+  PATCH /:id
+  PATCH /:id/approve
+  PATCH /:id/reject
+  DELETE /:id
+
+ROUTE : passwordRequest.routes.js
+  POST /
+  GET /
+  PATCH /:id/approve
+  PATCH /:id/reject
+
+ROUTE : payment.routes.js
+
+ROUTE : paymentNumber.routes.js
+  GET /active
+  GET /operators
+  POST /validate-reference
+  GET /
+  GET /:id
+  POST /
+  PATCH /:id
+  DELETE /:id
+
+ROUTE : paymentRequest.routes.js
+  POST /
+  GET /my
+  GET /
+  GET /:id
+  PATCH /:id/validate
+  PATCH /:id/reject
+
+ROUTE : qr.routes.js
+  GET /my
+  GET /:id
+  POST /generate
+  POST /scan
+  PATCH /:id/deactivate
+
+ROUTE : question.routes.js
+  POST /
+  GET /my
+  GET /formation/:formation_id
+  GET /:id
+  POST /:id/answer
+  PATCH /:id/close
+
+ROUTE : scoutGroup.routes.js
+  GET /public
+  GET /
+  POST /
+  GET /:id
+  PATCH /:id
+  DELETE /:id
+  PATCH /:id/assign-director
+
+ROUTE : scout_group.routes.js
+  GET /public
+  GET /
+  POST /
+  PATCH /:id
+  DELETE /:id
+
+ROUTE : stats.routes.js
+
+ROUTE : user.routes.js
+  PATCH /me
+  GET /me
+  GET /roles
+  GET /:id
+  GET /:id/full-profile
+  PATCH /:id/details
+  GET /
+  PATCH /:id/promote
+  PATCH /:id/demote
+  PATCH /:id/suspend
+  PATCH /:id/reactivate
+  PATCH /:id/reset-password
+  DELETE /:id
+

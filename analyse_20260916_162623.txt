@@ -1,0 +1,36 @@
+﻿===============================================
+  RAPPORT D'ANALYSE - 2026-09-16 16:26:32
+===============================================
+
+--- SECTION 1 : flutter analyze ---
+Erreurs  : 9
+Warnings : 0
+Infos    : 0
+
+  [ERR] error - The named parameter 'storage' is required, but there's no corresponding argument. Try adding the required argument - lib\main.dart:46:23 - missing_required_argument
+  [ERR] error - The named parameter 'email' is required, but there's no corresponding argument. Try adding the required argument - lib\views\auth\register_wizard_screen.dart:307:36 - missing_required_argument
+  [ERR] error - The named parameter 'fullName' is required, but there's no corresponding argument. Try adding the required argument - lib\views\auth\register_wizard_screen.dart:307:36 - missing_required_argument
+  [ERR] error - The named parameter 'password' is required, but there's no corresponding argument. Try adding the required argument - lib\views\auth\register_wizard_screen.dart:307:36 - missing_required_argument
+  [ERR] error - The named parameter 'phone' is required, but there's no corresponding argument. Try adding the required argument - lib\views\auth\register_wizard_screen.dart:307:36 - missing_required_argument
+  [ERR] error - The named parameter 'role' is required, but there's no corresponding argument. Try adding the required argument - lib\views\auth\register_wizard_screen.dart:307:36 - missing_required_argument
+  [ERR] error - The named parameter 'payload' isn't defined. Try correcting the name to an existing named parameter's name, or defining a named parameter with the name 'payload' - lib\views\auth\register_wizard_screen.dart:307:53 - undefined_named_parameter
+  [ERR] error - The operator '[]' isn't defined for the type 'Type'. Try defining the operator '[]' - lib\views\auth\register_wizard_screen.dart:316:23 - undefined_operator
+  [ERR] error - The operator '[]' isn't defined for the type 'Type'. Try defining the operator '[]' - lib\views\auth\register_wizard_screen.dart:483:41 - undefined_operator
+
+--- SECTION 2 : Recherche 'storage' ---
+  Aucun match
+
+--- SECTION 3 : Fichiers register ---
+  lib\controllers\register_controller.dart (3121 octets)
+  lib\services\register_service.dart (3695 octets)
+  lib\views\auth\register_screen.dart (19958 octets)
+  lib\views\auth\register_wizard_screen.dart (17239 octets)
+
+--- SECTION 4 : RegisterService ---
+  [DEF] lib\services\register_service.dart
+    L10 : RegisterService(this._api);
+
+--- SECTION 5 : RegisterController ---
+  [DEF] lib\controllers\register_controller.dart
+    L7 : RegisterController(this._service);
+

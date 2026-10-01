@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'pro_top_bar.dart';
 import 'pro_bottom_nav.dart';
 import '../../core/constants/app_colors.dart';
+import '../download_banner.dart';
 
 /// Item de menu avec icone + label + couleur + badge.
 class ProMenuItem {
@@ -53,7 +54,15 @@ class ProLayout extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      drawer: isDesktop ? null : Drawer(child: _SidebarContent(items: items, currentRoute: currentRoute, title: title)),
+      drawer: isDesktop
+          ? null
+          : Drawer(
+              child: _SidebarContent(
+                items: items,
+                currentRoute: currentRoute,
+                title: title,
+              ),
+            ),
       appBar: ProTopBar(
         title: title,
         subtitle: subtitle,
@@ -68,13 +77,33 @@ class ProLayout extends StatelessWidget {
               children: [
                 SizedBox(
                   width: 260,
-                  child: _SidebarContent(items: items, currentRoute: currentRoute, title: title),
+                  child: _SidebarContent(
+                    items: items,
+                    currentRoute: currentRoute,
+                    title: title,
+                  ),
                 ),
-                const VerticalDivider(width: 1, thickness: 1, color: Color(0xFFEEEEEE)),
-                Expanded(child: body),
+                const VerticalDivider(
+                  width: 1,
+                  thickness: 1,
+                  color: Color(0xFFEEEEEE),
+                ),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Expanded(child: body),
+                      const DownloadBanner(),
+                    ],
+                  ),
+                ),
               ],
             )
-          : body,
+          : Column(
+              children: [
+                Expanded(child: body),
+                const DownloadBanner(),
+              ],
+            ),
     );
   }
 }
@@ -118,7 +147,11 @@ class _SidebarContent extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.school, color: Colors.white, size: 20),
+                      child: const Icon(
+                        Icons.school,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
                     const SizedBox(width: 10),
                     const Expanded(
@@ -151,7 +184,9 @@ class _SidebarContent extends StatelessWidget {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              children: items.map((it) => _SidebarTile(item: it, currentRoute: currentRoute)).toList(),
+              children: items
+                  .map((it) => _SidebarTile(item: it, currentRoute: currentRoute))
+                  .toList(),
             ),
           ),
         ],
@@ -163,6 +198,7 @@ class _SidebarContent extends StatelessWidget {
 class _SidebarTile extends StatelessWidget {
   final ProMenuItem item;
   final String currentRoute;
+
   const _SidebarTile({required this.item, required this.currentRoute});
 
   @override
@@ -172,7 +208,9 @@ class _SidebarTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       child: Material(
-        color: isSelected ? item.color.withValues(alpha: 0.12) : Colors.transparent,
+        color: isSelected
+            ? item.color.withValues(alpha: 0.12)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
@@ -216,7 +254,10 @@ class _SidebarTile extends StatelessWidget {
                 ),
                 if (item.badge > 0)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.danger,
                       borderRadius: BorderRadius.circular(10),

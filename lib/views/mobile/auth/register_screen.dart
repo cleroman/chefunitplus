@@ -1,11 +1,11 @@
 // ChefUnitPlus - Ecran d'inscription complet
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../controllers/register_controller.dart';
-import '../../../widgets/utils/pdf_picker.dart';
-import 'verify_email_screen.dart';
+import 'registration_success_screen.dart';
 
 const List<String> kScoutFunctions = [
   'Chef de groupe', 'Assistant chef de groupe',
@@ -37,10 +37,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _phoneCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
+  final _confirmationEmailCtrl = TextEditingController();
   bool _showPassword = false;
 
   // ETAPE 2 : SCOUT
-  final String _role = 'apprenant';
+  final String _role = 'utilisateur';
   String? _scoutGroupId;
   bool _useCustomGroup = false;
   final _customGroupCtrl = TextEditingController();
@@ -87,6 +88,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _nomCtrl.dispose(); _postNomCtrl.dispose(); _prenomCtrl.dispose();
     _lieuNaissanceCtrl.dispose(); _emailCtrl.dispose(); _phoneCtrl.dispose();
     _passwordCtrl.dispose(); _confirmCtrl.dispose();
+    _confirmationEmailCtrl.dispose();
     _customGroupCtrl.dispose(); _numeroAffiliationCtrl.dispose();
     _associationCtrl.dispose(); _districtCtrl.dispose();
     _provinceCtrl.dispose(); _villeCtrl.dispose(); _communeCtrl.dispose();
@@ -129,10 +131,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
 
   Future<void> _pickPhoto() async {
-    final picked = await PdfPicker.pick();
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 800, imageQuality: 85);
     if (picked == null || !mounted) return;
+    final bytes = await picked.readAsBytes();
+    if (!mounted) return;
     setState(() {
-      _photoBytes = picked.bytes;
+      _photoBytes = bytes;
       _photoFileName = picked.name;
     });
   }
@@ -165,6 +169,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _submit() async {
     if (!_acceptTerms || !_acceptPrivacy) {
       _snack('Acceptez les conditions', AppColors.warning);
+      return;
+    }
+    if (_confirmationEmailCtrl.text.trim().isEmpty) {
+      _snack('Email de confirmation obligatoire', AppColors.warning);
       return;
     }
     final ctrl = context.read<RegisterController>();
@@ -210,12 +218,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       scoutFunction: _scoutFunction!,
       photoBytes: _photoBytes,
       photoFileName: _photoFileName,
+      confirmationEmail: _confirmationEmailCtrl.text.trim(),
     );
 
     if (!mounted) return;
     if (ok) {
       Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (_) => VerifyEmailScreen(email: _emailCtrl.text.trim())));
+        MaterialPageRoute(builder: (_) => RegistrationSuccessScreen(email: _emailCtrl.text.trim())));
     } else {
       _snack(ctrl.errorMessage ?? 'Erreur', AppColors.danger);
     }
@@ -856,7 +865,62 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     ),
     const SizedBox(height: 32),
-    const Text('Conditions', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+    const SizedBox(height: 32),
+    // ============================================================
+    // EMAIL DE CONFIRMATION
+    // ============================================================
+    Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.mauveSoft,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.mauve.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.mark_email_read_outlined, color: AppColors.mauve, size: 20),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Adresse email de confirmation',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.mauve,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Le message de felicitations et les notifications importantes (validation de paiement, formations) seront envoyes a cette adresse.',
+            style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _confirmationEmailCtrl,
+            keyboardType: TextInputType.emailAddress,
+            decoration: InputDecoration(
+              hintText: 'exemple@email.com',
+              prefixIcon: const Icon(Icons.email_outlined),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              filled: true,
+              fillColor: Colors.white,
+            ),
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return 'Email de confirmation obligatoire';
+              if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$').hasMatch(v.trim())) return 'Email invalide';
+              return null;
+            },
+          ),
+        ],
+      ),
+    ),
+        const Text('Conditions', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
     const SizedBox(height: 8),
     const Text('Derniere etape avant de creer votre compte.', style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
     const SizedBox(height: 24),

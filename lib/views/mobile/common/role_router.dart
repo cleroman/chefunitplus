@@ -38,7 +38,8 @@ class RoleRouter extends StatelessWidget {
       case UserRole.formateur:
         return const TrainerDashboard();
       case UserRole.apprenant:
-        return const LearnerDashboard();
+        case UserRole.utilisateur:
+      return const LearnerDashboard();
     }
   }
 }

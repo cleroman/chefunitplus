@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "io.endigo.plugins.pdfviewflutter.flutter_pdfview-release-30:/layout-watch-v20/abc_alert_dialog_button_bar_material.xml",
+        "source": "io.endigo.plugins.pdfviewflutter.flutter_pdfview-appcompat-1.7.1-5:/layout-watch-v20/abc_alert_dialog_button_bar_material.xml"
+    },
+    {
+        "merged": "io.endigo.plugins.pdfviewflutter.flutter_pdfview-release-30:/layout-watch-v20/abc_alert_dialog_title_material.xml",
+        "source": "io.endigo.plugins.pdfviewflutter.flutter_pdfview-appcompat-1.7.1-5:/layout-watch-v20/abc_alert_dialog_title_material.xml"
+    }
+]

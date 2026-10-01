@@ -1,6 +1,6 @@
 // =============================================================
 // ChefUnitPlus - PromoteDirectorScreen
-// Promouvoir un utilisateur au rle de Directeur ou Formateur
+// Promouvoir un utilisateur au rôle de Directeur ou Formateur
 // =============================================================
 
 import 'package:flutter/material.dart';
@@ -50,7 +50,7 @@ class _PromoteDirectorScreenState extends State<PromoteDirectorScreen> {
         title: Text('Promouvoir en ${_targetRole.label}'),
         content: Text(
           'Confirmer la promotion de ${user.fullName} '
-          'au rle de ${_targetRole.label} ?\n\n'
+          'au rôle de ${_targetRole.label} ?\n\n'
           '${_targetRole.description}.',
         ),
         actions: [
@@ -110,7 +110,7 @@ class _PromoteDirectorScreenState extends State<PromoteDirectorScreen> {
       ),
       body: Column(
         children: [
-          // Choix du rle cible
+          // Choix du rôle cible
           Container(
             color: Colors.white,
             padding: const EdgeInsets.all(16),
@@ -118,7 +118,7 @@ class _PromoteDirectorScreenState extends State<PromoteDirectorScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Rle cible',
+                  'Rôle cible',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -362,7 +362,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Aucun utilisateur ne peut tre promu au rle de ${role.label}.',
+              'Aucun utilisateur ne peut tre promu au rôle de ${role.label}.',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 12,

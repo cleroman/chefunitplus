@@ -48,6 +48,9 @@ class DashboardController extends ChangeNotifier {
         case UserRole.apprenant:
           _stats = await _service.fetchLearner();
           break;
+        case UserRole.utilisateur:
+          _stats = await _service.fetchLearner();
+          break;
       }
     } catch (e, st) {
       _errorMessage = ErrorHandler.message(e);

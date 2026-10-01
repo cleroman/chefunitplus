@@ -1,0 +1,2 @@
+ninja: Entering directory `C:\Users\asdf\AppData\Local\Pub\Cache\hosted\pub.dev\jni-1.0.3\android\.cxx\RelWithDebInfo\4wf1w3a1\x86_64'
+[1/1] Linking C shared library C:\Users\asdf\chefunitplus_scout\chefunitplus_v1\build\jni\intermediates\cxx\RelWithDebInfo\4wf1w3a1\obj\x86_64\libdartjni.so

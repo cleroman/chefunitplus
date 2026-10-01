@@ -34,7 +34,7 @@ class AppStrings {
   static const String login = 'Connexion';
   static const String register = 'Inscription';
   static const String logout = 'Dconnexion';
-  static const String forgotPassword = 'Mot de passe oubli ?';
+  static const String forgotPassword = 'Mot de passe oublié ?';
   static const String resetPassword = 'Rinitialiser le mot de passe';
 
   static const String fullName = 'Nom complet';
@@ -44,7 +44,7 @@ class AppStrings {
   static const String confirmPassword = 'Confirmer le mot de passe';
 
   static const String loginButton = 'Se connecter';
-  static const String registerButton = 'Crer un compte';
+  static const String registerButton = 'Créer un compte';
   static const String noAccount = 'Pas encore de compte ?';
   static const String hasAccount = 'Dj inscrit ?';
 
@@ -68,7 +68,7 @@ class AppStrings {
   static const String myFormations = 'Mes formations';
   static const String formationCatalog = 'Catalogue';
   static const String formationDetail = 'Dtail de la formation';
-  static const String createFormation = 'Crer une formation';
+  static const String createFormation = 'Créer une formation';
   static const String editFormation = 'Modifier la formation';
   static const String deleteFormation = 'Supprimer la formation';
   static const String formationTitle = 'Titre';
@@ -157,7 +157,7 @@ class AppStrings {
   // Y'?Y FORMATEUR
   // -----------------------------------------------------------
   static const String trainerDashboard = 'Tableau de bord Formateur';
-  static const String studentsList = 'Liste des tudiants';
+  static const String studentsList = 'Liste des étudiants';
 
   // -----------------------------------------------------------
   // YZ" APPRENANT

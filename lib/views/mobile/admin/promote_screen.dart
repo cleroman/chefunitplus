@@ -355,7 +355,8 @@ class _PromoteScreenState extends State<PromoteScreen> {
         return <UserRole>[UserRole.directeur];
       case UserRole.directeur:
         return <UserRole>[UserRole.admin];
-      case UserRole.admin:
+      case UserRole.utilisateur:
+        case UserRole.admin:
         return <UserRole>[];
     }
   }

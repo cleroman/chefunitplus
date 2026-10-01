@@ -56,7 +56,7 @@ class User {
     this.groupId,
     required this.email,
     required this.phone,
-    this.role = UserRole.apprenant,
+    this.role = UserRole.utilisateur,
     this.isActive = true,
     this.token,
     this.createdBy,
@@ -200,6 +200,7 @@ class User {
   bool get isDirector => role == UserRole.directeur;
   bool get isTrainer => role == UserRole.formateur;
   bool get isLearner => role == UserRole.apprenant;
+  bool get isUser => role == UserRole.utilisateur;
   bool get isAuthenticated => token != null && token!.isNotEmpty;
 
   String get fullName {

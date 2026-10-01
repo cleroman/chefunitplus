@@ -133,6 +133,7 @@ class RoleDrawer extends StatelessWidget {
   List<Widget> _menuFor(BuildContext context, UserRole role) {
     switch (role) {
       case UserRole.apprenant:
+      case UserRole.utilisateur:
         return [
           _item(context, Icons.home_outlined, 'Accueil',
               AppRoutes.learnerHome),

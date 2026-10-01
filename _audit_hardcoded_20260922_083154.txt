@@ -1,0 +1,269 @@
+﻿AUDIT DES DONNEES EN DUR - 2026-09-22 08:31:54
+============================================================
+
+MESSAGE GENERIQUE: Aucune formation
+  Fichier: \lib\core\constants\app_strings.dart
+  Ligne: 204
+  Texte: static const String emptyFormations = 'Aucune formation disponible';
+
+MESSAGE GENERIQUE: Aucune formation
+  Fichier: \lib\views\admin\global_stats_screen.dart
+  Ligne: 261
+  Texte: 'Aucune formation',
+
+MESSAGE GENERIQUE: Aucune formation
+  Fichier: \lib\views\director\director_dashboard.dart
+  Ligne: 359
+  Texte: const Text('Aucune formation', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+
+MESSAGE GENERIQUE: Aucune formation
+  Fichier: \lib\views\director\director_formations_list_screen.dart
+  Ligne: 158
+  Texte: 'Aucune formation',
+
+MESSAGE GENERIQUE: Aucune formation
+  Fichier: \lib\views\director\module_assign_screen.dart
+  Ligne: 537
+  Texte: 'Aucune formation. CrÃ©ez-en une depuis votre tableau de bord.',
+
+MESSAGE GENERIQUE: Aucune formation
+  Fichier: \lib\views\learner\formation_catalog_screen.dart
+  Ligne: 486
+  Texte: ? 'Aucune formation disponible'
+
+MESSAGE GENERIQUE: Aucune formation
+  Fichier: \lib\views\learner\my_enrollments_screen.dart
+  Ligne: 68
+  Texte: _buildList(_active, 'Aucune formation active'),
+
+MESSAGE GENERIQUE: Aucune formation
+  Fichier: \lib\views\trainer\trainer_create_module_screen.dart
+  Ligne: 338
+  Texte: ? 'Aucune formation disponible'
+
+MESSAGE GENERIQUE: Aucune formation
+  Fichier: \_archives_backups\_backup_fill_views_20260915_100815\lib_views_learner_formation_catalog_screen.dart
+  Ligne: 304
+  Texte: ? 'Aucune formation disponible'
+
+MESSAGE GENERIQUE: Aucune formation
+  Fichier: \_archives_backups\_backup_fill_views_20260915_100815\lib_views_learner_my_enrollments_screen.dart
+  Ligne: 62
+  Texte: _list(ctrl.approved, 'Aucune formation active'),
+
+MESSAGE GENERIQUE: Aucun module
+  Fichier: \lib\core\constants\app_strings.dart
+  Ligne: 206
+  Texte: static const String emptyModules = 'Aucun module dans cette formation';
+
+MESSAGE GENERIQUE: Aucun module
+  Fichier: \lib\views\director\director_module_validation_screen.dart
+  Ligne: 67
+  Texte: Text('Aucun module en attente',
+
+MESSAGE GENERIQUE: Aucun module
+  Fichier: \lib\views\director\module_assign_screen.dart
+  Ligne: 223
+  Texte: 'Aucun module dans cette formation.\nCrÃ©ez d\'abord des modules depuis votre espace formateur.',
+
+MESSAGE GENERIQUE: Aucun module
+  Fichier: \lib\views\learner\formation_detail_screen.dart
+  Ligne: 391
+  Texte: child: Text('Aucun module publie pour le moment',
+
+MESSAGE GENERIQUE: Aucun module
+  Fichier: \lib\views\learner\learner_formation_suivi_screen.dart
+  Ligne: 394
+  Texte: Text('Aucun module disponible', style: TextStyle(color: AppColors.textMuted)),
+
+MESSAGE GENERIQUE: Aucun module
+  Fichier: \lib\views\trainer\trainer_dashboard.dart
+  Ligne: 381
+  Texte: const Text('Aucun module',
+
+MESSAGE GENERIQUE: Aucun module
+  Fichier: \lib\views\trainer\trainer_my_modules_screen.dart
+  Ligne: 85
+  Texte: const Text('Aucun module pour l\'instant',
+
+MESSAGE GENERIQUE: Aucun module
+  Fichier: \lib\views\trainer\trainer_scan_qr_screen.dart
+  Ligne: 126
+  Texte: 'Aucun module disponible pour le scan',
+
+MESSAGE GENERIQUE: Aucun module
+  Fichier: \_archives_backups\_backup_fill_views_20260915_100815\lib_views_trainer_trainer_dashboard.dart
+  Ligne: 222
+  Texte: 'Vous n\'avez encore aucun module',
+
+MESSAGE GENERIQUE: Aucun apprenant
+  Fichier: \lib\views\director\trainers_management_screen.dart
+  Ligne: 428
+  Texte: : 'Aucun apprenant disponible',
+
+MESSAGE GENERIQUE: Aucun formateur
+  Fichier: \lib\views\director\formation_editor_screen.dart
+  Ligne: 538
+  Texte: ? const Text('Aucun formateur disponible')
+
+MESSAGE GENERIQUE: Aucun formateur
+  Fichier: \lib\views\director\module_assign_screen.dart
+  Ligne: 366
+  Texte: : 'Aucun formateur affectÃ©',
+
+MESSAGE GENERIQUE: Aucun formateur
+  Fichier: \lib\views\director\module_editor_screen.dart
+  Ligne: 388
+  Texte: ? 'Aucun formateur disponible'
+
+MESSAGE GENERIQUE: Aucun formateur
+  Fichier: \lib\views\director\trainers_management_screen.dart
+  Ligne: 427
+  Texte: ? 'Aucun formateur nomm'
+
+MESSAGE GENERIQUE: Aucune donnee
+  Fichier: \lib\views\admin\payments_log_screen.dart
+  Ligne: 570
+  Texte: content: Text('Aucune donnee a exporter'),
+
+MESSAGE GENERIQUE: Aucune donnee
+  Fichier: \lib\views\director\formation_stats_screen.dart
+  Ligne: 605
+  Texte: 'Aucune donnee disponible',
+
+MESSAGE GENERIQUE: Aucun resultat
+  Fichier: \lib\views\learner\formation_catalog_screen.dart
+  Ligne: 487
+  Texte: : 'Aucun resultat pour "$_query"',
+
+MESSAGE GENERIQUE: Aucun resultat
+  Fichier: \_archives_backups\_backup_fill_views_20260915_100815\lib_views_learner_formation_catalog_screen.dart
+  Ligne: 305
+  Texte: : 'Aucun resultat pour "$_query"',
+
+MESSAGE GENERIQUE: Aucun paiement
+  Fichier: \lib\views\admin\payments_log_screen.dart
+  Ligne: 278
+  Texte: 'Aucun paiement',
+
+MESSAGE GENERIQUE: Aucune question
+  Fichier: \lib\views\learner\learner_formation_suivi_screen.dart
+  Ligne: 515
+  Texte: Text('Aucune question posee', style: TextStyle(color: AppColors.textMuted)),
+
+MESSAGE GENERIQUE: Aucune question
+  Fichier: \lib\views\trainer\lesson_editor_screen.dart
+  Ligne: 328
+  Texte: 'Aucune question',
+
+MESSAGE GENERIQUE: Aucun utilisateur
+  Fichier: \lib\core\constants\app_strings.dart
+  Ligne: 208
+  Texte: static const String emptyUsers = 'Aucun utilisateur trouv';
+
+MESSAGE GENERIQUE: Aucun utilisateur
+  Fichier: \lib\views\admin\promote_director_screen.dart
+  Ligne: 357
+  Texte: 'Aucun utilisateur ligible',
+
+MESSAGE GENERIQUE: Aucun utilisateur
+  Fichier: \lib\views\admin\promote_screen.dart
+  Ligne: 147
+  Texte: 'Aucun utilisateur trouve',
+
+MESSAGE GENERIQUE: Aucun utilisateur
+  Fichier: \lib\views\admin\users_management_screen.dart
+  Ligne: 204
+  Texte: 'Aucun utilisateur',
+
+MESSAGE GENERIQUE: Aucun utilisateur
+  Fichier: \lib\views\director\pending_users_screen.dart
+  Ligne: 79
+  Texte: title: 'Aucun utilisateur en attente',
+
+MESSAGE GENERIQUE: Aucun groupe
+  Fichier: \lib\views\admin\scout_groups_screen.dart
+  Ligne: 125
+  Texte: 'Aucun groupe scout',
+
+MESSAGE GENERIQUE: Aucun groupe
+  Fichier: \lib\views\admin\user_details_screen.dart
+  Ligne: 283
+  Texte: details['group_name'] ?? 'Aucun groupe'),
+
+MESSAGE GENERIQUE: Aucun groupe
+  Fichier: \lib\views\auth\steps\step4_scout.dart
+  Ligne: 78
+  Texte: 'Aucun groupe scout disponible. Contactez un administrateur.',
+
+MESSAGE GENERIQUE: Aucune inscription
+  Fichier: \lib\core\constants\app_strings.dart
+  Ligne: 205
+  Texte: static const String emptyEnrollments = 'Aucune inscription pour l\'instant';
+
+MESSAGE GENERIQUE: Aucune inscription
+  Fichier: \lib\views\director\enrollments_validation_screen.dart
+  Ligne: 63
+  Texte: 'Aucune inscription en attente',
+
+MESSAGE GENERIQUE: Aucune inscription
+  Fichier: \lib\views\learner\my_enrollments_screen.dart
+  Ligne: 69
+  Texte: _buildList(_pending, 'Aucune inscription en attente'),
+
+MESSAGE GENERIQUE: Aucune inscription
+  Fichier: \_archives_backups\_backup_fill_views_20260915_100815\lib_views_learner_my_enrollments_screen.dart
+  Ligne: 64
+  Texte: 'Aucune inscription en attente de validation'),
+
+MESSAGE GENERIQUE: Aucune inscription
+  Fichier: \_archives_backups\_backup_fill_views_20260915_100815\lib_views_trainer_students_list_screen.dart
+  Ligne: 123
+  Texte: 'Aucune inscription en attente',
+
+MESSAGE GENERIQUE: Aucun certificat
+  Fichier: \lib\core\constants\app_strings.dart
+  Ligne: 210
+  Texte: static const String emptyCertificates = 'Aucun certificat pour l\'instant';
+
+MESSAGE GENERIQUE: Aucun certificat
+  Fichier: \lib\views\learner\certificate_screen.dart
+  Ligne: 74
+  Texte: 'Aucun certificat pour l\'instant',
+
+MESSAGE GENERIQUE: Aucun certificat
+  Fichier: \_archives_backups\_backup_fill_views_20260915_100815\lib_views_learner_certificate_screen.dart
+  Ligne: 62
+  Texte: 'Aucun certificat pour l\'instant',
+
+MESSAGE GENERIQUE: Aucun materiel
+  Fichier: \lib\views\learner\learner_formation_suivi_screen.dart
+  Ligne: 321
+  Texte: Text('Aucun materiel disponible', style: TextStyle(color: AppColors.textMuted)),
+
+DONNEES EN DUR: \lib\core\utils\formatters.dart
+  Valeur: '243'
+
+DONNEES EN DUR: \lib\core\utils\validators.dart
+  Valeur: '243'
+
+DONNEES EN DUR: \lib\views\trainer\lesson_editor_screen.dart
+  Valeur: '15'
+  Valeur: '15'
+
+ECRAN SANS SOURCE: \lib\views\test_pdf_picker_screen.dart
+
+ECRAN SANS SOURCE: \lib\views\learner\lesson_player_screen.dart
+
+ECRAN SANS SOURCE: \lib\views\learner\receipt_screen.dart
+
+ECRAN SANS SOURCE: \lib\views\payment\payment_screen.dart
+
+ECRAN SANS SOURCE: \lib\views\trainer\module_editor_screen.dart
+
+ECRAN SANS SOURCE: \lib\views\trainer\my_modules_screen.dart
+
+ECRAN SANS SOURCE: \lib\views\trainer\student_detail_screen.dart
+
+SERVICE SANS API: \lib\services\storage_service.dart
+

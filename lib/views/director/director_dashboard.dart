@@ -1,29 +1,24 @@
-﻿// ============================================================
-// ChefUnitPlus - Dashboard Directeur (VERSION PRO)
-// ------------------------------------------------------------
-// - Garde TOUS les services/controleurs/routes existants
-// - Theme Admin (mauve) applique via DirectorThemeAdapter
-// - Header gradient, KPIs modernes, actions rapides, timeline
-// ============================================================
+// =============================================================
+// ChefUnitPlus - DirectorDashboard
+// Style identique au MobileDirectorDashboard (style admin)
+// =============================================================
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../core/constants/app_colors.dart';
 import '../../core/routes/app_routes.dart';
-import '../../core/theme/director_theme_adapter.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/formation_controller.dart';
 import '../../controllers/module_controller.dart';
 import '../../controllers/enrollment_controller.dart';
 import '../../widgets/layout/pro_layout.dart';
-import 'director_formations_list_screen.dart';
-import 'director_module_validation_screen.dart';
-import 'enrollments_validation_screen.dart';
-import 'trainers_management_screen.dart';
-import 'module_assign_screen.dart';
-import 'formation_stats_screen.dart';
-import 'formation_editor_screen.dart';
+import '../mobile/director/director_formations_list_screen.dart';
+import '../mobile/director/director_module_validation_screen.dart';
+import '../mobile/director/enrollments_validation_screen.dart';
+import '../mobile/director/trainers_management_screen.dart';
+import '../mobile/director/module_assign_screen.dart';
+import '../mobile/director/formation_stats_screen.dart';
+import '../mobile/director/formation_editor_screen.dart';
 import '../shared/messages_screen.dart';
 
 class DirectorDashboard extends StatefulWidget {
@@ -52,7 +47,8 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
 
   void _navigate(Widget screen, String route) {
     setState(() => _currentRoute = route);
-    Navigator.push(context, MaterialPageRoute(builder: (_) => screen)).then((_) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen))
+        .then((_) {
       if (mounted) {
         setState(() => _currentRoute = AppRoutes.directorHome);
         _loadAll();
@@ -69,7 +65,6 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
 
     final formations = formCtrl.formations;
     final published = formations.where((f) => f.isPublished).length;
-    final drafts = formations.length - published;
     final pendingModules = moduleCtrl.pending.length;
     final pendingEnroll = enrollCtrl.pending.length;
 
@@ -86,7 +81,8 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
         route: AppRoutes.directorFormations,
         color: Colors.blue,
         badge: formations.length,
-        onTap: () => _navigate(const DirectorFormationsListScreen(), AppRoutes.directorFormations),
+        onTap: () => _navigate(
+            const DirectorFormationsListScreen(), AppRoutes.directorFormations),
       ),
       ProMenuItem(
         icon: Icons.rule_outlined,
@@ -94,7 +90,8 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
         route: AppRoutes.directorModulesValidation,
         color: Colors.orange,
         badge: pendingModules,
-        onTap: () => _navigate(const DirectorModuleValidationScreen(), AppRoutes.directorModulesValidation),
+        onTap: () => _navigate(const DirectorModuleValidationScreen(),
+            AppRoutes.directorModulesValidation),
       ),
       ProMenuItem(
         icon: Icons.assignment_turned_in_outlined,
@@ -102,28 +99,32 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
         route: AppRoutes.directorEnrollments,
         color: Colors.green,
         badge: pendingEnroll,
-        onTap: () => _navigate(const EnrollmentsValidationScreen(), AppRoutes.directorEnrollments),
+        onTap: () => _navigate(const EnrollmentsValidationScreen(),
+            AppRoutes.directorEnrollments),
       ),
       ProMenuItem(
         icon: Icons.people_outline,
         label: 'Formateurs',
         route: AppRoutes.directorTrainers,
         color: Colors.teal,
-        onTap: () => _navigate(const TrainersManagementScreen(), AppRoutes.directorTrainers),
+        onTap: () => _navigate(
+            const TrainersManagementScreen(), AppRoutes.directorTrainers),
       ),
       ProMenuItem(
         icon: Icons.assignment_ind_outlined,
         label: 'Assignations',
         route: AppRoutes.directorModuleAssign,
         color: Colors.purple,
-        onTap: () => _navigate(const ModuleAssignScreen(), AppRoutes.directorModuleAssign),
+        onTap: () =>
+            _navigate(const ModuleAssignScreen(), AppRoutes.directorModuleAssign),
       ),
       ProMenuItem(
         icon: Icons.analytics_outlined,
         label: 'Statistiques',
         route: AppRoutes.directorStats,
         color: Colors.indigo,
-        onTap: () => _navigate(const FormationStatsScreen(), AppRoutes.directorStats),
+        onTap: () =>
+            _navigate(const FormationStatsScreen(), AppRoutes.directorStats),
       ),
       ProMenuItem(
         icon: Icons.chat_bubble_outline,
@@ -140,245 +141,146 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
       currentRoute: _currentRoute,
       items: items,
       onLogout: _logout,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.add_circle_outline, color: AppColors.mauve),
-          tooltip: 'Nouvelle formation',
-          onPressed: () => _navigate(const FormationEditorScreen(), AppRoutes.directorFormations),
-        ),
-      ],
       body: RefreshIndicator(
         onRefresh: _loadAll,
-        color: DirectorThemeAdapter.primary,
         child: ListView(
-          padding: const EdgeInsets.all(DirectorThemeAdapter.gapMd),
+          padding: const EdgeInsets.all(20),
           children: [
-            _buildHeader(user?.fullName ?? 'Directeur'),
-            const SizedBox(height: DirectorThemeAdapter.gapLg),
-
             _buildStatsRow(
               formations.length,
               published,
-              drafts,
               pendingModules,
+              pendingEnroll,
             ),
-            const SizedBox(height: DirectorThemeAdapter.gapLg),
-
-            if (pendingModules > 0 || pendingEnroll > 0) ...[
-              if (pendingModules > 0)
-                _buildBanner(
-                  icon: Icons.rule,
-                  color: DirectorThemeAdapter.warning,
-                  text: '$pendingModules module(s) en attente de validation',
-                  onTap: () => _navigate(const DirectorModuleValidationScreen(), AppRoutes.directorModulesValidation),
-                ),
-              if (pendingModules > 0 && pendingEnroll > 0)
-                const SizedBox(height: DirectorThemeAdapter.gapSm),
-              if (pendingEnroll > 0)
-                _buildBanner(
-                  icon: Icons.assignment_turned_in,
-                  color: DirectorThemeAdapter.success,
-                  text: '$pendingEnroll inscription(s) en attente',
-                  onTap: () => _navigate(const EnrollmentsValidationScreen(), AppRoutes.directorEnrollments),
-                ),
-              const SizedBox(height: DirectorThemeAdapter.gapLg),
-            ],
-
-            _buildSectionTitle('Actions rapides'),
-            const SizedBox(height: DirectorThemeAdapter.gapMd),
-            _buildActionsGrid(pendingModules, pendingEnroll),
-
-            const SizedBox(height: DirectorThemeAdapter.gapLg),
-
-            _buildSectionTitle('Formations recentes'),
-            const SizedBox(height: DirectorThemeAdapter.gapMd),
+            const SizedBox(height: 24),
+            if (pendingModules > 0 || pendingEnroll > 0)
+              _buildPendingBanners(pendingModules, pendingEnroll),
+            if (pendingModules > 0 || pendingEnroll > 0)
+              const SizedBox(height: 24),
+            _sectionTitle('Gestion rapide'),
+            const SizedBox(height: 12),
+            _buildManagementGrid(pendingModules, pendingEnroll),
+            const SizedBox(height: 24),
+            _sectionTitle('Plateforme'),
+            const SizedBox(height: 12),
+            _buildPlatformGrid(),
+            const SizedBox(height: 24),
+            _sectionTitle('Formations recentes'),
+            const SizedBox(height: 12),
             if (formations.isEmpty)
-              _buildEmptyCard()
+              _emptyCard()
             else
-              ...formations.take(3).map(_buildFormationCard),
-
-            const SizedBox(height: DirectorThemeAdapter.gapXl),
+              ...formations.take(3).map(_formationCard),
+            const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
 
-  // ------------------------------------------------------------
-  // Header gradient
-  // ------------------------------------------------------------
-  Widget _buildHeader(String name) {
-    final now = DateTime.now();
-    final hour = now.hour;
-    final greeting = hour < 12
-        ? 'Bonjour'
-        : hour < 18
-            ? 'Bon apres-midi'
-            : 'Bonsoir';
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(DirectorThemeAdapter.gapLg),
-      decoration: DirectorThemeAdapter.headerDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _sectionTitle(String t) => Row(
         children: [
-          Row(
-            children: [
-              const CircleAvatar(
-                radius: 24,
-                backgroundColor: Colors.white24,
-                child: Icon(Icons.person, color: Colors.white, size: 28),
-              ),
-              const SizedBox(width: DirectorThemeAdapter.gapMd),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '$greeting,',
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: DirectorThemeAdapter.gapMd),
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: DirectorThemeAdapter.gapMd,
-              vertical: DirectorThemeAdapter.gapSm,
-            ),
+            width: 4,
+            height: 18,
             decoration: BoxDecoration(
-              color: Colors.white24,
-              borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusMd),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.calendar_today, color: Colors.white, size: 15),
-                const SizedBox(width: 8),
-                Text(
-                  '${now.day.toString().padLeft(2, "0")}/${now.month.toString().padLeft(2, "0")}/${now.year}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
+              color: AppColors.mauve,
+              borderRadius: BorderRadius.circular(2),
             ),
           ),
+          const SizedBox(width: 10),
+          Text(t,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              )),
         ],
-      ),
-    );
-  }
+      );
 
-  // ------------------------------------------------------------
-  // Section title
-  // ------------------------------------------------------------
-  Widget _buildSectionTitle(String t) {
+  Widget _buildStatsRow(int total, int pub, int modules, int enroll) {
     return Row(
       children: [
-        Container(
-          width: 4,
-          height: 18,
-          decoration: BoxDecoration(
-            color: DirectorThemeAdapter.primary,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Text(
-          t,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: DirectorThemeAdapter.textPrimary,
-          ),
-        ),
+        _statCard('$total', 'Formations', Icons.school, Colors.blue),
+        const SizedBox(width: 12),
+        _statCard('$pub', 'Publiees', Icons.check_circle, Colors.green),
+        const SizedBox(width: 12),
+        _statCard('$modules', 'A valider', Icons.rule, Colors.orange),
+        const SizedBox(width: 12),
+        _statCard(
+            '$enroll', 'Inscriptions', Icons.assignment_turned_in, Colors.purple),
       ],
     );
   }
 
-  // ------------------------------------------------------------
-  // Stats row (KPIs)
-  // ------------------------------------------------------------
-  Widget _buildStatsRow(int total, int pub, int draft, int pending) {
-    return Row(
-      children: [
-        _buildStat('$total', 'Formations', Icons.school, DirectorThemeAdapter.primary),
-        const SizedBox(width: 12),
-        _buildStat('$pub', 'Publiees', Icons.check_circle, DirectorThemeAdapter.success),
-        const SizedBox(width: 12),
-        _buildStat('$draft', 'Brouillons', Icons.edit, DirectorThemeAdapter.warning),
-        const SizedBox(width: 12),
-        _buildStat('$pending', 'A valider', Icons.rule, DirectorThemeAdapter.danger),
-      ],
-    );
-  }
-
-  Widget _buildStat(String value, String label, IconData icon, Color color) {
+  Widget _statCard(String value, String label, IconData icon, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: DirectorThemeAdapter.cardDecoration(),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2)),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusSm),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: color, size: 20),
+              child: Icon(icon, color: color, size: 22),
             ),
-            const SizedBox(height: 10),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: DirectorThemeAdapter.textPrimary,
-              ),
-            ),
+            const SizedBox(height: 12),
+            Text(value,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                )),
             const SizedBox(height: 2),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 11,
-                color: DirectorThemeAdapter.textMuted,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+            Text(label,
+                style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis),
           ],
         ),
       ),
     );
   }
 
-  // ------------------------------------------------------------
-  // Banner alerte
-  // ------------------------------------------------------------
-  Widget _buildBanner({
+  Widget _buildPendingBanners(int modules, int enroll) {
+    return Column(
+      children: [
+        if (modules > 0)
+          _banner(
+            icon: Icons.rule,
+            color: Colors.orange,
+            text: '$modules module(s) en attente de validation',
+            onTap: () => _navigate(const DirectorModuleValidationScreen(),
+                AppRoutes.directorModulesValidation),
+          ),
+        if (modules > 0 && enroll > 0) const SizedBox(height: 10),
+        if (enroll > 0)
+          _banner(
+            icon: Icons.assignment_turned_in,
+            color: Colors.green,
+            text: '$enroll inscription(s) en attente',
+            onTap: () => _navigate(const EnrollmentsValidationScreen(),
+                AppRoutes.directorEnrollments),
+          ),
+      ],
+    );
+  }
+
+  Widget _banner({
     required IconData icon,
     required Color color,
     required String text,
@@ -386,27 +288,25 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusMd),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusMd),
-          border: Border.all(color: color.withValues(alpha: 0.30), width: 1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
         ),
         child: Row(
           children: [
             Icon(icon, color: color, size: 20),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                text,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: color,
-                ),
-              ),
+              child: Text(text,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                  )),
             ),
             Icon(Icons.arrow_forward_ios, size: 13, color: color),
           ],
@@ -415,10 +315,7 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
     );
   }
 
-  // ------------------------------------------------------------
-  // Actions grid
-  // ------------------------------------------------------------
-  Widget _buildActionsGrid(int modules, int enroll) {
+  Widget _buildManagementGrid(int modules, int enroll) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -427,40 +324,112 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
       mainAxisSpacing: 12,
       childAspectRatio: 1.4,
       children: [
-        _buildActionCard(Icons.school_outlined, 'Formations', 'Gerer le catalogue',
-            DirectorThemeAdapter.primary, 0,
-            () => _navigate(const DirectorFormationsListScreen(), AppRoutes.directorFormations)),
-        _buildActionCard(Icons.rule_outlined, 'Modules', 'Valider propositions',
-            DirectorThemeAdapter.warning, modules,
-            () => _navigate(const DirectorModuleValidationScreen(), AppRoutes.directorModulesValidation)),
-        _buildActionCard(Icons.assignment_turned_in_outlined, 'Inscriptions', 'Valider paiements',
-            DirectorThemeAdapter.success, enroll,
-            () => _navigate(const EnrollmentsValidationScreen(), AppRoutes.directorEnrollments)),
-        _buildActionCard(Icons.analytics_outlined, 'Statistiques', 'Voir les analyses',
-            DirectorThemeAdapter.secondary, 0,
-            () => _navigate(const FormationStatsScreen(), AppRoutes.directorStats)),
+        _actionCard(
+          icon: Icons.school_outlined,
+          title: 'Formations',
+          subtitle: 'Gerer le catalogue',
+          color: Colors.blue,
+          onTap: () => _navigate(
+              const DirectorFormationsListScreen(), AppRoutes.directorFormations),
+        ),
+        _actionCard(
+          icon: Icons.rule_outlined,
+          title: 'Modules',
+          subtitle: 'Valider propositions',
+          color: Colors.orange,
+          badge: modules,
+          onTap: () => _navigate(const DirectorModuleValidationScreen(),
+              AppRoutes.directorModulesValidation),
+        ),
+        _actionCard(
+          icon: Icons.assignment_turned_in_outlined,
+          title: 'Inscriptions',
+          subtitle: 'Valider paiements',
+          color: Colors.green,
+          badge: enroll,
+          onTap: () => _navigate(
+              const EnrollmentsValidationScreen(), AppRoutes.directorEnrollments),
+        ),
+        _actionCard(
+          icon: Icons.people_outline,
+          title: 'Formateurs',
+          subtitle: 'Gerer equipe',
+          color: Colors.teal,
+          onTap: () =>
+              _navigate(const TrainersManagementScreen(), AppRoutes.directorTrainers),
+        ),
       ],
     );
   }
 
-  Widget _buildActionCard(IconData icon, String title, String subtitle, Color color,
-      int badge, VoidCallback onTap) {
+  Widget _buildPlatformGrid() {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 1.4,
+      children: [
+        _actionCard(
+          icon: Icons.analytics_outlined,
+          title: 'Statistiques',
+          subtitle: 'Voir les analyses',
+          color: Colors.indigo,
+          onTap: () =>
+              _navigate(const FormationStatsScreen(), AppRoutes.directorStats),
+        ),
+        _actionCard(
+          icon: Icons.assignment_ind_outlined,
+          title: 'Assignations',
+          subtitle: 'Modules aux formateurs',
+          color: Colors.purple,
+          onTap: () => _navigate(
+              const ModuleAssignScreen(), AppRoutes.directorModuleAssign),
+        ),
+        _actionCard(
+          icon: Icons.chat_bubble_outline,
+          title: 'Messages',
+          subtitle: 'Communication',
+          color: Colors.cyan,
+          onTap: () =>
+              _navigate(const MessagesScreen(), AppRoutes.directorMessages),
+        ),
+        _actionCard(
+          icon: Icons.add_circle_outline,
+          title: 'Nouvelle formation',
+          subtitle: 'Creer une formation',
+          color: AppColors.mauve,
+          onTap: () => _navigate(
+              const FormationEditorScreen(), AppRoutes.directorFormations),
+        ),
+      ],
+    );
+  }
+
+  Widget _actionCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+    int badge = 0,
+  }) {
     return Material(
-      color: DirectorThemeAdapter.surface,
-      borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusMd),
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
       child: InkWell(
-        borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusMd),
+        borderRadius: BorderRadius.circular(14),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusMd),
+            borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: DirectorThemeAdapter.primary.withValues(alpha: 0.06),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2)),
             ],
           ),
           child: Stack(
@@ -472,29 +441,22 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusSm),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(icon, color: color, size: 22),
                   ),
                   const Spacer(),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: DirectorThemeAdapter.textPrimary,
-                    ),
-                  ),
+                  Text(title,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary)),
                   const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: DirectorThemeAdapter.textMuted,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  Text(subtitle,
+                      style: const TextStyle(
+                          fontSize: 11, color: AppColors.textMuted),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis),
                 ],
               ),
               if (badge > 0)
@@ -502,19 +464,17 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
                   top: 0,
                   right: 0,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: DirectorThemeAdapter.danger,
+                      color: AppColors.danger,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Text(
-                      '$badge',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                    child: Text('$badge',
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700)),
                   ),
                 ),
             ],
@@ -524,106 +484,82 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
     );
   }
 
-  // ------------------------------------------------------------
-  // Formation card
-  // ------------------------------------------------------------
-  Widget _buildFormationCard(dynamic f) {
-    final isPublished = f.isPublished == true;
-    final color = isPublished ? DirectorThemeAdapter.success : DirectorThemeAdapter.warning;
-
+  Widget _formationCard(dynamic f) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
-      decoration: DirectorThemeAdapter.cardDecoration(),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: DirectorThemeAdapter.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(DirectorThemeAdapter.radiusSm),
-            ),
-            child: const Icon(Icons.school, color: DirectorThemeAdapter.primary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  f.title ?? 'Formation',
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 2)),
+        ],
+      ),
+      child: Row(children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+              color: AppColors.mauve.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10)),
+          child: const Icon(Icons.school, color: AppColors.mauve),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(f.title ?? 'Formation',
                   style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: DirectorThemeAdapter.textPrimary,
-                  ),
+                      fontSize: 14, fontWeight: FontWeight.w700),
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  overflow: TextOverflow.ellipsis),
+              const SizedBox(height: 4),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: f.isPublished
+                      ? Colors.green.withValues(alpha: 0.15)
+                      : Colors.orange.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(height: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    isPublished ? 'Publiee' : 'Brouillon',
-                    style: TextStyle(
+                child: Text(
+                  f.isPublished ? 'Publiee' : 'Brouillon',
+                  style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: color,
-                    ),
-                  ),
+                      color: f.isPublished ? Colors.green : Colors.orange),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const Icon(Icons.chevron_right, color: DirectorThemeAdapter.textMuted),
-        ],
-      ),
+        ),
+        const Icon(Icons.chevron_right, color: AppColors.textMuted),
+      ]),
     );
   }
 
-  // ------------------------------------------------------------
-  // Empty card
-  // ------------------------------------------------------------
-  Widget _buildEmptyCard() {
+  Widget _emptyCard() {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: DirectorThemeAdapter.cardDecoration(),
-      child: Column(
-        children: [
-          Icon(
-            Icons.school_outlined,
-            size: 48,
-            color: DirectorThemeAdapter.primary.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Aucune formation',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: DirectorThemeAdapter.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Creez votre premiere formation',
-            style: TextStyle(
-              fontSize: 12,
-              color: DirectorThemeAdapter.textMuted,
-            ),
-          ),
-        ],
-      ),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(14)),
+      child: Column(children: [
+        Icon(Icons.school_outlined,
+            size: 48, color: AppColors.mauve.withValues(alpha: 0.5)),
+        const SizedBox(height: 12),
+        const Text('Aucune formation',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 4),
+        const Text('Creez votre premiere formation',
+            style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+      ]),
     );
   }
 
-  // ------------------------------------------------------------
-  // Logout
-  // ------------------------------------------------------------
   void _logout() {
     showDialog(
       context: context,
@@ -631,13 +567,15 @@ class _DirectorDashboardState extends State<DirectorDashboard> {
         title: const Text('Deconnexion'),
         content: const Text('Voulez-vous vraiment vous deconnecter ?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Annuler')),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
               context.read<AuthController>().logout();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: DirectorThemeAdapter.danger),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
             child: const Text('Se deconnecter'),
           ),
         ],

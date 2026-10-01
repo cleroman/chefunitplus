@@ -1,10 +1,14 @@
 // =============================================================
-// ChefUnitPlus - Wizard d'inscription (6 Ã©tapes)
-// Fichier complet et corrigÃ© - Version finale
+// ChefUnitPlus - Wizard d'inscription (6 ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©tapes)
+// Fichier complet et corrigÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â© - Version finale
 // =============================================================
 
 import 'package:flutter/material.dart';
+import '../../../widgets/email_with_domain_controller.dart';
 import 'package:provider/provider.dart';
+import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:chefunitplus/controllers/auth_controller.dart';
 import 'package:chefunitplus/core/constants/app_colors.dart';
@@ -31,6 +35,56 @@ class RegisterWizardScreen extends StatefulWidget {
 }
 
 class RegisterWizardScreenState extends State<RegisterWizardScreen> {
+  // ===== PHOTO =====
+  Uint8List? photoBytes;
+  String? photoFileName;
+  final ImagePicker _imagePicker = ImagePicker();
+
+  Future<void> pickImage(ImageSource source) async {
+    try {
+      if (source == ImageSource.camera) {
+        final status = await Permission.camera.request();
+        if (!status.isGranted) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Permission camera refusee')),
+            );
+          }
+          return;
+        }
+      } else {
+        final status = await Permission.photos.request();
+        if (!status.isGranted) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Permission galerie refusee')),
+            );
+          }
+          return;
+        }
+      }
+
+      final XFile? picked = await _imagePicker.pickImage(
+        source: source,
+        imageQuality: 75,
+        maxWidth: 800,
+      );
+
+      if (picked != null) {
+        final bytes = await picked.readAsBytes();
+        setState(() {
+          photoBytes = bytes;
+          photoFileName = picked.name;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur : $e')),
+        );
+      }
+    }
+  }
   @override
   void initState() {
     super.initState();
@@ -45,7 +99,8 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
   String? errorMessage;
 
   // ===== ETAPE 1 : Compte =====
-  final emailCtrl = TextEditingController();
+  final emailCtrl = EmailWithDomainController();
+  final confirmationEmailCtrl = TextEditingController();
   final phoneCtrl = TextEditingController();
   final passwordCtrl = TextEditingController();
   final confirmPasswordCtrl = TextEditingController();
@@ -98,6 +153,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
   @override
   void dispose() {
     emailCtrl.dispose();
+    confirmationEmailCtrl.dispose();
     phoneCtrl.dispose();
     passwordCtrl.dispose();
     confirmPasswordCtrl.dispose();
@@ -158,7 +214,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
             children: [
               _debugRow('Etape', '$currentStep'),
               const Divider(),
-              _debugRow('email', emailCtrl.text),
+              _debugRow('email', emailCtrl.fullEmail),
               _debugRow('phone', phoneCtrl.text),
               _debugRow('password', passwordCtrl.text),
               const Divider(),
@@ -242,7 +298,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
       'sexe': sexe,
       'dateNaissance': dateN.toIso8601String().split('T')[0],
       'lieuNaissance': lieuNaissanceCtrl.text.trim(),
-      'email': emailCtrl.text.trim().toLowerCase(),
+      'email': emailCtrl.fullEmail.trim().toLowerCase(),
       'phone': phoneCtrl.text.trim(),
       'password': passwordCtrl.text,
       'province': provinceCtrl.text.trim(),
@@ -265,6 +321,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
         'profession': professionCtrl.text.trim(),
       if (antecedentsCtrl.text.trim().isNotEmpty)
         'antecedentsMedicaux': antecedentsCtrl.text.trim(),
+      'confirmationEmail': confirmationEmailCtrl.text.trim().toLowerCase(),
       'engagementAccepte': engagementAccepte,
     };
 
@@ -295,7 +352,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
     }
 
     // Validation email
-    if (emailCtrl.text.trim().isEmpty) {
+    if (emailCtrl.fullEmail.trim().isEmpty) {
       SnackbarHelper.error(context, 'Email obligatoire');
       return;
     }
@@ -326,6 +383,21 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
           result['status'] == 'success';
 
       if (isSuccess) {
+        // Verifier si le backend indique que le compte est en attente
+        final isPending = result['data']?['pending'] == true ||
+            result['code'] == 'ACCOUNT_PENDING' ||
+            result['message']?.toString().toLowerCase().contains('attente') == true;
+
+        if (isPending) {
+          SnackbarHelper.success(
+            context,
+            'Compte cree ! En attente de validation admin.',
+          );
+          Navigator.pushReplacementNamed(context, '/pending-validation');
+          return;
+        }
+
+        // Cas normal (si backend renvoie un token)
         final auth = context.read<AuthController>();
         await auth.bootstrap();
         if (!mounted) return;

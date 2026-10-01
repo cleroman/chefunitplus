@@ -53,10 +53,16 @@ class _LoginScreenState extends State<LoginScreen> {
         AppRoutes.homeForRole(auth.currentUser!.role.name),
       );
     } else {
-      SnackbarHelper.error(
-        context,
-        auth.errorMessage ?? AppStrings.errorUnknown,
-      );
+      final errorMsg = auth.errorMessage ?? AppStrings.errorUnknown;
+      final lower = errorMsg.toLowerCase();
+      if (lower.contains('attente') ||
+          lower.contains('pending') ||
+          lower.contains('valid') ||
+          lower.contains('admin')) {
+        Navigator.pushNamed(context, '/pending-validation');
+      } else {
+        SnackbarHelper.error(context, errorMsg);
+      }
     }
   }
 
@@ -104,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 6),
                 const Text(
-                  'Connectez-vous à votre compte',
+                  'Connectez-vous Ã  votre compte',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
@@ -150,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                // Mot de passe oublié
+                // Mot de passe oubliÃ©
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(

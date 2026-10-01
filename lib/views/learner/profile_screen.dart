@@ -436,7 +436,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Helper : label du role (contourne bug Flutter Web)
   // ============================================================
   String _getRoleLabel(UserRole? role) {
-    if (role == null) return 'Apprenant';
+    if (role == null) return 'Utilisateur';
     switch (role) {
       case UserRole.admin:
         return 'Administrateur';
@@ -446,6 +446,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return 'Formateur';
       case UserRole.apprenant:
     return 'Apprenant'; // fallback
+      case UserRole.utilisateur:
+        return 'Utilisateur';
     }
   }
 }

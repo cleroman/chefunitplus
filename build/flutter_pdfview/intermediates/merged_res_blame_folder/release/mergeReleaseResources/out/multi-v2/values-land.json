@@ -1,0 +1,34 @@
+{
+    "logs": [
+        {
+            "outputFile": "io.endigo.plugins.pdfviewflutter.flutter_pdfview-mergeReleaseResources-28:/values-land/values-land.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\asdf\\.gradle\\caches\\9.1.0\\transforms\\3a1b41fb9bbc7d6cf25b47458df27285\\workspace\\transformed\\appcompat-1.7.1\\res\\values-land\\values-land.xml",
+                    "from": {
+                        "startLines": "2,3,4",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,125,196",
+                        "endColumns": "69,70,67",
+                        "endOffsets": "120,191,259"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "io.endigo.plugins.pdfviewflutter.flutter_pdfview-release-30:/values-land/values-land.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\asdf\\.gradle\\caches\\9.1.0\\transforms\\3a1b41fb9bbc7d6cf25b47458df27285\\workspace\\transformed\\appcompat-1.7.1\\res\\values-land\\values-land.xml",
+                    "from": {
+                        "startLines": "2,3,4",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,125,196",
+                        "endColumns": "69,70,67",
+                        "endOffsets": "120,191,259"
+                    }
+                }
+            ]
+        }
+    ]
+}

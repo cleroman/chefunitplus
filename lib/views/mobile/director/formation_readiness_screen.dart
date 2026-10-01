@@ -1,4 +1,4 @@
-﻿// =============================================================
+// =============================================================
 // ChefUnitPlus - FormationReadinessScreen
 // Le directeur verifie si tous les modules sont prets
 // =============================================================
@@ -28,6 +28,7 @@ class FormationReadinessScreen extends StatefulWidget {
 
 class _FormationReadinessScreenState extends State<FormationReadinessScreen> {
   Map<String, dynamic>? _readiness;
+  bool _isPublished = false;
   bool _loading = true;
   bool _publishing = false;
   String? _error;
@@ -50,10 +51,24 @@ class _FormationReadinessScreenState extends State<FormationReadinessScreen> {
       final res = await api.get('/formations/${widget.formationId}/readiness');
       if (!mounted) return;
 
+      // Charger aussi la formation pour connaitre is_published
+      bool isPublished = false;
+      try {
+        final formationRes = await api.get('/formations/${widget.formationId}');
+        if (formationRes['success'] == true) {
+          final data = formationRes['data'] as Map<String, dynamic>?;
+          if (data != null) {
+            final pub = data['is_published'];
+            isPublished = pub == 1 || pub == true || pub == '1';
+          }
+        }
+      } catch (_) {}
+
       if (!mounted) return;
       if (res['success'] == true) {
         setState(() {
           _readiness = res['data'] as Map<String, dynamic>?;
+          _isPublished = isPublished;
           _loading = false;
         });
       } else {
@@ -108,6 +123,7 @@ class _FormationReadinessScreenState extends State<FormationReadinessScreen> {
       if (!mounted) return;
 
       if (res['success'] == true) {
+        setState(() => _isPublished = true);  // <-- AJOUT CRITIQUE : cache le bouton immediatement
         messenger.showSnackBar(
           const SnackBar(
             content: Text('Formation publiee avec succes'),
@@ -235,8 +251,44 @@ class _FormationReadinessScreenState extends State<FormationReadinessScreen> {
 
         const SizedBox(height: 24),
 
-        // Bouton Publier (visible seulement si pret)
-        if (isReady)
+        // Message "deja publiee" OU bouton Publier
+        if (_isPublished)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.success.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.success, width: 1.5),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.check_circle, color: AppColors.success, size: 28),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Formation deja publiee',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.success,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Les apprenants peuvent deja voir cette formation.',
+                        style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )
+        else if (isReady)
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(

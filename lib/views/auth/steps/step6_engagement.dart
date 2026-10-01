@@ -51,6 +51,58 @@ class Step6Engagement extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
+          // ============================================================
+          // EMAIL DE CONFIRMATION
+          // ============================================================
+          Container(
+            margin: const EdgeInsets.only(bottom: 20),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.mauveSoft,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.mauve.withValues(alpha: 0.3)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.mark_email_read_outlined,
+                        color: AppColors.mauve, size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Adresse email de confirmation',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.mauve,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Le message de felicitations et les notifications importantes (validation de paiement, formations) seront envoyes a cette adresse.',
+                  style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: state.confirmationEmailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    hintText: 'exemple@email.com',
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
           CheckboxListTile(
             value: state.engagementAccepte,
             onChanged: (v) {

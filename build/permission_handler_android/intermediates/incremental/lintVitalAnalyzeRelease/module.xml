@@ -1,0 +1,20 @@
+<lint-module
+    format="1"
+    dir="C:\Users\asdf\AppData\Local\Pub\Cache\hosted\pub.dev\permission_handler_android-12.1.0\android"
+    name=":permission_handler_android"
+    type="LIBRARY"
+    maven="com.baseflow.permissionhandler:permission_handler_android:1.0"
+    agpVersion="9.0.1"
+    buildFolder="C:\Users\asdf\chefunitplus_scout\chefunitplus_v1\build\permission_handler_android"
+    bootClassPath="C:\Users\asdf\AppData\Local\Android\Sdk\platforms\android-34\android.jar;C:\Users\asdf\AppData\Local\Android\Sdk\build-tools\36.0.0\core-lambda-stubs.jar"
+    javaSourceLevel="1.8"
+    compileTarget="android-34"
+    neverShrinking="true"
+    highlightGradualR8Api="false">
+  <lintOptions
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true"/>
+  <variant name="release"/>
+</lint-module>

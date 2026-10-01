@@ -1,0 +1,27 @@
+<lint-module
+    format="1"
+    dir="C:\Users\asdf\AppData\Local\Pub\Cache\hosted\pub.dev\open_filex-4.7.0\android"
+    name=":open_filex"
+    type="LIBRARY"
+    maven="com.crazecoder.openfile:open_filex:1.0-SNAPSHOT"
+    agpVersion="9.0.1"
+    buildFolder="C:\Users\asdf\chefunitplus_scout\chefunitplus_v1\build\open_filex"
+    bootClassPath="C:\Users\asdf\AppData\Local\Android\Sdk\platforms\android-34\android.jar;C:\Users\asdf\AppData\Local\Android\Sdk\build-tools\36.0.0\core-lambda-stubs.jar"
+    javaSourceLevel="11"
+    compileTarget="android-34"
+    neverShrinking="true"
+    highlightGradualR8Api="false">
+  <lintOptions
+      disable="InvalidPackage"
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true">
+    <severities>
+      <severity
+        id="InvalidPackage"
+        severity="IGNORE" />
+    </severities>
+  </lintOptions>
+  <variant name="release"/>
+</lint-module>

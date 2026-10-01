@@ -1,0 +1,130 @@
+﻿[OK] Admin Dashboard - lib\views\admin\admin_dashboard.dart (16909 octets, 495 lignes)
+[OK] Director Dashboard - lib\views\director\director_dashboard.dart (15796 octets, 386 lignes)
+[OK] Trainer Dashboard - lib\views\trainer\trainer_dashboard.dart (15257 octets, 410 lignes)
+[OK] Learner Dashboard - lib\views\learner\learner_dashboard.dart (14570 octets, 400 lignes)
+
+== Admin Dashboard ==
+Imports :
+  - package:flutter/material.dart
+  - package:provider/provider.dart
+  - ../../core/constants/app_colors.dart
+  - ../../core/routes/app_routes.dart
+  - ../../controllers/auth_controller.dart
+  - ../../controllers/user_controller.dart
+  - ../../controllers/formation_controller.dart
+  - ../../controllers/password_request_controller.dart
+  - ../../controllers/complaint_controller.dart
+  - ../../widgets/layout/pro_layout.dart
+  - users_management_screen.dart
+  - promote_screen.dart
+  - global_stats_screen.dart
+  - payments_log_screen.dart
+  - complaints_screen.dart
+  - password_requests_screen.dart
+  - scout_groups_screen.dart
+  - system_settings_screen.dart
+  - ../shared/conversations_screen.dart
+Drawer : AUCUN
+
+== Director Dashboard ==
+Imports :
+  - package:flutter/material.dart
+  - package:provider/provider.dart
+  - ../../core/constants/app_colors.dart
+  - ../../core/routes/app_routes.dart
+  - ../../controllers/auth_controller.dart
+  - ../../controllers/formation_controller.dart
+  - ../../controllers/module_controller.dart
+  - ../../controllers/enrollment_controller.dart
+  - ../../widgets/layout/pro_layout.dart
+  - director_formations_list_screen.dart
+  - director_module_validation_screen.dart
+  - enrollments_validation_screen.dart
+  - trainers_management_screen.dart
+  - module_assign_screen.dart
+  - formation_stats_screen.dart
+  - formation_editor_screen.dart
+  - ../shared/conversations_screen.dart
+Drawer : AUCUN
+
+== Trainer Dashboard ==
+Imports :
+  - package:flutter/material.dart
+  - package:provider/provider.dart
+  - ../../core/constants/app_colors.dart
+  - ../../core/routes/app_routes.dart
+  - ../../controllers/auth_controller.dart
+  - ../../controllers/module_controller.dart
+  - ../../widgets/layout/pro_layout.dart
+  - trainer_create_module_screen.dart
+  - trainer_my_modules_screen.dart
+  - students_list_screen.dart
+  - ../shared/conversations_screen.dart
+Drawer : AUCUN
+
+== Learner Dashboard ==
+Imports :
+  - package:flutter/material.dart
+  - package:provider/provider.dart
+  - ../../core/constants/app_colors.dart
+  - ../../core/routes/app_routes.dart
+  - ../../controllers/auth_controller.dart
+  - ../../controllers/enrollment_controller.dart
+  - ../../controllers/formation_controller.dart
+  - ../../widgets/layout/pro_layout.dart
+  - formation_catalog_screen.dart
+  - my_enrollments_screen.dart
+  - certificate_screen.dart
+  - profile_screen.dart
+  - formation_detail_screen.dart
+  - ../shared/conversations_screen.dart
+Drawer : AUCUN
+
+== Routes declarees ==
+  splash = '/'
+  login = '/auth/login'
+  register = '/auth/register'
+  forgotPassword = '/auth/forgot-password'
+  adminHome = '/admin'
+  directorHome = '/director'
+  trainerHome = '/trainer'
+  learnerHome = '/learner'
+  learnerCatalog = '/learner/catalog'
+  learnerEnrollments = '/learner/enrollments'
+  learnerCertificates = '/learner/certificates'
+  learnerProfile = '/learner/profile'
+  learnerLessonPlayer = '/learner/lesson'
+  directorFormationEditor = '/director/formation/editor'
+  directorEnrollments = '/director/enrollments'
+  directorTrainers = '/director/trainers'
+  directorModuleAssign = '/director/module/assign'
+  directorStats = '/director/stats'
+  trainerModules = '/trainer/modules'
+  trainerStudents = '/trainer/students'
+  trainerModuleEditor = '/trainer/module/editor'
+  trainerLessonEditor = '/trainer/lesson/editor'
+  trainerCreateModule = '/trainer/module/create'
+  trainerMyModules = '/trainer/modules'
+  adminUsers = '/admin/users'
+  adminStats = '/admin/stats'
+  adminPayments = '/admin/payments'
+  adminSettings = '/admin/settings'
+  adminComplaints = '/admin/complaints'
+  adminPasswordRequests = '/admin/password-requests'
+  adminPromote = '/admin/promote'
+  adminScoutGroups = '/admin/scout-groups'
+  payment = '/payment'
+  paymentStatus = '/payment/status'
+  profile = '/profile'
+  editProfile = '/editprofile'
+  onboarding = '/onboarding'
+  directorFormationsList = '/director/formations'
+  directorFormations = '/director/formations'
+  directorModulesValidation = '/director/modules/validation'
+  chat = '/chat'
+  conversations = '/conversations'
+  changePassword = '/change-password'
+  adminMessages = '/admin/messages'
+  directorMessages = '/director/messages'
+  trainerMessages = '/trainer/messages'
+  learnerMessages = '/learner/messages'

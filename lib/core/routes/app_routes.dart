@@ -12,6 +12,7 @@ class AppRoutes {
 
   // ---------------- AUTH ----------------
   static const String login = '/auth/login';
+  static const String pendingValidation = '/pending-validation';
   static const String register = '/auth/register';
   static const String forgotPassword = '/auth/forgot-password';
 
@@ -21,6 +22,7 @@ class AppRoutes {
   static const String directorPendingUsers = '/director/pending-users';
   static const String trainerHome = '/trainer';
   static const String learnerHome = '/learner';
+  static const String userHome = '/user/home';
   static const String userBadge = '/profile/badge';
 
   // ---------------- LEARNER ----------------
@@ -58,7 +60,9 @@ class AppRoutes {
   static const String adminPromote = '/admin/promote';
   static const String adminScoutGroups = '/admin/scout-groups';
 
-  // ---------------- COMMUN ----------------
+  
+    static const String adminNews = '/admin/news';
+    static const String adminVideos = '/admin/videos';// ---------------- COMMUN ----------------
   static const String payment = '/payment';
   static const String paymentStatus = '/payment/status';
   static const String profile = '/profile';
@@ -76,6 +80,8 @@ class AppRoutes {
       if (r == 'admin' || r == 'administrateur') return adminHome;
       if (r == 'directeur' || r == 'director') return directorHome;
       if (r == 'formateur' || r == 'trainer') return trainerHome;
+      if (r == 'apprenant' || r == 'learner') return learnerHome;
+      if (r == 'utilisateur' || r == 'user') return userHome;
       return learnerHome;
     }
 
@@ -93,6 +99,10 @@ class AppRoutes {
     if (r == 'admin' || r == 'administrateur') return adminHome;
     if (r == 'directeur' || r == 'director') return directorHome;
     if (r == 'formateur' || r == 'trainer') return trainerHome;
+    if (r == 'apprenant' || r == 'learner') return learnerHome;
+    if (r == 'utilisateur' || r == 'user') return userHome;
+      if (r == 'apprenant' || r == 'learner') return learnerHome;
+      if (r == 'utilisateur' || r == 'user') return userHome;
     return learnerHome;
   }
 

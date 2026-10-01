@@ -1,4 +1,4 @@
-﻿import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 import '../core/errors/error_handler.dart';
 import '../services/register_service.dart';
 
@@ -74,6 +74,7 @@ class RegisterController extends ChangeNotifier {
     Uint8List? photoBytes,
     String? photoFileName,
     String? bio,
+    String? confirmationEmail,
     bool acceptedTerms = true,
   }) async {
     _loading = true;
@@ -98,6 +99,7 @@ class RegisterController extends ChangeNotifier {
         district: district, scoutFunction: scoutFunction,
         photoBytes: photoBytes, photoFileName: photoFileName,
         bio: bio, acceptedTerms: acceptedTerms,
+        confirmationEmail: confirmationEmail,
       );
       _pendingEmail = email;
       _loading = false;

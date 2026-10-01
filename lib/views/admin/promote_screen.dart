@@ -349,12 +349,14 @@ class _PromoteScreenState extends State<PromoteScreen> {
 
   List<UserRole> _promotionOptionsFor(UserRole current) {
     switch (current) {
+      case UserRole.utilisateur:
+        return <UserRole>[UserRole.formateur];
       case UserRole.apprenant:
         return <UserRole>[UserRole.formateur];
       case UserRole.formateur:
         return <UserRole>[UserRole.directeur];
       case UserRole.directeur:
-        return <UserRole>[UserRole.admin];
+        return <UserRole>[];
       case UserRole.admin:
         return <UserRole>[];
     }

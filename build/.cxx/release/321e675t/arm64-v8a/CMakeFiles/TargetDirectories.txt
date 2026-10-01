@@ -1,0 +1,2 @@
+C:/Users/asdf/chefunitplus_scout/chefunitplus_v1/build/.cxx/release/321e675t/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/asdf/chefunitplus_scout/chefunitplus_v1/build/.cxx/release/321e675t/arm64-v8a/CMakeFiles/rebuild_cache.dir

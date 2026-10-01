@@ -16,6 +16,8 @@ import 'payment_numbers_screen.dart';
 import 'complaints_screen.dart';
 import 'password_requests_screen.dart';
 import 'scout_groups_screen.dart';
+import '../../admin/news_management_screen.dart';
+import '../../admin/video_management_screen.dart';
 import 'system_settings_screen.dart';
 import '../../shared/messages_screen.dart';
 class AdminDashboard extends StatefulWidget {
@@ -157,6 +159,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
         route: AppRoutes.adminMessages,
         color: Colors.cyan,
         onTap: () => _navigate(const MessagesScreen(), AppRoutes.adminMessages),
+      ),
+      ProMenuItem(
+        icon: Icons.newspaper_outlined,
+        label: 'Actualites',
+        route: AppRoutes.adminNews,
+        color: Colors.indigo,
+        onTap: () => _navigate(const NewsManagementScreen(), AppRoutes.adminNews),
+      ),
+      ProMenuItem(
+        icon: Icons.video_library_outlined,
+        label: 'Videos',
+        route: AppRoutes.adminVideos,
+        color: Colors.deepPurple,
+        onTap: () => _navigate(const VideoManagementScreen(), AppRoutes.adminVideos),
       ),
     ];
 

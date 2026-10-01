@@ -1,5 +1,6 @@
-// ChefUnitPlus - Etape 2 : Identite
+// ChefUnitPlus - Etape 2 : Identite (avec photo)
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:chefunitplus/core/constants/app_colors.dart';
 import 'package:chefunitplus/core/utils/formatters.dart';
 import '../register_wizard_screen.dart';
@@ -28,6 +29,123 @@ class Step2Identity extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // ============================================================
+          // PHOTO D'IDENTITE
+          // ============================================================
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppColors.mauveSoft,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.camera_alt_outlined,
+                    color: AppColors.mauve, size: 20),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Photo d\'identite',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.mauveDark,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.divider),
+            ),
+            child: Column(
+              children: [
+                // Apercu photo
+                Container(
+                  width: 140,
+                  height: 140,
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: state.photoBytes != null
+                          ? AppColors.success
+                          : AppColors.divider,
+                      width: 3,
+                    ),
+                  ),
+                  child: ClipOval(
+                    child: state.photoBytes != null
+                        ? Image.memory(state.photoBytes!, fit: BoxFit.cover)
+                        : const Icon(Icons.person,
+                            size: 80, color: AppColors.textMuted),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Boutons
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => state.pickImage(ImageSource.camera),
+                        icon: const Icon(Icons.camera_alt, size: 18),
+                        label: const Text('Camera'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.mauve,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => state.pickImage(ImageSource.gallery),
+                        icon: const Icon(Icons.photo_library, size: 18),
+                        label: const Text('Galerie'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.mauve,
+                          side: const BorderSide(color: AppColors.mauve),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (state.photoBytes != null) ...[
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.check_circle,
+                          size: 14, color: AppColors.success),
+                      const SizedBox(width: 6),
+                      Text(
+                        state.photoFileName ?? 'Photo selectionnee',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.success,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // ============================================================
+          // INFORMATIONS PERSONNELLES
+          // ============================================================
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(

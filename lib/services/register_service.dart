@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../core/constants/api_constants.dart';
@@ -49,6 +49,7 @@ class RegisterService {
     Uint8List? photoBytes,
     String? photoFileName,
     String? bio,
+    String? confirmationEmail,
     bool acceptedTerms = true,
   }) async {
     return ErrorHandler.guard(() async {
@@ -89,6 +90,7 @@ class RegisterService {
       if (district != null) req.fields['district'] = district;
       if (scoutFunction != null) req.fields['scoutFunction'] = scoutFunction;
       if (bio != null && bio.isNotEmpty) req.fields['bio'] = bio;
+      if (confirmationEmail != null && confirmationEmail.isNotEmpty) { req.fields['confirmationEmail'] = confirmationEmail; }
       req.fields['acceptedTerms'] = acceptedTerms.toString();
 
       if (photoBytes != null && photoBytes.isNotEmpty) {

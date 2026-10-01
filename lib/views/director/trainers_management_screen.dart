@@ -1,4 +1,4 @@
-﻿// =============================================================
+// =============================================================
 // ChefUnitPlus - TrainersManagementScreen
 // Nommer / Rvoquer les formateurs (promotion depuis apprenants)
 // =============================================================
@@ -55,8 +55,8 @@ class _TrainersManagementScreenState extends State<TrainersManagementScreen>
         ),
         title: const Text('Nommer formateur'),
         content: Text(
-          'Confirmer la promotion de ${user.fullName} au rle de Formateur ?\n\n'
-          'Cette personne pourra crer des modules et leons, et voir ses tudiants.',
+          'Confirmer la promotion de ${user.fullName} au rôle de Formateur ?\n\n'
+          'Cette personne pourra créer des modules et leçons, et voir ses étudiants.',
         ),
         actions: [
           TextButton(
@@ -109,7 +109,7 @@ class _TrainersManagementScreenState extends State<TrainersManagementScreen>
         ),
         title: const Text('Rvoquer le formateur'),
         content: Text(
-          'Retirer le rle de Formateur  ${user.fullName} ?\n\n'
+          'Retirer le rôle de Formateur  ${user.fullName} ?\n\n'
           'Cette personne redeviendra Apprenant.',
         ),
         actions: [
