@@ -1,69 +1,68 @@
-# ============================================================
-# FLUTTER / DART
-# ============================================================
+# =============================================================
+# FLUTTER
+# =============================================================
+build/
 .dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
 .packages
 .pub-cache/
 .pub/
-.flutter-plugins
-.flutter-plugins-dependencies
 *.iml
 
-# ============================================================
-# BUILD - Exclusions CIBLEES (ne PAS exclure build/web)
-# ============================================================
-build/app/
-build/ios/
-build/android/
-build/linux/
-build/macos/
-build/windows/
-build/test/
-build/unit_test_assets/
-build/flutter_assets/
-build/native_assets/
-build/kernel_snapshot.dill
-build/*.dill
-build/.last_build_id
-build/*.json
+# =============================================================
+# BACKUPS DE FICHIERS
+# =============================================================
+*.bak
+*.bak_*
+*.bak-*
+*_backup_*
+*~.bak
 
-# ============================================================
-# ANDROID
-# ============================================================
-android/.gradle/
-android/app/debug/
-android/app/profile/
-android/app/release/
-android/local.properties
-android/key.properties
-*.jks
-*.keystore
+# =============================================================
+# LOGS
+# =============================================================
+*.log
+logs/
+run_*.txt
+diagnostics_*.txt
+dump_*.txt
 
-# ============================================================
-# IOS
-# ============================================================
-ios/Pods/
-ios/.symlinks/
-ios/Flutter/Flutter.framework
-ios/Flutter/Flutter.podspec
-
-# ============================================================
+# =============================================================
 # IDE
-# ============================================================
+# =============================================================
 .idea/
-.vscode/*
-!.vscode/settings.json
-!.vscode/launch.json
-!.vscode/extensions.json
+.vscode/
 *.swp
 *.swo
 
-# ============================================================
+# =============================================================
 # OS
-# ============================================================
+# =============================================================
 .DS_Store
 Thumbs.db
-desktop.ini_backup_*/
-_backups/
-_backups_archive_*.zip
-_archives_backups/
+desktop.ini
+
+# =============================================================
+# SCRIPTS TEMPORAIRES
+# =============================================================
+*.ps1.bak
+fix_*.js
+fix_*.ps1
+step*.ps1
+
+# =============================================================
+# ANDROID / iOS
+# =============================================================
+android/.gradle/
+android/local.properties
+ios/Pods/
+ios/.symlinks/
+
+# =============================================================
+# DIVERS
+# =============================================================
+*.tmp
+*.temp
+temp/
+tmp/
