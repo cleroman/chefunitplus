@@ -9,10 +9,7 @@ import 'registration_success_screen.dart';
 
 const List<String> kScoutFunctions = [
   'Chef de groupe', 'Assistant chef de groupe',
-  'Chef de patrouille', 'Assistant chef de patrouille',
-  'Membre actif', 'Membre en formation',
-  'Formateur', 'Directeur pedagogique',
-  'Commissaire', 'Autre',
+                'Chef de patrouille', 'Assistant chef de patrouille',
 ];
 
 class RegisterScreen extends StatefulWidget {
@@ -474,8 +471,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       Wrap(spacing: 8, runSpacing: 8, children: [
         _brancheChip('meute', 'Meute', '8-11 ans'),
         _brancheChip('troupe', 'Troupe', '12-15 ans'),
-        _brancheChip('compagnie', 'Compagnie', '15-17 ans'),
-        _brancheChip('clan', 'Clan', '17-21 ans'),
+        _brancheChip('compagnie', 'Compagnie', '16-18 ans'),
+        _brancheChip('clan', 'Clan', '19-24 ans'),
+        _brancheChip('ADS', 'ADS', '25- > ans'),
       ]),
       const SizedBox(height: 16),
       InkWell(

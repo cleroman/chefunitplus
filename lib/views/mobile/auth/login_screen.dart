@@ -156,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                // Mot de passe oubliÃ©
+                // Mot de passe oublie
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(

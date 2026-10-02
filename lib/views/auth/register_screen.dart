@@ -9,10 +9,7 @@ import 'registration_success_screen.dart';
 
 const List<String> kScoutFunctions = [
   'Chef de groupe', 'Assistant chef de groupe',
-  'Chef de patrouille', 'Assistant chef de patrouille',
-  'Membre actif', 'Membre en formation',
-  'Formateur', 'Directeur pedagogique',
-  'Commissaire', 'Autre',
+                'Chef de patrouille', 'Assistant chef de patrouille',
 ];
 
 class RegisterScreen extends StatefulWidget {
