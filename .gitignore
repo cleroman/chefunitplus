@@ -1,7 +1,7 @@
 # =============================================================
 # FLUTTER
 # =============================================================
-build/
+build/*
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
@@ -66,3 +66,8 @@ ios/.symlinks/
 *.temp
 temp/
 tmp/
+# =============================================================
+# EXCEPTION : Autoriser build/web pour Render
+# =============================================================
+!build/web/
+!build/web/**
