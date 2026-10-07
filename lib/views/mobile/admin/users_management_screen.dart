@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_const
+﻿// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_const
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +9,7 @@ import 'package:chefunitplus/core/constants/role_constants.dart';
 import '../../../models/user.dart';
 import 'user_details_screen.dart';
 import 'promote_screen.dart';
+import '../../../widgets/user_avatar.dart';
 
 class UsersManagementScreen extends StatefulWidget {
   const UsersManagementScreen({super.key});
@@ -249,17 +250,11 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
             padding: const EdgeInsets.all(14),
             child: Row(
               children: [
-                CircleAvatar(
+                UserAvatar(
                   radius: 24,
+                  photoUrl: u.photoUrl,
+                  initials: u.initials,
                   backgroundColor: u.role.color.withValues(alpha: 0.15),
-                  child: Text(
-                    u.initials,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: u.role.color,
-                    ),
-                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
