@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -11,6 +11,7 @@ import '../../shared/change_password_screen.dart';
 import '../../shared/user_badge_screen.dart';
 import '../../../core/constants/role_constants.dart';
 import 'edit_profile_screen.dart';
+import '../../../widgets/user_avatar.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -179,17 +180,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       color: Colors.white,
       child: Column(
         children: [
-          CircleAvatar(
+          UserAvatar(
             radius: 50,
+            photoUrl: user?.photoUrl,
+            initials: user?.initials ?? '?',
             backgroundColor: AppColors.mauve.withValues(alpha: 0.15),
-            child: Text(
-              user?.initials ?? '?',
-              style: const TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.w700,
-                color: AppColors.mauveDark,
-              ),
-            ),
           ),
           const SizedBox(height: 16),
           Text(
