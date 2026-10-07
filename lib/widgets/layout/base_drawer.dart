@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../controllers/auth_controller.dart';
+import '../user_avatar.dart';
 
 /// Element de menu pour les drawers.
 /// Peut etre un item normal OU un separateur (isDivider = true).
@@ -73,17 +74,11 @@ class BaseDrawer extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
+                UserAvatar(
                   radius: 32,
+                  photoUrl: user?.photoUrl,
+                  initials: user?.initials ?? '?',
                   backgroundColor: Colors.white.withValues(alpha: 0.2),
-                  child: Text(
-                    user?.initials ?? '?',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 12),
                 Text(
