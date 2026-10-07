@@ -10,7 +10,7 @@ class RegisterService {
   RegisterService(this._api);
 
   // ============================================================
-  // INSCRIPTION STANDARD (paramÃ¨tres individuels)
+  // INSCRIPTION STANDARD (paramÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¨tres individuels)
   // ============================================================
   Future<Map<String, dynamic>> register({
     String? nom,
@@ -71,8 +71,13 @@ class RegisterService {
       if (ville != null) req.fields['ville'] = ville;
       if (commune != null) req.fields['commune'] = commune;
       if (quartier != null) req.fields['quartier'] = quartier;
-      if (avenue != null) req.fields['avenue'] = avenue;
-      if (numero != null) req.fields['numero'] = numero;
+      // Combiner avenue + numero dans le champ 'adresse' attendu par le backend
+      final adresseComplete = [avenue, numero]
+          .where((s) => s != null && s.isNotEmpty)
+          .join(' ');
+      if (adresseComplete.isNotEmpty) {
+        req.fields['adresse'] = adresseComplete;
+      }
       if (profession != null) req.fields['profession'] = profession;
       if (niveauEtude != null) req.fields['niveauEtude'] = niveauEtude;
       if (totem != null) req.fields['totem'] = totem;
@@ -84,8 +89,14 @@ class RegisterService {
       req.fields['password'] = password;
       req.fields['phone'] = phone;
       req.fields['role'] = role;
-      if (scoutGroupId != null) req.fields['scoutGroupId'] = scoutGroupId;
-      if (customGroupName != null && customGroupName.isNotEmpty) req.fields['customGroupName'] = customGroupName;
+      if (scoutGroupId != null) {
+        req.fields['scoutGroupId'] = scoutGroupId;
+        req.fields['groupeScout'] = scoutGroupId;
+      }
+      if (customGroupName != null && customGroupName.isNotEmpty) {
+        req.fields['customGroupName'] = customGroupName;
+        req.fields['groupeScout'] = customGroupName;
+      }
       if (region != null) req.fields['region'] = region;
       if (district != null) req.fields['district'] = district;
       if (scoutFunction != null) req.fields['scoutFunction'] = scoutFunction;

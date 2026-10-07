@@ -1,10 +1,11 @@
-// ChefUnitPlus - Ecran d'inscription complet
+﻿// ChefUnitPlus - Ecran d'inscription complet
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../controllers/register_controller.dart';
+import '../../widgets/email_with_domain_controller.dart';
 import 'registration_success_screen.dart';
 
 const List<String> kScoutFunctions = [
@@ -30,7 +31,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _lieuNaissanceCtrl = TextEditingController();
   String _sexe = 'M';
   DateTime? _dateNaissance;
-  final _emailCtrl = TextEditingController();
+  final _emailCtrl = EmailWithDomainController();
   final _phoneCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
@@ -48,6 +49,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   DateTime? _dateEntreeScout;
   final _districtCtrl = TextEditingController();
   String? _scoutFunction;
+  final _customFunctionCtrl = TextEditingController();
+  bool _useCustomFunction = false;
 
   // ETAPE 3 : ADRESSE
   final _provinceCtrl = TextEditingController();
@@ -90,13 +93,65 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _associationCtrl.dispose(); _districtCtrl.dispose();
     _provinceCtrl.dispose(); _villeCtrl.dispose(); _communeCtrl.dispose();
     _quartierCtrl.dispose(); _avenueCtrl.dispose(); _numeroCtrl.dispose();
-    _professionCtrl.dispose(); _totemCtrl.dispose();
+    _professionCtrl.dispose(); _totemCtrl.dispose(); _customFunctionCtrl.dispose();
     super.dispose();
   }
 
   void _snack(String msg, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(msg), backgroundColor: color),
+    );
+  }
+
+  /// Affiche une alerte propre avec la liste des champs manquants
+  Future<void> _showMissingFields(List<String> fields) async {
+    if (fields.isEmpty) return;
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: const [
+            Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text('Champs obligatoires',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Veuillez renseigner les champs suivants :',
+                style: TextStyle(fontSize: 13, color: Colors.grey)),
+              const SizedBox(height: 12),
+              ...fields.map((f) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.circle, size: 8, color: Colors.red),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text('• $f',
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                    ),
+                  ],
+                ),
+              )),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('OK, je corrige'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -128,7 +183,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
       '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
 
   Future<void> _pickPhoto() async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 800, imageQuality: 85);
+    // Afficher le choix : camera ou galerie
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt, color: AppColors.mauve),
+              title: const Text('Prendre une photo'),
+              subtitle: const Text('Utiliser la camera du telephone'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library, color: AppColors.mauve),
+              title: const Text('Importer depuis la galerie'),
+              subtitle: const Text('Choisir une photo existante'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (source == null) return;
+
+    final picked = await ImagePicker().pickImage(source: source, maxWidth: 800, imageQuality: 85);
     if (picked == null || !mounted) return;
     final bytes = await picked.readAsBytes();
     if (!mounted) return;
@@ -138,16 +219,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
   }
 
-  void _nextStep() {
+  Future<void> _nextStep() async {
+    final missing = <String>[];
+
     if (_currentStep == 0) {
-      if (!_formKey.currentState!.validate()) return;
-      if (_dateNaissance == null) { _snack('Date de naissance requise', AppColors.warning); return; }
+      if (_nomCtrl.text.trim().length < 2) missing.add('Nom');
+      if (_prenomCtrl.text.trim().length < 2) missing.add('Prenom');
+      if (_dateNaissance == null) missing.add('Date de naissance');
+      if (_emailCtrl.text.trim().isEmpty) missing.add('Email');
+      if (_phoneCtrl.text.trim().length < 8) missing.add('Telephone');
+      if (_passwordCtrl.text.length < 8) missing.add('Mot de passe (8 caracteres min)');
+      if (_passwordCtrl.text != _confirmCtrl.text) missing.add('Confirmation mot de passe');
     }
+
     if (_currentStep == 1) {
-      if (!_useCustomGroup && _scoutGroupId == null) { _snack('Selectionnez un groupe', AppColors.warning); return; }
-      if (_useCustomGroup && _customGroupCtrl.text.trim().isEmpty) { _snack('Precisez le nom du groupe', AppColors.warning); return; }
-      if (_scoutFunction == null) { _snack('Selectionnez une fonction', AppColors.warning); return; }
+      if (!_useCustomGroup && _scoutGroupId == null) missing.add('Groupe scout');
+      if (_useCustomGroup && _customGroupCtrl.text.trim().isEmpty) missing.add('Nom du groupe');
+      if (_useCustomFunction && _customFunctionCtrl.text.trim().isEmpty) missing.add('Fonction (precisez)');
+      if (!_useCustomFunction && _scoutFunction == null) missing.add('Fonction scout');
     }
+
+    if (_currentStep == 3) {
+      if (_antecedentsMedicaux.isEmpty) missing.add('Au moins un antecedent medical');
+      if (_fonctionsCamps.isEmpty) missing.add('Au moins une fonction ou camp de formation');
+      if (_personnesPrevenir.isEmpty) missing.add('Au moins une personne a prevenir');
+    }
+
+    if (missing.isNotEmpty) {
+      await _showMissingFields(missing);
+      return;
+    }
+
+    if (!_formKey.currentState!.validate()) return;
+
     if (_currentStep < 4) {
       setState(() => _currentStep++);
       _pageCtrl.animateToPage(_currentStep,
@@ -209,10 +313,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       fonctionsCamps: _fonctionsCamps,
       personnesPrevenir: _personnesPrevenir,
       antecedentsMedicaux: _antecedentsMedicaux,
-      conditionsEngagement: [true, true], // TODO: remplacer par les 8 conditions
+      conditionsEngagement: [true, true, true, true, true, true, true, true], // 8 conditions acceptees
       district: _districtCtrl.text.trim(),
       region: _provinceCtrl.text.trim(),
-      scoutFunction: _scoutFunction!,
+      scoutFunction: _useCustomFunction ? _customFunctionCtrl.text.trim() : _scoutFunction!,
       photoBytes: _photoBytes,
       photoFileName: _photoFileName,
       confirmationEmail: _confirmationEmailCtrl.text.trim(),
@@ -221,7 +325,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!mounted) return;
     if (ok) {
       Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (_) => RegistrationSuccessScreen(email: _emailCtrl.text.trim())));
+        MaterialPageRoute(
+        builder: (_) => RegistrationSuccessScreen(
+          email: _emailCtrl.text.trim(),
+          fullName: '${_nomCtrl.text.trim()} ${_postNomCtrl.text.trim()} ${_prenomCtrl.text.trim()}',
+          photoBytes: _photoBytes,
+          nom: _nomCtrl.text.trim(),
+          postNom: _postNomCtrl.text.trim(),
+          prenom: _prenomCtrl.text.trim(),
+          sexe: _sexe,
+          dateNaissance: _dateNaissance?.toIso8601String().split('T').first,
+          lieuNaissance: _lieuNaissanceCtrl.text.trim(),
+          phone: _phoneCtrl.text.trim(),
+          scoutGroupName: _useCustomGroup ? _customGroupCtrl.text.trim() : _scoutGroupId,
+          scoutFunction: _scoutFunction,
+          numeroAffiliation: _numeroAffiliationCtrl.text.trim(),
+          branche: _branche,
+          province: _provinceCtrl.text.trim(),
+          ville: _villeCtrl.text.trim(),
+          commune: _communeCtrl.text.trim(),
+        )));
     } else {
       _snack(ctrl.errorMessage ?? 'Erreur', AppColors.danger);
     }
@@ -355,7 +478,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       decoration: const InputDecoration(labelText: 'Lieu de naissance (optionnel)', hintText: 'Ex : Kinshasa',
         prefixIcon: Icon(Icons.location_city_outlined), border: OutlineInputBorder())),
     const SizedBox(height: 16),
-    TextFormField(controller: _emailCtrl, keyboardType: TextInputType.emailAddress,
+    TextFormField(controller: _emailCtrl, keyboardType: TextInputType.emailAddress, onChanged: (v) => _emailCtrl.handleInput(v),
       decoration: const InputDecoration(labelText: 'Email *', hintText: 'Ex : jean@scout.cd',
         prefixIcon: Icon(Icons.email_outlined), border: OutlineInputBorder()),
       validator: (v) {
@@ -495,12 +618,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
       const SizedBox(height: 16),
       DropdownButtonFormField<String>(
-        initialValue: _scoutFunction, isExpanded: true,
+        initialValue: _useCustomFunction ? '__custom__' : _scoutFunction,
+        isExpanded: true,
         decoration: const InputDecoration(labelText: 'Fonction scout',
           prefixIcon: Icon(Icons.badge_outlined), border: OutlineInputBorder()),
-        items: kScoutFunctions.map((f) => DropdownMenuItem<String>(value: f, child: Text(f))).toList(),
-        onChanged: (v) => setState(() => _scoutFunction = v),
+        items: [
+          ...kScoutFunctions.map((f) => DropdownMenuItem<String>(value: f, child: Text(f))),
+          const DropdownMenuItem<String>(value: '__custom__', child: Text('Autre (preciser)')),
+        ],
+        onChanged: (v) => setState(() {
+          if (v == '__custom__') {
+            _useCustomFunction = true;
+            _scoutFunction = null;
+          } else {
+            _useCustomFunction = false;
+            _scoutFunction = v;
+          }
+        }),
       ),
+      if (_useCustomFunction) ...[
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: _customFunctionCtrl,
+          decoration: const InputDecoration(
+            labelText: 'Precisez la fonction',
+            hintText: 'Ex : Commissaire regional',
+            prefixIcon: Icon(Icons.edit_outlined),
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (v) => _scoutFunction = v,
+        ),
+      ],
     ]);
   }
 
@@ -656,7 +804,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     ),
     const SizedBox(height: 24),
-    const Text('Personnes a prevenir', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+    const Text('Personnes a prevenir *', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
     const SizedBox(height: 8),
     if (_personnesPrevenir.isEmpty)
       Container(padding: const EdgeInsets.all(12),

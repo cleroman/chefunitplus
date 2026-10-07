@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - Etape 4 : Scout (avec selection du groupe)
 // =============================================================
 
@@ -10,6 +10,7 @@ import 'package:chefunitplus/controllers/scout_group_controller.dart';
 import 'package:chefunitplus/models/scout_group.dart';
 import 'package:chefunitplus/models/user_details.dart';
 import '../register_wizard_screen.dart';
+import '../../../widgets/pdf_proof_list.dart';
 
 class Step4Scout extends StatelessWidget {
   final RegisterWizardScreenState state;
@@ -278,6 +279,17 @@ class Step4Scout extends StatelessWidget {
             prefixIcon: Icon(Icons.workspace_premium_outlined),
             border: OutlineInputBorder(),
           ),
+        ),
+
+        const SizedBox(height: 24),
+
+        // ===== PREUVES DE FORMATION (PDF) =====
+        PdfProofList(
+          initialValue: state.proofs,
+          onChanged: (list) {
+            state.proofs = list;
+            state.refresh();
+          },
         ),
       ],
     );

@@ -89,35 +89,45 @@ class Step2Identity extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Boutons
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => state.pickImage(ImageSource.camera),
-                        icon: const Icon(Icons.camera_alt, size: 18),
-                        label: const Text('Camera'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.mauve,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                // Bouton unique qui ouvre un bottom sheet
+                ElevatedButton.icon(
+                  onPressed: () {
+                    showModalBottomSheet<ImageSource>(
+                      context: context,
+                      builder: (ctx) => SafeArea(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.camera_alt, color: AppColors.mauve),
+                              title: const Text('Prendre une photo'),
+                              subtitle: const Text('Utiliser la camera du telephone'),
+                              onTap: () {
+                                Navigator.pop(ctx);
+                                state.pickImage(ImageSource.camera);
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.photo_library, color: AppColors.mauve),
+                              title: const Text('Importer depuis la galerie'),
+                              subtitle: const Text('Choisir une photo existante'),
+                              onTap: () {
+                                Navigator.pop(ctx);
+                                state.pickImage(ImageSource.gallery);
+                              },
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => state.pickImage(ImageSource.gallery),
-                        icon: const Icon(Icons.photo_library, size: 18),
-                        label: const Text('Galerie'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.mauve,
-                          side: const BorderSide(color: AppColors.mauve),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                  ],
+                    );
+                  },
+                  icon: const Icon(Icons.add_a_photo, size: 18),
+                  label: const Text('Ajouter une photo'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.mauve,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 48),
+                  ),
                 ),
                 if (state.photoBytes != null) ...[
                   const SizedBox(height: 10),

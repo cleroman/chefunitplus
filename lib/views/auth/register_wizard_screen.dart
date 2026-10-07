@@ -1,6 +1,6 @@
-// =============================================================
-// ChefUnitPlus - Wizard d'inscription (6 ÃƒÆ’Ã‚Â©tapes)
-// Fichier complet et corrigÃƒÆ’Ã‚Â© - Version finale
+﻿// =============================================================
+// ChefUnitPlus - Wizard d'inscription (6 ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©tapes)
+// Fichier complet et corrigÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â© - Version finale
 // =============================================================
 
 import 'package:flutter/material.dart';
@@ -23,6 +23,8 @@ import 'steps/step3_address.dart';
 import 'steps/step4_scout.dart';
 import 'steps/step5_pro_health.dart';
 import 'steps/step6_engagement.dart';
+
+import '../../models/proof_document.dart';
 
 class RegisterWizardScreen extends StatefulWidget {
   const RegisterWizardScreen({super.key});
@@ -78,6 +80,9 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
   ScoutBranch branche = ScoutBranch.troupe;
   DateTime? dateEntreeScout;
   final fonctionScoutCtrl = TextEditingController();
+
+  // ===== ETAPE 4 : Preuves de formation (PDF) =====
+  List<ProofDocument> proofs = [];
 
   // ===== ETAPE 5 : Pro & Sante =====
   final professionCtrl = TextEditingController();
@@ -270,6 +275,7 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
         'antecedentsMedicaux': antecedentsCtrl.text.trim(),
       'confirmationEmail': confirmationEmailCtrl.text.trim().toLowerCase(),
       'engagementAccepte': engagementAccepte,
+      'proofs': proofs.map((p) => p.toJson()).toList(),
     };
 
     if (camps.isNotEmpty) {
