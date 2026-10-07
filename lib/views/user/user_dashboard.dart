@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - Dashboard Utilisateur PROFESSIONNEL
 // Formations + Videos + Actualites + Communiques
 // =============================================================
@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/routes/app_routes.dart';
 import '../../controllers/auth_controller.dart';
+import '../../widgets/user_avatar.dart';
 
 class UserDashboard extends StatefulWidget {
   const UserDashboard({super.key});
@@ -30,7 +31,7 @@ class _UserDashboardState extends State<UserDashboard> {
   Future<void> _loadContent() async {
     setState(() => _loading = true);
     // TODO: Charger depuis l'API
-    // Pour l'instant, données de démo
+    // Pour l'instant, donnÃ©es de dÃ©mo
     await Future.delayed(const Duration(milliseconds: 500));
     setState(() {
       _loading = false;
@@ -87,17 +88,11 @@ class _UserDashboardState extends State<UserDashboard> {
                 children: [
                   Row(
                     children: [
-                      CircleAvatar(
+                      UserAvatar(
                         radius: 28,
+                        photoUrl: auth.currentUser?.photoUrl,
+                        initials: (auth.currentUser?.fullName ?? 'U')[0].toUpperCase(),
                         backgroundColor: Colors.white,
-                        child: Text(
-                          (auth.currentUser?.fullName ?? 'U')[0].toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.mauve,
-                          ),
-                        ),
                       ),
                       const SizedBox(width: 14),
                       Expanded(
