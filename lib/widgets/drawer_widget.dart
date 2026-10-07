@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - DrawerWidget
 // Menu lateral harmonise avec logo
 // =============================================================
@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../core/constants/app_colors.dart';
 import '../models/user.dart';
+import 'user_avatar.dart';
 class DrawerItem {
   final IconData icon;
   final String label;
@@ -111,17 +112,11 @@ class DrawerWidget extends StatelessWidget {
                 // User info
                 Row(
                   children: [
-                    CircleAvatar(
+                    UserAvatar(
                       radius: 22,
+                      photoUrl: user?.photoUrl,
+                      initials: user?.initials ?? '?',
                       backgroundColor: Colors.white.withValues(alpha: 0.25),
-                      child: Text(
-                        user?.initials ?? '?',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
