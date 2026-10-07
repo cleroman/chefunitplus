@@ -71,3 +71,9 @@ tmp/
 # =============================================================
 !build/web/
 !build/web/**
+# Diagnostics temporaires (ajoute par Phase 1)
+diagnostic_complet_*.txt
+rapport_photo.txt
+analyse.txt
+backups_avatar_*/
+backups_archive/
