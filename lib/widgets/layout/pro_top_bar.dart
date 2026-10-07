@@ -10,6 +10,7 @@ import '../../core/constants/app_colors.dart';
 import '../../controllers/auth_controller.dart';
 import '../../core/routes/app_routes.dart';
 import '../app_logo.dart';
+import '../user_avatar.dart';
 
 class ProTopBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -249,17 +250,11 @@ class _ProfileButton extends StatelessWidget {
         ),
         child: Row(
           children: [
-            CircleAvatar(
+            UserAvatar(
               radius: 16,
+              photoUrl: user?.photoUrl,
+              initials: _initials(user?.fullName ?? '?'),
               backgroundColor: Colors.white,
-              child: Text(
-                _initials(user?.fullName ?? '?'),
-                style: const TextStyle(
-                  color: AppColors.mauve,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 12,
-                ),
-              ),
             ),
             if (MediaQuery.of(context).size.width > 700) ...[
               const SizedBox(width: 8),
@@ -295,17 +290,11 @@ class _ProfileButton extends StatelessWidget {
             ),
             child: Row(
               children: [
-                CircleAvatar(
+                UserAvatar(
                   radius: 22,
+                  photoUrl: user?.photoUrl,
+                  initials: _initials(user?.fullName ?? '?'),
                   backgroundColor: Colors.white,
-                  child: Text(
-                    _initials(user?.fullName ?? '?'),
-                    style: const TextStyle(
-                      color: AppColors.mauve,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16,
-                    ),
-                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -406,5 +395,4 @@ class _ProfileButton extends StatelessWidget {
     return name.isNotEmpty ? name[0].toUpperCase() : '?';
   }
 }
-
 
