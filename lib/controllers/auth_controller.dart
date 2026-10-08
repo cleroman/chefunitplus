@@ -276,34 +276,14 @@ class AuthController extends ChangeNotifier {
     final u = _currentUser;
     if (u == null) return 'none';
 
-    // 0. LES COMPTES SYSTEME SONT TOUJOURS ACTIFS
-    final role = u.role.name;
-    if (role == 'admin' || role == 'directeur' || role == 'formateur') {
+    // SEUL L'ADMIN -> dashboard admin (acces direct)
+    if (u.role.name == 'admin') {
       return 'active';
     }
 
-    // 1. Compte suspendu / revoque
-    if (!u.isActive ||
-        u.statut == 'revoked' ||
-        u.statut == 'revoque' ||
-        u.statut == 'suspended' ||
-        u.statut == 'suspendu') {
-      return 'suspended';
-    }
-
-    // 2. Compte valide par admin -> page utilisateur
-    if (u.validatedAt != null) return 'active';
-    if (u.statut == 'validated' || u.statut == 'active') return 'active';
-
-    // 3. Preuves soumises -> attente validation admin
-    if (u.proofsSubmittedAt != null) return 'awaiting_validation';
-    if (u.statut == 'proofs_submitted') return 'awaiting_validation';
-
-    // 4. Code verifie -> wizard preuves
-    if (u.codeIsUsed == true) return 'proofs_pending';
-    if (u.statut == 'proofs_pending') return 'proofs_pending';
-
-    // 5. Fallback : code a 6 chiffres
+    // TOUS LES AUTRES -> code a 6 chiffres
+    // (pending, active, validated, proofs_pending, proofs_submitted,
+    //  suspended, revoked, etc.)
     return 'email_verification';
   }
   bool _handleAuthResponse(AuthResponse response) {

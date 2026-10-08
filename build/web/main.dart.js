@@ -57150,20 +57150,9 @@ break
 case 6:case 1:return A.m(q,r)
 case 2:return A.l(o.at(-1),r)}})
 return A.n($async$qJ,r)},
-gacB(){var s,r,q="active",p="awaiting_validation",o="proofs_pending",n=this.d
-if(n==null)return"none"
-s=n.at.b
-if(s==="admin"||s==="directeur"||s==="formateur")return q
-if(n.ax){r=n.db
-r=r==="revoked"||r==="revoque"||r==="suspended"||r==="suspendu"}else r=!0
-if(r)return"suspended"
-if(n.k2!=null)return q
-r=n.db
-if(r==="validated"||r==="active")return q
-if(n.id!=null)return p
-if(r==="proofs_submitted")return p
-if(n.fx===!0)return o
-if(r==="proofs_pending")return o
+gacB(){var s=this.d
+if(s==null)return"none"
+if(s.at.b==="admin")return"active"
 return"email_verification"},
 atH(a){var s,r=this
 if(a.a&&a.d!=null){r.d=a.d
@@ -63824,40 +63813,30 @@ return A.i(o.qZ(B.c.ab(j.a.a),p.f.a.a),$async$zZ)
 case 3:n=b
 m=p.c
 if(m==null){s=1
-break}if(n)switch(o.gacB()){case"active":j=p.c
-j.toString
-A.en(j,B.Z,B.ct,"Connexion russie",!1,B.ha)
+break}if(n)switch(o.gacB()){case"active":A.en(m,B.Z,B.ct,"Connexion russie",!1,B.ha)
 j=p.c
 j.toString
 m=t.X
 A.nH(j,A.jm(o.d.at.b),null,m,m)
 break
-case"email_verification":m=p.c
-m.toString
-A.en(m,B.e3,B.bM,"Verifiez votre email pour recevoir le code.",!1,B.hb)
+case"email_verification":A.en(m,B.e3,B.bM,"Verifiez votre email pour recevoir le code.",!1,B.hb)
 m=p.c
 m.toString
 l=t.N
 k=t.X
 A.nH(m,"/auth/verify-code",A.aB(["email",B.c.ab(j.a.a)],l,l),k,k)
 break
-case"proofs_pending":m=p.c
-m.toString
-A.en(m,B.e3,B.bM,"Soumettez vos preuves de formation.",!1,B.hb)
+case"proofs_pending":A.en(m,B.e3,B.bM,"Soumettez vos preuves de formation.",!1,B.hb)
 m=p.c
 m.toString
 l=t.N
 k=t.X
 A.nH(m,"/auth/submit-proofs",A.aB(["email",B.c.ab(j.a.a)],l,l),k,k)
 break
-case"suspended":j=p.c
-j.toString
-m=t.X
-A.nH(j,"/account-suspended",null,m,m)
+case"suspended":j=t.X
+A.nH(m,"/account-suspended",null,j,j)
 break
-case"awaiting_validation":default:m=p.c
-m.toString
-l=t.N
+case"awaiting_validation":default:l=t.N
 k=t.X
 A.nH(m,"/pending-validation",A.aB(["email",B.c.ab(j.a.a)],l,l),k,k)
 break}else{j=o.f
