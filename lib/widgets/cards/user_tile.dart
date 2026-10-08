@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - UserTile (premium)
 // =============================================================
 
@@ -53,7 +53,7 @@ class UserTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Avatar avec bordure de rôle
+              // Avatar avec bordure de rÃ´le
               Container(
                 width: 52,
                 height: 52,
@@ -118,7 +118,7 @@ class UserTile extends StatelessWidget {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Text(
-                              'SUSPENDU',
+                              'En attente',
                               style: TextStyle(
                                 fontSize: 8,
                                 fontWeight: FontWeight.w800,

@@ -286,7 +286,7 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Text(
-                                'Suspendu',
+                                'En attente',
                                 style: TextStyle(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w700,

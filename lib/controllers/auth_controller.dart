@@ -246,11 +246,21 @@ class AuthController extends ChangeNotifier {
   // WIZARD - Statut d'inscription
   // ===========================================================
   /// Compte actif ET valide -> peut utiliser l'app normalement
+  /// Compte actif ET valide -> peut utiliser l'app normalement
   bool get canUseApp {
     final u = _currentUser;
     if (u == null) return false;
+    // Compte valide explicitement
     if (u.validatedAt != null) return true;
-    if (u.statut == null && u.isActive) return true;
+    if (u.statut == 'validated') return true;
+    if (u.statut == 'active') return true;
+    // is_active = 1 ET role admin/directeur/formateur (comptes systeme)
+    if (u.isActive &&
+        (u.role.name == 'admin' ||
+         u.role.name == 'directeur' ||
+         u.role.name == 'formateur')) {
+      return true;
+    }
     return false;
   }
 
@@ -261,41 +271,41 @@ class AuthController extends ChangeNotifier {
   ///   code_is_used = true         -> preuves a soumettre
   ///   proofs_submitted_at != null -> en attente validation admin
   ///   validated_at != null        -> compte actif
+  /// Etape du wizard d'inscription
   String get registrationStage {
     final u = _currentUser;
     if (u == null) return 'none';
 
+    // Comptes systeme : acces direct
+    final role = u.role.name;
+    if (role == 'admin' || role == 'directeur' || role == 'formateur') {
+      return 'active';
+    }
+
     // 1. Compte valide par admin
     if (u.validatedAt != null) return 'active';
-    if (u.statut == 'active') return 'active';
+    if (u.statut == 'validated' || u.statut == 'active') return 'active';
 
-    // 2. Preuves soumises, en attente validation admin
+    // 2. Preuves soumises
     if (u.proofsSubmittedAt != null) return 'awaiting_validation';
+    if (u.statut == 'proofs_submitted') return 'awaiting_validation';
     if (u.statut == 'awaiting_validation' || u.statut == 'pending_validation') {
       return 'awaiting_validation';
     }
 
-    // 3. Code verifie mais preuves pas encore soumises
+    // 3. Code verifie -> preuves a soumettre
     if (u.codeIsUsed == true) return 'proofs_pending';
     if (u.statut == 'proofs_pending') return 'proofs_pending';
 
-    // 4. Compte SUSPENDU : en attente de validation admin
-    if (u.statut == 'suspended' || u.statut == 'suspendu') {
+    // 4. PRIORITE : code pas encore utilise -> wizard
+    if (u.codeIsUsed != true) return 'email_verification';
+
+    // 5. Compte suspendu
+    if (u.statut == 'suspended' || u.statut == 'En attente') {
       return 'awaiting_validation';
     }
 
-    // 5. Compte en attente (statut backend = 'pending')
-    // -> etape de saisie du code a 6 chiffres
-    if (u.statut == 'pending' || u.statut == 'en_attente') {
-      return 'email_verification';
-    }
-
-    // 5. Fallback : si le code n'est pas encore utilise, demander le code
-    if (u.registrationCode != null && u.codeIsUsed != true) {
-      return 'email_verification';
-    }
-
-    // 6. Par defaut : demander le code
+    // 6. Fallback
     return 'email_verification';
   }
   bool _handleAuthResponse(AuthResponse response) {
@@ -366,5 +376,6 @@ class AuthController extends ChangeNotifier {
     }
   }
 }
+
 
 

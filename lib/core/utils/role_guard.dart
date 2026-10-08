@@ -1,32 +1,32 @@
-// =============================================================
-// ChefUnitPlus - Vérification des permissions par rôle
-// À utiliser dans la logique métier (controllers, services)
+﻿// =============================================================
+// ChefUnitPlus - VÃ©rification des permissions par rÃ´le
+// Ã€ utiliser dans la logique mÃ©tier (controllers, services)
 // Pour les guards UI, voir app_router.dart (RoleGuard)
 // =============================================================
 
 import '../constants/role_constants.dart';
 
 class RoleGuard {
-  RoleGuard._(); // Empêche l'instanciation
+  RoleGuard._(); // EmpÃªche l'instanciation
 
   // ===========================================================
-  // 🎯 VÉRIFICATION GÉNÉRIQUE
+  // ðŸŽ¯ VÃ‰RIFICATION GÃ‰NÃ‰RIQUE
   // ===========================================================
 
-  /// Vérifie si un rôle appartient à une liste autorisée
+  /// VÃ©rifie si un rÃ´le appartient Ã  une liste autorisÃ©e
   static bool hasRole(UserRole? role, List<UserRole> allowed) {
     if (role == null) return false;
     return allowed.contains(role);
   }
 
-  /// Vérifie si un rôle a AU MOINS le niveau requis
+  /// VÃ©rifie si un rÃ´le a AU MOINS le niveau requis
   static bool hasMinimumRole(UserRole? role, UserRole minimum) {
     if (role == null) return false;
     return role.isAtLeast(minimum);
   }
 
   // ===========================================================
-  // 📚 FORMATIONS
+  // ðŸ“š FORMATIONS
   // ===========================================================
   static bool canCreateFormation(UserRole? role) =>
       role != null && role.canCreateFormation;
@@ -41,7 +41,7 @@ class RoleGuard {
       role == UserRole.directeur || role == UserRole.admin;
 
   // ===========================================================
-  // 📦 MODULES & LEÇONS
+  // ðŸ“¦ MODULES & LEÃ‡ONS
   // ===========================================================
   static bool canCreateModule(UserRole? role) =>
       role != null && role.canCreateModule;
@@ -62,7 +62,7 @@ class RoleGuard {
       role != null && role.canEditLesson;
 
   // ===========================================================
-  // 📝 INSCRIPTIONS
+  // ðŸ“ INSCRIPTIONS
   // ===========================================================
   static bool canEnroll(UserRole? role) =>
       role != null && role.canEnrollInFormation;
@@ -77,7 +77,7 @@ class RoleGuard {
       role != null && role.canRejectEnrollment;
 
   // ===========================================================
-  // 👥 UTILISATEURS
+  // ðŸ‘¥ UTILISATEURS
   // ===========================================================
   static bool canPromoteUser(UserRole? role) =>
       role != null && role.canPromoteUser;
@@ -93,7 +93,7 @@ class RoleGuard {
   static bool canAccessAllUsers(UserRole? role) =>
       role != null && role.canAccessAllUsers;
 
-  /// Peut voir le détail d'un autre utilisateur
+  /// Peut voir le dÃ©tail d'un autre utilisateur
   static bool canViewUser(UserRole? actor, UserRole target) {
     if (actor == null) return false;
     if (actor == UserRole.admin) return true;
@@ -109,7 +109,7 @@ class RoleGuard {
   }
 
   // ===========================================================
-  // 📊 STATISTIQUES
+  // ðŸ“Š STATISTIQUES
   // ===========================================================
   static bool canViewGlobalStats(UserRole? role) =>
       role != null && role.canViewGlobalStats;
@@ -121,7 +121,7 @@ class RoleGuard {
       role != null && role.canViewTrainerStats;
 
   // ===========================================================
-  // 💳 PAIEMENTS
+  // ðŸ’³ PAIEMENTS
   // ===========================================================
   static bool canViewPaymentsLog(UserRole? role) =>
       role == UserRole.admin;
@@ -130,7 +130,7 @@ class RoleGuard {
       role == UserRole.admin;
 
   // ===========================================================
-  // 🎓 CERTIFICATS
+  // ðŸŽ“ CERTIFICATS
   // ===========================================================
   static bool canGenerateCertificate(UserRole? role) =>
       role == UserRole.directeur ||
@@ -141,7 +141,7 @@ class RoleGuard {
       role == UserRole.admin;
 
   // ===========================================================
-  // ⚙️ SYSTÈME
+  // âš™ï¸ SYSTÃˆME
   // ===========================================================
   static bool canAccessSystemSettings(UserRole? role) =>
       role == UserRole.admin;
@@ -150,26 +150,26 @@ class RoleGuard {
       role == UserRole.admin;
 
   // ===========================================================
-  // 🧭 LABEL D'ACTION DÉTAILLÉ
+  // ðŸ§­ LABEL D'ACTION DÃ‰TAILLÃ‰
   // ===========================================================
-  /// Retourne une description textuelle de ce qu'un rôle peut faire
+  /// Retourne une description textuelle de ce qu'un rÃ´le peut faire
   static String describePermissions(UserRole? role) {
-    if (role == null) return 'Aucun accès';
+    if (role == null) return 'Aucun accÃ¨s';
 
     final permissions = <String>[];
-    if (canCreateFormation(role)) permissions.add('Créer des formations');
+    if (canCreateFormation(role)) permissions.add('CrÃ©er des formations');
     if (canValidateEnrollment(role)) permissions.add('Valider les inscriptions');
     if (canAssignTrainer(role)) permissions.add('Affecter des formateurs');
-    if (canEditLesson(role)) permissions.add('Éditer les leçons');
+    if (canEditLesson(role)) permissions.add('Ã‰diter les leÃ§ons');
     if (canPromoteUser(role)) permissions.add('Promouvoir des utilisateurs');
-    if (canAccessSystemSettings(role)) permissions.add('Administrer le système');
+    if (canAccessSystemSettings(role)) permissions.add('Administrer le systÃ¨me');
 
-    if (permissions.isEmpty) return 'Accès standard';
-    return permissions.join(' · ');
+    if (permissions.isEmpty) return 'AccÃ¨s standard';
+    return permissions.join(' Â· ');
   }
 
   // ===========================================================
-  // 🎭 RÔLES PROMOUVABLES
+  // ðŸŽ­ RÃ”LES PROMOUVABLES
   // ===========================================================
   static List<UserRole> promotableBy(UserRole? actor) {
     if (actor == null) return const [];
