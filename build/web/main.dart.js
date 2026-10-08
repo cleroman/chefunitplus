@@ -57152,16 +57152,19 @@ case 2:return A.l(o.at(-1),r)}})
 return A.n($async$qJ,r)},
 gacB(){var s,r,q="active",p="awaiting_validation",o="proofs_pending",n="email_verification",m=this.d
 if(m==null)return"none"
-s=m.at.b
-if(s==="admin"||s==="directeur"||s==="formateur")return q
+if(m.ax){s=m.db
+s=s==="revoked"||s==="revoque"||s==="suspended"||s==="suspendu"}else s=!0
+if(s)return"suspended"
+r=m.at.b
+if(r==="admin"||r==="directeur"||r==="formateur")return q
 if(m.k2!=null)return q
-r=m.db
-if(r==="validated"||r==="active")return q
+s=m.db
+if(s==="validated"||s==="active")return q
 if(m.id!=null)return p
-if(r==="proofs_submitted")return p
-if(r===p||r==="pending_validation")return p
+if(s==="proofs_submitted")return p
+if(s===p||s==="pending_validation")return p
 if(m.fx===!0)return o
-if(r==="proofs_pending")return o
+if(s==="proofs_pending")return o
 return n},
 atH(a){var s,r=this
 if(a.a&&a.d!=null){r.d=a.d

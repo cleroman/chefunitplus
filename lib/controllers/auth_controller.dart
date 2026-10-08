@@ -276,6 +276,15 @@ class AuthController extends ChangeNotifier {
     final u = _currentUser;
     if (u == null) return 'none';
 
+    // PRIORITE ABSOLUE : Compte suspendu / revoque
+    if (!u.isActive ||
+        u.statut == 'revoked' ||
+        u.statut == 'revoque' ||
+        u.statut == 'suspended' ||
+        u.statut == 'suspendu') {
+      return 'suspended';
+    }
+
     // Comptes systeme : acces direct
     final role = u.role.name;
     if (role == 'admin' || role == 'directeur' || role == 'formateur') {
@@ -300,16 +309,7 @@ class AuthController extends ChangeNotifier {
     // 4. PRIORITE : code pas encore utilise -> wizard
     if (u.codeIsUsed != true) return 'email_verification';
 
-    // 5. Compte suspendu / revoque
-    if (!u.isActive ||
-        u.statut == 'revoked' ||
-        u.statut == 'revoque' ||
-        u.statut == 'suspended' ||
-        u.statut == 'suspendu') {
-      return 'suspended';
-    }
-
-    // 6. Fallback
+    // 5. Fallback
     return 'email_verification';
   }
   bool _handleAuthResponse(AuthResponse response) {
