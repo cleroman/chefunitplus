@@ -294,6 +294,31 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                     ? Formatters.dateShort(user.createdAt!)
                     : 'N/A'),
           ]),
+
+          // ============================================================
+          // SECTION : Code d'inscription (TOUT EN BAS)
+          // ============================================================
+          if (user.registrationCode != null &&
+              user.registrationCode!.isNotEmpty) ...[
+            _buildSection('Code d\'inscription', [
+              _infoRow(
+                Icons.pin_outlined,
+                'Code a 6 chiffres',
+                user.registrationCode!,
+              ),
+              _infoRow(
+                Icons.check_circle_outline,
+                'Statut du code',
+                user.codeIsUsed == true ? 'UTILISE' : 'ACTIF',
+              ),
+              if (user.statut != null)
+                _infoRow(
+                  Icons.info_outline,
+                  'Statut du compte',
+                  user.statut!,
+                ),
+            ]),
+          ],
           const SizedBox(height: 32),
         ],
       ),
