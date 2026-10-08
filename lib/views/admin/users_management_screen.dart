@@ -2,14 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/constants/app_colors.dart';
-import '../../controllers/user_controller.dart';
-import '../../controllers/auth_controller.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../controllers/user_controller.dart';
+import '../../../controllers/auth_controller.dart';
 import 'package:chefunitplus/core/constants/role_constants.dart';
-import '../../models/user.dart';
+import '../../../models/user.dart';
 import 'user_details_screen.dart';
 import 'promote_screen.dart';
-import '../../widgets/user_avatar.dart';
+import '../../../widgets/user_avatar.dart';
+import 'user_proofs_detail_screen.dart';
 
 class UsersManagementScreen extends StatefulWidget {
   const UsersManagementScreen({super.key});
@@ -68,7 +69,12 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Utilisateurs'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Retour',
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+                title: const Text('Utilisateurs'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
         bottom: TabBar(
@@ -422,7 +428,7 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
   void _openDetails(User u) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => UserDetailsScreen(userId: u.id)),
+      MaterialPageRoute(builder: (_) => UserProofsDetailScreen(userId: u.id)),
     ).then((_) {
       if (mounted) context.read<UserController>().loadAll(refresh: true);
     });

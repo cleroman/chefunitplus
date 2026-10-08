@@ -82,6 +82,13 @@ class _LoginScreenState extends State<LoginScreen> {
           );
           break;
     
+        case 'suspended':
+          Navigator.pushReplacementNamed(
+            context,
+            '/account-suspended',
+          );
+          break;
+
         case 'awaiting_validation':
         default:
           Navigator.pushReplacementNamed(

@@ -13,6 +13,7 @@ import '../../views/mobile/auth/pending_validation_screen.dart';
 
 // VALIDATION INSCRIPTION (Phase 4-5)
 import '../../views/auth/verify_code_screen.dart';
+import '../../views/auth/suspended_screen.dart';
 import '../../views/auth/submit_proofs_screen.dart';
 import '../../views/admin/pending_proofs_screen.dart';
 import '../../views/admin/user_proofs_detail_screen.dart';
@@ -76,6 +77,9 @@ class AppRouter {
     switch (name) {
       case AppRoutes.splash:
         return _page(const SplashScreen(), settings);
+
+      case '/account-suspended':
+        return MaterialPageRoute(builder: (_) => const SuspendedScreen());
 
       case '/pending-validation':
         return _page(const PendingValidationScreen(), settings);

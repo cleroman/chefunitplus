@@ -10,6 +10,7 @@ import '../../../models/user.dart';
 import 'user_details_screen.dart';
 import 'promote_screen.dart';
 import '../../../widgets/user_avatar.dart';
+import 'user_proofs_detail_screen.dart';
 
 class UsersManagementScreen extends StatefulWidget {
   const UsersManagementScreen({super.key});
@@ -427,7 +428,7 @@ class _UsersManagementScreenState extends State<UsersManagementScreen>
   void _openDetails(User u) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => UserDetailsScreen(userId: u.id)),
+      MaterialPageRoute(builder: (_) => UserProofsDetailScreen(userId: u.id)),
     ).then((_) {
       if (mounted) context.read<UserController>().loadAll(refresh: true);
     });

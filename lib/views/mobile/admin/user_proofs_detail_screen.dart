@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 
-import '../../core/constants/app_colors.dart';
-import '../../services/api_client.dart';
-import '../../services/user_service.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../services/api_client.dart';
+import '../../../services/user_service.dart';
 
 class UserProofsDetailScreen extends StatefulWidget {
   final String userId;
@@ -596,5 +596,6 @@ class _UserProofsDetailScreenState extends State<UserProofsDetailScreen> {
     );
   }
 }
+
 
 

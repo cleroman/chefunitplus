@@ -5,14 +5,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../controllers/user_controller.dart';
-import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_sizes.dart';
-import '../../core/constants/role_constants.dart';
-import '../../core/utils/formatters.dart';
-import '../../core/utils/snackbar_helper.dart';
-import '../../models/user.dart';
-import '../../services/user_service.dart';
+import '../../../controllers/user_controller.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_sizes.dart';
+import '../../../core/constants/role_constants.dart';
+import '../../../core/utils/formatters.dart';
+import '../../../core/utils/snackbar_helper.dart';
+import '../../../models/user.dart';
+import '../../../services/user_service.dart';
 
 class UserDetailsScreen extends StatefulWidget {
   final String userId;
@@ -257,25 +257,14 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
             _infoRow(Icons.phone_outlined, 'Telephone',
                 Formatters.phoneNumber(user.phone)),
             _infoRow(Icons.location_on_outlined, 'Adresse',
-                details['address'] ?? user.adresse ?? 'Non renseignee'),
+                details['address'] ?? 'Non renseignee'),
             _infoRow(Icons.location_city_outlined, 'Ville',
                 details['city'] ?? 'Non renseignee'),
             _infoRow(
                 Icons.public_outlined, 'Pays', details['country'] ?? 'RDC'),
-            _infoRow(Icons.badge_outlined, 'Totem',
-                user.totem ?? 'Non renseigne'),
-            _infoRow(Icons.wc_outlined, 'Sexe',
-                user.sexe.label),
-            _infoRow(Icons.person_outline, 'Prenom',
-                user.prenom),
-            _infoRow(Icons.person_add_outlined, 'Post-nom',
-                user.postNom),
-            if (details['birth_date'] != null || user.dateNaissance != null)
+            if (details['birth_date'] != null)
               _infoRow(Icons.cake_outlined, 'Date de naissance',
-                  details['birth_date']?.toString() ??
-                      (user.dateNaissance != null
-                          ? Formatters.dateShort(user.dateNaissance!)
-                          : 'Non renseignee')),
+                  details['birth_date'].toString()),
           ]),
           _buildSection('Etudes', [
             _infoRow(Icons.school_outlined, 'Niveau',
@@ -292,52 +281,6 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                 details['scout_role'] ?? 'Non renseigne'),
             _infoRow(Icons.groups_outlined, 'Groupe scout',
                 details['group_name'] ?? 'Aucun groupe'),
-          ]),
-          _buildSection('Localisation detaillee', [
-            _infoRow(Icons.location_city_outlined, 'Ville',
-                details['ville'] ?? details['city'] ?? 'Non renseignee'),
-            _infoRow(Icons.map_outlined, 'Province',
-                details['province'] ?? 'Non renseignee'),
-            _infoRow(Icons.location_on_outlined, 'Commune',
-                details['commune'] ?? 'Non renseignee'),
-            _infoRow(Icons.home_outlined, 'Quartier',
-                details['quartier'] ?? 'Non renseigne'),
-            _infoRow(Icons.signpost_outlined, 'Avenue',
-                details['avenue'] ?? 'Non renseignee'),
-            _infoRow(Icons.numbers_outlined, 'Numero',
-                details['numero'] ?? '-'),
-            _infoRow(Icons.public_outlined, 'Pays',
-                details['pays'] ?? details['country'] ?? 'RDC'),
-            _infoRow(Icons.account_balance_outlined, 'District',
-                details['district'] ?? '-'),
-          ]),
-          _buildSection('Informations professionnelles', [
-            _infoRow(Icons.work_outline, 'Profession',
-                details['profession'] ?? 'Non renseignee'),
-            _infoRow(Icons.school_outlined, 'Niveau etude',
-                details['niveau_etude'] ?? details['education_level'] ?? 'Non renseigne'),
-            _infoRow(Icons.business_outlined, 'Association',
-                details['association'] ?? 'Non renseignee'),
-          ]),
-          _buildSection('Informations scout', [
-            _infoRow(Icons.groups_outlined, 'Groupe scout',
-                details['groupe_scout'] ?? details['group_name'] ?? 'Aucun'),
-            _infoRow(Icons.badge_outlined, 'Branche',
-                details['branche'] ?? 'Non renseignee'),
-            _infoRow(Icons.workspace_premium_outlined, 'Fonction',
-                details['fonction_scout'] ?? details['scout_role'] ?? 'Non renseignee'),
-            _infoRow(Icons.confirmation_number_outlined, 'N affiliation',
-                details['numero_affiliation'] ?? '-'),
-            _infoRow(Icons.calendar_today_outlined, 'Date entree scout',
-                details['date_entree_scout'] ?? '-'),
-          ]),
-          _buildSection('Contacts d\'urgence', [
-            _infoRow(Icons.contact_emergency_outlined, 'Contacts urgence',
-                details['contacts_urgence'] ?? 'Non renseignes'),
-            _infoRow(Icons.people_outline, 'Personnes a prevenir',
-                details['personnes_prevenir'] ?? 'Non renseignees'),
-            _infoRow(Icons.medical_information_outlined, 'Antecedents medicaux',
-                details['antecedents_medicaux'] ?? 'Aucun'),
           ]),
           _buildSection('Activite', [
             _infoRow(
@@ -358,7 +301,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   }
 
   Widget _buildHeader(User user, Map<String, dynamic> details) {
-    final photoUrl = (details['profile_photo_url'] as String?) ?? user.photoUrl;
+    final photoUrl = details['profile_photo_url'] as String?;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 32),

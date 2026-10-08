@@ -3,6 +3,7 @@
 // =============================================================
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/constants/app_colors.dart';
@@ -35,7 +36,8 @@ class _PendingProofsScreenState extends State<PendingProofsScreen> {
     });
 
     try {
-      final userService = UserService(ApiClient());
+      final api = context.read<ApiClient>();
+    final userService = UserService(api);
       final result = await userService.listPendingProofs();
 
       if (!mounted) return;
@@ -355,3 +357,4 @@ class _PendingProofsScreenState extends State<PendingProofsScreen> {
     );
   }
 }
+

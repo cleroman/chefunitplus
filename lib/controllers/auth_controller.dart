@@ -300,9 +300,13 @@ class AuthController extends ChangeNotifier {
     // 4. PRIORITE : code pas encore utilise -> wizard
     if (u.codeIsUsed != true) return 'email_verification';
 
-    // 5. Compte suspendu
-    if (u.statut == 'suspended' || u.statut == 'En attente') {
-      return 'awaiting_validation';
+    // 5. Compte suspendu / revoque
+    if (!u.isActive ||
+        u.statut == 'revoked' ||
+        u.statut == 'revoque' ||
+        u.statut == 'suspended' ||
+        u.statut == 'suspendu') {
+      return 'suspended';
     }
 
     // 6. Fallback

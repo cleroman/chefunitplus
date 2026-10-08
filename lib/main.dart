@@ -1,5 +1,6 @@
 ﻿// ChefUnitPlus - Point d'entree
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'services/deposit_module_service.dart';
 import 'services/module_invitation_service.dart';
@@ -43,7 +44,7 @@ import 'services/storage_service.dart';
 import 'services/user_service.dart';
 import 'services/payment_numbers_service.dart';
 import 'services/user_activation_service.dart';
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   ErrorHandler.installGlobalHandler();
 
@@ -51,6 +52,23 @@ void main() {
   final storageService = StorageService();
   final authService = AuthService(api: apiClient, storage: storageService);
 
+  // ============ CHARGEMENT DU TOKEN AU DEMARRAGE ============
+  // Sans ceci, apres un refresh de page, ApiClient._token est null
+  // -> toutes les requetes authentifiees echouent en 401
+  try {
+    final savedUser = await storageService.getUser();
+    if (savedUser != null &&
+        savedUser.token != null &&
+        savedUser.token!.isNotEmpty) {
+      apiClient.setToken(savedUser.token);
+      debugPrint('[main] Token charge depuis SharedPreferences');
+    } else {
+      debugPrint('[main] Pas de token sauvegarde (utilisateur non connecte)');
+    }
+  } catch (e) {
+    debugPrint('[main] Erreur chargement token : $e');
+  }
+  // =========================================================
   runApp(
     MultiProvider(
       providers: [
@@ -141,5 +159,6 @@ void main() {
     ),
   );
 }
+
 
 

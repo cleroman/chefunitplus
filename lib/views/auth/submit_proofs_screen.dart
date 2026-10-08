@@ -101,6 +101,17 @@ class _SubmitProofsScreenState extends State<SubmitProofsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Retour a l''authentification',
+          onPressed: () {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/auth/login',
+              (route) => false,
+            );
+          },
+        ),
         title: const Text('Preuves de formation'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
