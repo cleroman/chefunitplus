@@ -7,7 +7,6 @@ import '../../../controllers/user_controller.dart';
 import '../../../controllers/auth_controller.dart';
 import 'package:chefunitplus/core/constants/role_constants.dart';
 import '../../../models/user.dart';
-import 'user_details_screen.dart';
 import 'promote_screen.dart';
 import '../../../widgets/user_avatar.dart';
 import 'user_proofs_detail_screen.dart';

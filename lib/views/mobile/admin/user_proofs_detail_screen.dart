@@ -60,7 +60,7 @@ class _UserProofsDetailScreenState extends State<UserProofsDetailScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = 'Erreur : ' + e.toString();
+        _error = 'Erreur : e'.toString();
         _loading = false;
       });
     }
@@ -94,7 +94,7 @@ class _UserProofsDetailScreenState extends State<UserProofsDetailScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      _showSnackbar('Erreur : ' + e.toString(), AppColors.danger);
+      _showSnackbar('Erreur : e'.toString(), AppColors.danger);
     } finally {
       if (mounted) setState(() => _processing = false);
     }
@@ -167,7 +167,7 @@ class _UserProofsDetailScreenState extends State<UserProofsDetailScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      _showSnackbar('Erreur : ' + e.toString(), AppColors.danger);
+      _showSnackbar('Erreur : e'.toString(), AppColors.danger);
     } finally {
       if (mounted) setState(() => _processing = false);
     }
