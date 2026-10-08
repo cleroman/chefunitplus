@@ -276,7 +276,13 @@ class AuthController extends ChangeNotifier {
     final u = _currentUser;
     if (u == null) return 'none';
 
-    // PRIORITE ABSOLUE : Compte suspendu / revoque
+    // 0. LES COMPTES SYSTEME SONT TOUJOURS ACTIFS
+    final role = u.role.name;
+    if (role == 'admin' || role == 'directeur' || role == 'formateur') {
+      return 'active';
+    }
+
+    // 1. Compte suspendu / revoque
     if (!u.isActive ||
         u.statut == 'revoked' ||
         u.statut == 'revoque' ||
@@ -285,31 +291,19 @@ class AuthController extends ChangeNotifier {
       return 'suspended';
     }
 
-    // Comptes systeme : acces direct
-    final role = u.role.name;
-    if (role == 'admin' || role == 'directeur' || role == 'formateur') {
-      return 'active';
-    }
-
-    // 1. Compte valide par admin
+    // 2. Compte valide par admin -> page utilisateur
     if (u.validatedAt != null) return 'active';
     if (u.statut == 'validated' || u.statut == 'active') return 'active';
 
-    // 2. Preuves soumises
+    // 3. Preuves soumises -> attente validation admin
     if (u.proofsSubmittedAt != null) return 'awaiting_validation';
     if (u.statut == 'proofs_submitted') return 'awaiting_validation';
-    if (u.statut == 'awaiting_validation' || u.statut == 'pending_validation') {
-      return 'awaiting_validation';
-    }
 
-    // 3. Code verifie -> preuves a soumettre
+    // 4. Code verifie -> wizard preuves
     if (u.codeIsUsed == true) return 'proofs_pending';
     if (u.statut == 'proofs_pending') return 'proofs_pending';
 
-    // 4. PRIORITE : code pas encore utilise -> wizard
-    if (u.codeIsUsed != true) return 'email_verification';
-
-    // 5. Fallback
+    // 5. Fallback : code a 6 chiffres
     return 'email_verification';
   }
   bool _handleAuthResponse(AuthResponse response) {
