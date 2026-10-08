@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - LoginScreen
 // Connexion avec email + mot de passe
 // =============================================================
@@ -47,22 +47,53 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
-      SnackbarHelper.success(context, AppStrings.loginSuccess);
-      Navigator.pushReplacementNamed(
-        context,
-        AppRoutes.homeForRole(auth.currentUser!.role.name),
-      );
+      final stage = auth.registrationStage;
+    
+      switch (stage) {
+        case 'active':
+          SnackbarHelper.success(context, AppStrings.loginSuccess);
+          Navigator.pushReplacementNamed(
+            context,
+            AppRoutes.homeForRole(auth.currentUser!.role.name),
+          );
+          break;
+    
+        case 'email_verification':
+          SnackbarHelper.info(
+            context,
+            'Verifiez votre email pour recevoir le code.',
+          );
+          Navigator.pushReplacementNamed(
+            context,
+            AppRoutes.verifyCode,
+            arguments: {'email': _email.text.trim()},
+          );
+          break;
+    
+        case 'proofs_pending':
+          SnackbarHelper.info(
+            context,
+            'Soumettez vos preuves de formation.',
+          );
+          Navigator.pushReplacementNamed(
+            context,
+            AppRoutes.submitProofs,
+            arguments: {'email': _email.text.trim()},
+          );
+          break;
+    
+        case 'awaiting_validation':
+        default:
+          Navigator.pushReplacementNamed(
+            context,
+            '/pending-validation',
+            arguments: {'email': _email.text.trim()},
+          );
+          break;
+      }
     } else {
       final errorMsg = auth.errorMessage ?? AppStrings.errorUnknown;
-      final lower = errorMsg.toLowerCase();
-      if (lower.contains('attente') ||
-          lower.contains('pending') ||
-          lower.contains('valid') ||
-          lower.contains('admin')) {
-        Navigator.pushNamed(context, '/pending-validation');
-      } else {
-        SnackbarHelper.error(context, errorMsg);
-      }
+      SnackbarHelper.error(context, errorMsg);
     }
   }
 
@@ -110,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 6),
                 const Text(
-                  'Connectez-vous Ã  votre compte',
+                  'Connectez-vous ÃƒÂ  votre compte',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,

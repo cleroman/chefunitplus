@@ -1,11 +1,13 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - Etape 5 : Pro / Sante / Camps / Contacts
 // =============================================================
 
 import 'package:flutter/material.dart';
 import 'package:chefunitplus/core/constants/app_colors.dart';
+import 'package:chefunitplus/core/utils/validators.dart';
 import 'package:chefunitplus/models/scout_camp.dart';
 import 'package:chefunitplus/models/emergency_contact.dart';
+import 'package:chefunitplus/widgets/common/custom_text_field.dart';
 import '../register_wizard_screen.dart';
 
 class Step5ProHealth extends StatefulWidget {
@@ -33,6 +35,10 @@ class _Step5ProHealthState extends State<Step5ProHealth> {
   final _contactTel = TextEditingController();
   final _contactTel2 = TextEditingController();
   final _contactAdr = TextEditingController();
+
+  // GlobalKeys pour validation
+  final _campFormKey = GlobalKey<FormState>();
+  final _contactFormKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -78,13 +84,9 @@ class _Step5ProHealthState extends State<Step5ProHealth> {
   }
 
   void _submitCamp() {
-    if (_campNom.text.trim().isEmpty || _campLieu.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nom et lieu du camp sont requis'),
-          backgroundColor: AppColors.warning,
-        ),
-      );
+    // Validation locale via Form
+    if (_campFormKey.currentState != null &&
+        !_campFormKey.currentState!.validate()) {
       return;
     }
 
@@ -118,14 +120,9 @@ class _Step5ProHealthState extends State<Step5ProHealth> {
   }
 
   void _submitContact() {
-    if (_contactNom.text.trim().isEmpty ||
-        _contactTel.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nom et telephone sont requis'),
-          backgroundColor: AppColors.warning,
-        ),
-      );
+    // Validation locale via Form
+    if (_contactFormKey.currentState != null &&
+        !_contactFormKey.currentState!.validate()) {
       return;
     }
 
@@ -187,25 +184,20 @@ class _Step5ProHealthState extends State<Step5ProHealth> {
           ),
           const SizedBox(height: 20),
 
-          TextField(
+          CustomTextField(
+            label: 'Profession',
+            hint: 'Ex : Enseignant',
             controller: s.professionCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Profession',
-              hintText: 'Ex : Enseignant',
-              prefixIcon: Icon(Icons.work_outline),
-            ),
+            icon: Icons.work_outline,
           ),
           const SizedBox(height: 16),
 
-          TextField(
+          CustomTextField(
+            label: 'Antecedents medicaux',
+            hint: 'Allergies, maladies...',
             controller: s.antecedentsCtrl,
+            icon: Icons.medical_information_outlined,
             maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'Antecedents medicaux',
-              hintText: 'Allergies, maladies...',
-              prefixIcon: Icon(Icons.medical_information_outlined),
-              alignLabelWithHint: true,
-            ),
           ),
           const SizedBox(height: 24),
 
@@ -306,91 +298,87 @@ class _Step5ProHealthState extends State<Step5ProHealth> {
       ),
       child: Padding(
         padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Nouveau camp',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppColors.kakiDark,
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _campNom,
-              decoration: const InputDecoration(
-                labelText: 'Nom du camp *',
-                isDense: true,
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _campLieu,
-              decoration: const InputDecoration(
-                labelText: 'Lieu *',
-                isDense: true,
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _campRole,
-              decoration: const InputDecoration(
-                labelText: 'Role',
-                isDense: true,
-              ),
-            ),
-            const SizedBox(height: 10),
-            InkWell(
-              onTap: () => _pickCampDate(isDebut: true),
-              child: InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'Date debut',
-                  isDense: true,
-                  prefixIcon: Icon(Icons.calendar_today, size: 18),
-                ),
-                child: Text(
-                  '${_campDebut.day}/${_campDebut.month}/${_campDebut.year}',
+        child: Form(
+          key: _campFormKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Nouveau camp',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.kakiDark,
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            InkWell(
-              onTap: () => _pickCampDate(isDebut: false),
-              child: InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'Date fin',
-                  isDense: true,
-                  prefixIcon: Icon(Icons.calendar_today, size: 18),
-                ),
-                child: Text(
-                  '${_campFin.day}/${_campFin.month}/${_campFin.year}',
-                ),
+              const SizedBox(height: 12),
+              CustomTextField(
+                label: 'Nom du camp *',
+                controller: _campNom,
+                validator: (v) => Validators.required(v, fieldName: 'Nom du camp'),
               ),
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => setState(() => _showCampForm = false),
-                    child: const Text('Annuler'),
+              const SizedBox(height: 10),
+              CustomTextField(
+                label: 'Lieu *',
+                controller: _campLieu,
+                validator: (v) => Validators.required(v, fieldName: 'Lieu'),
+              ),
+              const SizedBox(height: 10),
+              CustomTextField(
+                label: 'Role',
+                controller: _campRole,
+              ),
+              const SizedBox(height: 10),
+              InkWell(
+                onTap: () => _pickCampDate(isDebut: true),
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Date debut',
+                    isDense: true,
+                    prefixIcon: Icon(Icons.calendar_today, size: 18),
+                  ),
+                  child: Text(
+                    '${_campDebut.day}/${_campDebut.month}/${_campDebut.year}',
                   ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _submitCamp,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.kaki,
+              ),
+              const SizedBox(height: 10),
+              InkWell(
+                onTap: () => _pickCampDate(isDebut: false),
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Date fin',
+                    isDense: true,
+                    prefixIcon: Icon(Icons.calendar_today, size: 18),
+                  ),
+                  child: Text(
+                    '${_campFin.day}/${_campFin.month}/${_campFin.year}',
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => setState(() => _showCampForm = false),
+                      child: const Text('Annuler'),
                     ),
-                    child: const Text('Ajouter'),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _submitCamp,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.kaki,
+                      ),
+                      child: const Text('Ajouter'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -409,82 +397,72 @@ class _Step5ProHealthState extends State<Step5ProHealth> {
       ),
       child: Padding(
         padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Nouveau contact d\'urgence',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppColors.mauveDark,
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _contactNom,
-              decoration: const InputDecoration(
-                labelText: 'Nom complet *',
-                isDense: true,
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _contactRel,
-              decoration: const InputDecoration(
-                labelText: 'Relation (Pere, Mere...)',
-                isDense: true,
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _contactTel,
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                labelText: 'Telephone *',
-                isDense: true,
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _contactTel2,
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                labelText: 'Telephone 2 (optionnel)',
-                isDense: true,
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _contactAdr,
-              decoration: const InputDecoration(
-                labelText: 'Adresse (optionnel)',
-                isDense: true,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () =>
-                        setState(() => _showContactForm = false),
-                    child: const Text('Annuler'),
-                  ),
+        child: Form(
+          key: _contactFormKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Nouveau contact d\'urgence',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.mauveDark,
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _submitContact,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.mauve,
+              ),
+              const SizedBox(height: 12),
+              CustomTextField(
+                label: 'Nom complet *',
+                controller: _contactNom,
+                validator: (v) => Validators.required(v, fieldName: 'Nom complet'),
+              ),
+              const SizedBox(height: 10),
+              CustomTextField(
+                label: 'Relation (Pere, Mere...)',
+                controller: _contactRel,
+              ),
+              const SizedBox(height: 10),
+              CustomTextField(
+                label: 'Telephone *',
+                controller: _contactTel,
+                keyboardType: TextInputType.phone,
+                validator: Validators.phone,
+              ),
+              const SizedBox(height: 10),
+              CustomTextField(
+                label: 'Telephone 2 (optionnel)',
+                controller: _contactTel2,
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 10),
+              CustomTextField(
+                label: 'Adresse (optionnel)',
+                controller: _contactAdr,
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () =>
+                          setState(() => _showContactForm = false),
+                      child: const Text('Annuler'),
                     ),
-                    child: const Text('Ajouter'),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _submitContact,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.mauve,
+                      ),
+                      child: const Text('Ajouter'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

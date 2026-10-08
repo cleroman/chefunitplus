@@ -1,7 +1,8 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - User Service
 // CRUD complet pour les utilisateurs
 // =============================================================
+import '../core/constants/api_constants.dart';
 import '../core/errors/error_handler.dart';
 import '../models/user.dart';
 import 'api_client.dart';
@@ -164,4 +165,51 @@ class UserService {
       return Map<String, dynamic>.from(d as Map);
     }, context: 'UserService.getFullProfile');
   }
+
+  // ============================================================
+  // ADMIN : LISTER LES PREUVES EN ATTENTE
+  // ============================================================
+  Future<List<Map<String, dynamic>>> listPendingProofs() async {
+    return ErrorHandler.guard(() async {
+      final r = await _api.get(ApiConstants.adminPendingProofs);
+      final d = r['data'] ?? r;
+      if (d is List) {
+        return d.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      }
+      return [];
+    }, context: 'UserService.listPendingProofs');
+  }
+
+  // ============================================================
+  // ADMIN : DETAIL DES PREUVES D'UN UTILISATEUR
+  // ============================================================
+  Future<Map<String, dynamic>> getUserProofs(String userId) async {
+    return ErrorHandler.guard(() async {
+      final endpoint = ApiConstants.adminUserProofs.replaceAll('{id}', userId);
+      return await _api.get(endpoint);
+    }, context: 'UserService.getUserProofs');
+  }
+
+  // ============================================================
+  // ADMIN : VALIDER UN UTILISATEUR
+  // ============================================================
+  Future<Map<String, dynamic>> validateUser(String userId) async {
+    return ErrorHandler.guard(() async {
+      final endpoint = ApiConstants.adminValidateUser.replaceAll('{id}', userId);
+      return await _api.patch(endpoint);
+    }, context: 'UserService.validateUser');
+  }
+
+  // ============================================================
+  // ADMIN : REJETER UN UTILISATEUR
+  // ============================================================
+  Future<Map<String, dynamic>> rejectUser(String userId, {String? reason}) async {
+    return ErrorHandler.guard(() async {
+      final endpoint = ApiConstants.adminRejectUser.replaceAll('{id}', userId);
+      return await _api.patch(endpoint, body: {
+        if (reason != null && reason.isNotEmpty) 'reason': reason,
+      });
+    }, context: 'UserService.rejectUser');
+  }
+
 }

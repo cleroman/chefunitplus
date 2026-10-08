@@ -4,7 +4,7 @@
 // =============================================================
 
 class ApiConstants {
-  ApiConstants._(); // Empfche l'instanciation
+  ApiConstants._(); // Empeche l'instanciation
 
   // -----------------------------------------------------------
   // BACKEND PRINCIPAL
@@ -14,8 +14,8 @@ class ApiConstants {
   static const String apiUrl = '$baseUrl$apiVersion';
 
   // Timeouts (en secondes)
-  static const int connectTimeout = 15;
-  static const int receiveTimeout = 20;
+  static const int connectTimeout = 120;
+  static const int receiveTimeout = 120;
 
   // -----------------------------------------------------------
   // AUTHENTIFICATION
@@ -29,7 +29,21 @@ class ApiConstants {
   static const String refreshToken = '/auth/refresh';
 
   // -----------------------------------------------------------
-  // UTILISATEURS & Rf?LES
+  // VALIDATION INSCRIPTION (Phase 4-5)
+  // -----------------------------------------------------------
+  static const String registerScout = '/auth/register-scout';
+  static const String verifyCode = '/auth/verify-code';
+  static const String resendCode = '/auth/resend-code';
+  static const String submitProofs = '/auth/submit-proofs';
+
+  // Admin - validation preuves
+  static const String adminPendingProofs = '/auth/admin/pending-proofs';
+  static const String adminUserProofs = '/auth/admin/users/{id}/proofs';
+  static const String adminValidateUser = '/auth/admin/users/{id}/validate';
+  static const String adminRejectUser = '/auth/admin/users/{id}/reject';
+
+  // -----------------------------------------------------------
+  // UTILISATEURS & ROLES
   // -----------------------------------------------------------
   static const String users = '/users';
   static const String promoteUser = '/users/{id}/promote';   // PATCH
@@ -52,7 +66,7 @@ class ApiConstants {
   static const String assignTrainer = '/modules/{id}/assign';   // PATCH
 
   // -----------------------------------------------------------
-  // LEf?ONS
+  // LECONS
   // -----------------------------------------------------------
   static const String lessons = '/lessons';
   static const String lessonsByModule = '/modules/{id}/lessons';
@@ -65,8 +79,6 @@ class ApiConstants {
   static const String pendingEnrollments = '/enrollments/pending';
   static const String validateEnrollment = '/enrollments/{id}/validate';
   static const String rejectEnrollment = '/enrollments/{id}/reject';
-
-  // -----------------------------------------------------------
 
   // -----------------------------------------------------------
   // SCOUT GROUPS
@@ -96,6 +108,7 @@ class ApiConstants {
   static const String userFullProfile = '/users/{id}/full-profile';
   static const String userResetPassword = '/users/{id}/reset-password';
 
+  // -----------------------------------------------------------
   // PAIEMENTS (FlexPaie)
   // -----------------------------------------------------------
   static const String flexPaieBaseUrl = 'https://api.flexpaie.com/v1';

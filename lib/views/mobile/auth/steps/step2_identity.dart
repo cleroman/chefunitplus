@@ -1,8 +1,10 @@
-// ChefUnitPlus - Etape 2 : Identite (avec photo)
+﻿// ChefUnitPlus - Etape 2 : Identite (avec photo)
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:chefunitplus/core/constants/app_colors.dart';
 import 'package:chefunitplus/core/utils/formatters.dart';
+import 'package:chefunitplus/core/utils/validators.dart';
+import 'package:chefunitplus/widgets/common/custom_text_field.dart';
 import '../register_wizard_screen.dart';
 
 class Step2Identity extends StatelessWidget {
@@ -66,7 +68,6 @@ class Step2Identity extends StatelessWidget {
             ),
             child: Column(
               children: [
-                // Apercu photo
                 Container(
                   width: 140,
                   height: 140,
@@ -88,8 +89,6 @@ class Step2Identity extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Bouton unique qui ouvre un bottom sheet
                 ElevatedButton.icon(
                   onPressed: () {
                     showModalBottomSheet<ImageSource>(
@@ -181,33 +180,30 @@ class Step2Identity extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          TextField(
+          CustomTextField(
+            label: 'Post-nom *',
+            hint: 'Ex : DUPONT',
             controller: state.postNomCtrl,
+            icon: Icons.badge_outlined,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Post-nom *',
-              hintText: 'Ex : DUPONT',
-              prefixIcon: Icon(Icons.badge_outlined),
-            ),
+            validator: (v) => Validators.required(v, fieldName: 'Post-nom'),
           ),
           const SizedBox(height: 16),
-          TextField(
+          CustomTextField(
+            label: 'Prenom *',
+            hint: 'Ex : Jean',
             controller: state.prenomCtrl,
+            icon: Icons.person_outline,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Prenom *',
-              hintText: 'Ex : Jean',
-              prefixIcon: Icon(Icons.person_outline),
-            ),
+            validator: (v) => Validators.required(v, fieldName: 'Prenom'),
           ),
           const SizedBox(height: 16),
-          TextField(
+          CustomTextField(
+            label: '2eme prenom (optionnel)',
+            hint: 'Ex : Marie',
             controller: state.prenom2Ctrl,
+            icon: Icons.person_add_outlined,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: '2eme prenom (optionnel)',
-              prefixIcon: Icon(Icons.person_add_outlined),
-            ),
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
@@ -232,9 +228,12 @@ class Step2Identity extends StatelessWidget {
             onTap: () => _pickDate(context),
             borderRadius: BorderRadius.circular(12),
             child: InputDecorator(
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Date de naissance *',
-                prefixIcon: Icon(Icons.calendar_today_outlined),
+                prefixIcon: const Icon(Icons.calendar_today_outlined),
+                errorText: state.dateNaissance == null
+                    ? 'La date de naissance est obligatoire'
+                    : null,
               ),
               child: Text(
                 state.dateNaissance != null
@@ -249,14 +248,13 @@ class Step2Identity extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          TextField(
+          CustomTextField(
+            label: 'Lieu de naissance *',
+            hint: 'Ex : Kinshasa',
             controller: state.lieuNaissanceCtrl,
+            icon: Icons.location_city_outlined,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Lieu de naissance *',
-              hintText: 'Ex : Kinshasa',
-              prefixIcon: Icon(Icons.location_city_outlined),
-            ),
+            validator: (v) => Validators.required(v, fieldName: 'Lieu de naissance'),
           ),
         ],
       ),

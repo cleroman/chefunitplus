@@ -1,9 +1,11 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - Etape 6 : Engagement
 // =============================================================
 
 import 'package:flutter/material.dart';
 import 'package:chefunitplus/core/constants/app_colors.dart';
+import 'package:chefunitplus/core/utils/validators.dart';
+import 'package:chefunitplus/widgets/common/custom_text_field.dart';
 import '../register_wizard_screen.dart';
 
 class Step6Engagement extends StatelessWidget {
@@ -88,21 +90,20 @@ class Step6Engagement extends StatelessWidget {
                   style: TextStyle(fontSize: 11, color: AppColors.textMuted),
                 ),
                 const SizedBox(height: 12),
-                TextField(
+                CustomTextField(
+                  label: '',
+                  hint: 'exemple@email.com',
                   controller: state.confirmationEmailCtrl,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    hintText: 'exemple@email.com',
-                    prefixIcon: const Icon(Icons.email_outlined),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
+                  icon: Icons.email_outlined,
+                  validator: Validators.email,
                 ),
               ],
             ),
           ),
+          // ============================================================
+          // CHECKBOX ENGAGEMENT
+          // ============================================================
           CheckboxListTile(
             value: state.engagementAccepte,
             onChanged: (v) {

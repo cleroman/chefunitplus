@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - Routeur central
 // =============================================================
 
@@ -10,6 +10,12 @@ import '../../views/auth/login_screen.dart';
 import '../../views/auth/register_screen.dart';
 import '../../views/auth/forgot_password_screen.dart';
 import '../../views/mobile/auth/pending_validation_screen.dart';
+
+// VALIDATION INSCRIPTION (Phase 4-5)
+import '../../views/auth/verify_code_screen.dart';
+import '../../views/auth/submit_proofs_screen.dart';
+import '../../views/admin/pending_proofs_screen.dart';
+import '../../views/admin/user_proofs_detail_screen.dart';
 
 // ADMIN
 import '../../views/admin/admin_dashboard.dart';
@@ -79,6 +85,30 @@ class AppRouter {
 
       case AppRoutes.forgotPassword:
         return _page(const ForgotPasswordScreen(), settings);
+
+      case AppRoutes.verifyCode:
+         final args = settings.arguments as Map<String, dynamic>? ?? {};
+         return _page(
+           VerifyCodeScreen(email: args['email'] as String? ?? ''),
+           settings,
+         );
+
+      case AppRoutes.submitProofs:
+         final args = settings.arguments as Map<String, dynamic>? ?? {};
+         return _page(
+           SubmitProofsScreen(email: args['email'] as String? ?? ''),
+           settings,
+         );
+
+      case AppRoutes.pendingProofs:
+        return _page(const PendingProofsScreen(), settings);
+
+      case AppRoutes.userProofsDetail:
+         final args = settings.arguments as Map<String, dynamic>? ?? {};
+         return _page(
+           UserProofsDetailScreen(userId: args['userId'] as String? ?? ''),
+           settings,
+         );
 
       case AppRoutes.register:
         return _page(const RegisterScreen(), settings);

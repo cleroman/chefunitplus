@@ -1,6 +1,8 @@
-// ChefUnitPlus - Etape 3 : Adresse
+﻿// ChefUnitPlus - Etape 3 : Adresse
 import 'package:flutter/material.dart';
 import 'package:chefunitplus/core/constants/app_colors.dart';
+import 'package:chefunitplus/core/utils/validators.dart';
+import 'package:chefunitplus/widgets/common/custom_text_field.dart';
 import '../register_wizard_screen.dart';
 
 class Step3Address extends StatelessWidget {
@@ -39,57 +41,58 @@ class Step3Address extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          TextField(
+          CustomTextField(
+            label: 'Province *',
+            hint: 'Ex : Kinshasa',
             controller: state.provinceCtrl,
+            icon: Icons.map_outlined,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Province *',
-              prefixIcon: Icon(Icons.map_outlined),
-            ),
+            validator: (v) => Validators.required(v, fieldName: 'Province'),
           ),
           const SizedBox(height: 16),
-          TextField(
+          CustomTextField(
+            label: 'Ville *',
+            hint: 'Ex : Kinshasa',
             controller: state.villeCtrl,
+            icon: Icons.location_city_outlined,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Ville *',
-              prefixIcon: Icon(Icons.location_city_outlined),
-            ),
+            validator: (v) => Validators.required(v, fieldName: 'Ville'),
           ),
           const SizedBox(height: 16),
-          TextField(
+          CustomTextField(
+            label: 'Commune *',
+            hint: 'Ex : Gombe',
             controller: state.communeCtrl,
+            icon: Icons.location_on_outlined,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Commune *',
-              prefixIcon: Icon(Icons.location_on_outlined),
-            ),
+            validator: (v) => Validators.required(v, fieldName: 'Commune'),
           ),
           const SizedBox(height: 16),
-          TextField(
+          CustomTextField(
+            label: 'Quartier *',
+            hint: 'Ex : Centre',
             controller: state.quartierCtrl,
+            icon: Icons.home_outlined,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Quartier *',
-              prefixIcon: Icon(Icons.home_outlined),
-            ),
+            validator: (v) => Validators.required(v, fieldName: 'Quartier'),
           ),
           const SizedBox(height: 16),
-          TextField(
+          CustomTextField(
+            label: 'Avenue *',
+            hint: 'Ex : Avenue de la Paix',
             controller: state.avenueCtrl,
+            icon: Icons.signpost_outlined,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Avenue *',
-              prefixIcon: Icon(Icons.signpost_outlined),
-            ),
+            validator: (v) => Validators.required(v, fieldName: 'Avenue'),
           ),
           const SizedBox(height: 16),
-          TextField(
+          CustomTextField(
+            label: 'Numero *',
+            hint: 'Ex : 123',
             controller: state.numeroCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Numero *',
-              prefixIcon: Icon(Icons.tag),
-            ),
+            icon: Icons.tag,
+            keyboardType: TextInputType.number,
+            validator: (v) => Validators.required(v, fieldName: 'Numero'),
           ),
         ],
       ),

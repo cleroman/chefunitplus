@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - AuthService
 // Login / Register / Logout / Restauration de session
 // =============================================================
@@ -9,6 +9,8 @@ import 'package:chefunitplus/core/errors/error_handler.dart';
 import 'package:chefunitplus/models/auth_response.dart';
 import 'package:chefunitplus/models/user.dart';
 import 'package:chefunitplus/services/api_client.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:chefunitplus/services/storage_service.dart';
 
 class AuthService {
@@ -21,7 +23,7 @@ class AuthService {
   });
 
   // ===========================================================
-  // Ã°Å¸â€â€˜ CONNEXION
+  // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Ëœ CONNEXION
   // ===========================================================
   Future<AuthResponse> login({
     required String email,
@@ -49,7 +51,7 @@ class AuthService {
   }
 
   // ===========================================================
-  // Ã°Å¸â€œÂ INSCRIPTION
+  // ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â INSCRIPTION
   // ===========================================================
   Future<AuthResponse> register({
     required String fullName,
@@ -81,15 +83,115 @@ class AuthService {
   }
 
   // ===========================================================
-  // Ã°Å¸Å¡Âª DÃƒâ€°CONNEXION
+  // ÃƒÂ°Ã…Â¸Ã…Â¡Ã‚Âª DÃƒÆ’Ã¢â‚¬Â°CONNEXION
   // ===========================================================
+  // ===========================================================
+  // VERIFICATION CODE INSCRIPTION
+  // ===========================================================
+  Future<Map<String, dynamic>> verifyCode({
+    required String email,
+    required String code,
+  }) async {
+    return ErrorHandler.guard(() async {
+      return await api.post(
+        ApiConstants.verifyCode,
+        body: {
+          'email': email.trim().toLowerCase(),
+          'code': code.trim(),
+        },
+      );
+    }, context: 'AuthService.verifyCode');
+  }
+
+  // ===========================================================
+  // RENVOYER LE CODE D'INSCRIPTION
+  // ===========================================================
+  Future<Map<String, dynamic>> resendCode({
+    required String email,
+  }) async {
+    return ErrorHandler.guard(() async {
+      return await api.post(
+        ApiConstants.resendCode,
+        body: {
+          'email': email.trim().toLowerCase(),
+        },
+      );
+    }, context: 'AuthService.resendCode');
+  }
+
+  // ===========================================================
+  // SOUMISSION DES PREUVES (multipart, multi-fichiers)
+  // proofs = [{title, filePath, fileName, bytes}]
+  // ===========================================================
+  Future<Map<String, dynamic>> submitProofs({
+    required List<Map<String, dynamic>> proofs,
+    int? buchettes,
+  }) async {
+    return ErrorHandler.guard(() async {
+      if (proofs.isEmpty) {
+        throw Exception('Aucune preuve a soumettre');
+      }
+
+      final uri = Uri.parse('${ApiConstants.apiUrl}${ApiConstants.submitProofs}');
+      final req = http.MultipartRequest('POST', uri);
+
+      // Token JWT
+      final token = api.token;
+      if (token != null && token.isNotEmpty) {
+        req.headers['Authorization'] = 'Bearer $token';
+      }
+
+      // Chaque preuve = 1 fichier + titre dans fields
+      for (var i = 0; i < proofs.length; i++) {
+        final p = proofs[i];
+        final bytes = p['bytes'] as List<int>?;
+        final filePath = p['filePath'] as String?;
+        final fileName = p['fileName'] as String? ?? 'proof_$i.pdf';
+        final title = p['title'] as String? ?? 'Preuve ${i + 1}';
+
+        req.fields['titles[$i]'] = title;
+
+        if (bytes != null && bytes.isNotEmpty) {
+          req.files.add(http.MultipartFile.fromBytes(
+            'proofs',
+            bytes,
+            filename: fileName,
+          ));
+        } else if (filePath != null && filePath.isNotEmpty) {
+          req.files.add(await http.MultipartFile.fromPath(
+            'proofs',
+            filePath,
+            filename: fileName,
+          ));
+        }
+      }
+
+      // Ajouter les buchettes
+      if (buchettes != null) {
+        req.fields['buchettes'] = buchettes.toString();
+      }
+
+      final streamed = await req.send().timeout(
+        const Duration(seconds: ApiConstants.receiveTimeout),
+      );
+      final res = await http.Response.fromStream(streamed);
+
+      if (res.statusCode >= 400) {
+        throw Exception('Erreur ${res.statusCode} : ${res.body}');
+      }
+
+      if (res.body.isEmpty) return {'success': true};
+      return jsonDecode(res.body) as Map<String, dynamic>;
+    }, context: 'AuthService.submitProofs');
+  }
+
   Future<void> logout() async {
     try {
       if (api.isAuthenticated) {
         await api.post(ApiConstants.logout);
       }
     } catch (_) {
-      // On ignore les erreurs rÃƒÂ©seau cÃƒÂ´tÃƒÂ© logout
+      // On ignore les erreurs rÃƒÆ’Ã‚Â©seau cÃƒÆ’Ã‚Â´tÃƒÆ’Ã‚Â© logout
     } finally {
       await storage.clearSession();
       api.clearToken();
@@ -97,7 +199,7 @@ class AuthService {
   }
 
   // ===========================================================
-  // Ã°Å¸â€â€ž RESTAURATION DE SESSION
+  // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬Å¾ RESTAURATION DE SESSION
   // ===========================================================
   Future<User?> restoreSession() async {
     final user = await storage.getUser();
@@ -107,7 +209,7 @@ class AuthService {
   }
 
   // ===========================================================
-  // Ã°Å¸â€˜Â¤ PROFIL COURANT (refresh serveur)
+  // ÃƒÂ°Ã…Â¸Ã¢â‚¬ËœÃ‚Â¤ PROFIL COURANT (refresh serveur)
   // ===========================================================
   Future<User?> fetchMe() async {
     return ErrorHandler.guard(() async {
@@ -127,7 +229,7 @@ class AuthService {
   }
 
   // ===========================================================
-  // Ã°Å¸â€Â MOT DE PASSE OUBLIÃƒâ€°
+  // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â MOT DE PASSE OUBLIÃƒÆ’Ã¢â‚¬Â°
   // ===========================================================
   Future<void> forgotPassword(String email) async {
     return ErrorHandler.guard(() async {

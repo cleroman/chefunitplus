@@ -1,6 +1,8 @@
-// ChefUnitPlus - Etape 1 : Compte
+﻿// ChefUnitPlus - Etape 1 : Compte
 import 'package:flutter/material.dart';
 import 'package:chefunitplus/core/constants/app_colors.dart';
+import 'package:chefunitplus/core/utils/validators.dart';
+import 'package:chefunitplus/widgets/common/custom_text_field.dart';
 import '../register_wizard_screen.dart';
 
 class Step1Account extends StatelessWidget {
@@ -38,41 +40,42 @@ class Step1Account extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          TextField(
+          CustomTextField(
+            label: 'Email *',
+            hint: 'exemple@email.com',
             controller: state.emailCtrl,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              labelText: 'Email *',
-              hintText: 'exemple@email.com',
-              prefixIcon: Icon(Icons.email_outlined),
-            ),
+            icon: Icons.email_outlined,
+            validator: Validators.email,
           ),
           const SizedBox(height: 16),
-          TextField(
+          CustomTextField(
+            label: 'Telephone *',
+            hint: '+24389XXXXXXX',
             controller: state.phoneCtrl,
             keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(
-              labelText: 'Telephone *',
-              hintText: '+24389XXXXXXX',
-              prefixIcon: Icon(Icons.phone_outlined),
-            ),
+            icon: Icons.phone_outlined,
+            validator: Validators.phone,
           ),
           const SizedBox(height: 16),
-          TextField(
+          CustomTextField(
+            label: 'Mot de passe * (min 6)',
+            hint: 'Minimum 6 caracteres',
             controller: state.passwordCtrl,
-            obscureText: true,
-            decoration: const InputDecoration(
-              labelText: 'Mot de passe * (min 6)',
-              prefixIcon: Icon(Icons.lock_outline),
-            ),
+            obscure: true,
+            icon: Icons.lock_outline,
+            validator: Validators.password,
           ),
           const SizedBox(height: 16),
-          TextField(
+          CustomTextField(
+            label: 'Confirmation *',
+            hint: 'Retapez le mot de passe',
             controller: state.confirmPasswordCtrl,
-            obscureText: true,
-            decoration: const InputDecoration(
-              labelText: 'Confirmation *',
-              prefixIcon: Icon(Icons.lock_outline),
+            obscure: true,
+            icon: Icons.lock_outline,
+            validator: (value) => Validators.confirmPassword(
+              value,
+              state.passwordCtrl.text,
             ),
           ),
         ],

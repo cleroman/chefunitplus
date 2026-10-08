@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - Constantes + helpers de routes
 // =============================================================
 
@@ -15,6 +15,12 @@ class AppRoutes {
   static const String pendingValidation = '/pending-validation';
   static const String register = '/auth/register';
   static const String forgotPassword = '/auth/forgot-password';
+
+  // ---------------- VALIDATION INSCRIPTION ----------------
+  static const String verifyCode = '/auth/verify-code';
+  static const String submitProofs = '/auth/submit-proofs';
+  static const String pendingProofs = '/admin/pending-proofs';
+  static const String userProofsDetail = '/admin/user-proofs';
 
   // ---------------- HOME PAR ROLE ----------------
   static const String adminHome = '/admin';

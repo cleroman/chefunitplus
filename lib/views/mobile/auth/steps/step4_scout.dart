@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - Etape 4 : Scout (avec selection du groupe)
 // =============================================================
 
@@ -7,8 +7,10 @@ import 'package:provider/provider.dart';
 
 import 'package:chefunitplus/core/constants/app_colors.dart';
 import 'package:chefunitplus/controllers/scout_group_controller.dart';
+import 'package:chefunitplus/core/utils/validators.dart';
 import 'package:chefunitplus/models/scout_group.dart';
 import 'package:chefunitplus/models/user_details.dart';
+import 'package:chefunitplus/widgets/common/custom_text_field.dart';
 import '../register_wizard_screen.dart';
 
 class Step4Scout extends StatelessWidget {
@@ -139,40 +141,32 @@ class Step4Scout extends StatelessWidget {
         const SizedBox(height: 24),
 
         // ===== NUMERO AFFILIATION =====
-        TextFormField(
+        CustomTextField(
+          label: 'Numero d\'affiliation *',
+          hint: 'Ex : KIN-2024-001',
           controller: state.numeroAffiliationCtrl,
-          decoration: const InputDecoration(
-            labelText: 'Numero d\'affiliation *',
-            hintText: 'Ex : KIN-2024-001',
-            prefixIcon: Icon(Icons.badge_outlined),
-            border: OutlineInputBorder(),
-          ),
+          icon: Icons.badge_outlined,
+          validator: (v) => Validators.required(v, fieldName: 'Numero affiliation'),
         ),
         const SizedBox(height: 16),
 
         // ===== DISTRICT =====
-        TextFormField(
+        CustomTextField(
+          label: 'District',
+          hint: 'Auto-rempli avec le groupe',
           controller: state.districtCtrl,
+          icon: Icons.map_outlined,
           textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-            labelText: 'District',
-            hintText: 'Auto-rempli avec le groupe',
-            prefixIcon: Icon(Icons.map_outlined),
-            border: OutlineInputBorder(),
-          ),
         ),
         const SizedBox(height: 16),
 
         // ===== ASSOCIATION =====
-        TextFormField(
+        CustomTextField(
+          label: 'Association',
+          hint: 'Ex : Association des Scouts du Congo',
           controller: state.associationCtrl,
+          icon: Icons.business_outlined,
           textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-            labelText: 'Association',
-            hintText: 'Ex : Association des Scouts du Congo',
-            prefixIcon: Icon(Icons.business_outlined),
-            border: OutlineInputBorder(),
-          ),
         ),
         const SizedBox(height: 24),
 
@@ -269,15 +263,12 @@ class Step4Scout extends StatelessWidget {
         const SizedBox(height: 16),
 
         // ===== FONCTION =====
-        TextFormField(
+        CustomTextField(
+          label: 'Fonction (optionnel)',
+          hint: 'Ex : Chef de patrouille',
           controller: state.fonctionScoutCtrl,
+          icon: Icons.workspace_premium_outlined,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(
-            labelText: 'Fonction (optionnel)',
-            hintText: 'Ex : Chef de patrouille',
-            prefixIcon: Icon(Icons.workspace_premium_outlined),
-            border: OutlineInputBorder(),
-          ),
         ),
       ],
     );

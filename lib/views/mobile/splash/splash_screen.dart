@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -62,7 +62,22 @@ class _SplashScreenState extends State<SplashScreen>
     if (auth != null &&
         auth.state == AuthState.authenticated &&
         auth.currentUser != null) {
-      route = AppRoutes.homeForRole(auth.currentUser!.role);
+      final stage = auth.registrationStage;
+      switch (stage) {
+        case 'active':
+          route = AppRoutes.homeForRole(auth.currentUser!.role.name);
+          break;
+        case 'email_verification':
+          route = AppRoutes.verifyCode;
+          break;
+        case 'proofs_pending':
+          route = AppRoutes.submitProofs;
+          break;
+        case 'awaiting_validation':
+        default:
+          route = '/pending-validation';
+          break;
+      }
     }
 
     Navigator.of(context).pushNamedAndRemoveUntil(

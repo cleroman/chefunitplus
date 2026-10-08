@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - LoginScreen
 // Connexion avec email + mot de passe
 // =============================================================
@@ -47,11 +47,50 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
-      SnackbarHelper.success(context, AppStrings.loginSuccess);
-      Navigator.pushReplacementNamed(
-        context,
-        AppRoutes.homeForRole(auth.currentUser!.role.name),
-      );
+      final stage = auth.registrationStage;
+
+      switch (stage) {
+        case 'active':
+          SnackbarHelper.success(context, AppStrings.loginSuccess);
+          Navigator.pushReplacementNamed(
+            context,
+            AppRoutes.homeForRole(auth.currentUser!.role.name),
+          );
+          break;
+
+        case 'email_verification':
+          SnackbarHelper.info(
+            context,
+            'Verifiez votre email pour recevoir le code.',
+          );
+          Navigator.pushReplacementNamed(
+            context,
+            AppRoutes.verifyCode,
+            arguments: {'email': _email.text.trim()},
+          );
+          break;
+
+        case 'proofs_pending':
+          SnackbarHelper.info(
+            context,
+            'Soumettez vos preuves de formation.',
+          );
+          Navigator.pushReplacementNamed(
+            context,
+            AppRoutes.submitProofs,
+            arguments: {'email': _email.text.trim()},
+          );
+          break;
+
+        case 'awaiting_validation':
+        default:
+          Navigator.pushReplacementNamed(
+            context,
+            '/pending-validation',
+            arguments: {'email': _email.text.trim()},
+          );
+          break;
+      }
     } else {
       SnackbarHelper.error(
         context,
@@ -104,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 6),
                 const Text(
-                  'Connectez-vous à votre compte',
+                  'Connectez-vous Ã  votre compte',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
@@ -150,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                // Mot de passe oublié
+                // Mot de passe oubliÃ©
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(

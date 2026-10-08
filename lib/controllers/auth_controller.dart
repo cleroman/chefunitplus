@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - AuthController
 // =============================================================
 
@@ -28,7 +28,7 @@ class AuthController extends ChangeNotifier {
         _api = api;
 
   // ===========================================================
-  // ðŸ” Ã‰TAT
+  // Ã°Å¸â€Â Ãƒâ€°TAT
   // ===========================================================
   AuthState _state = AuthState.unknown;
   User? _currentUser;
@@ -42,7 +42,7 @@ class AuthController extends ChangeNotifier {
   bool get isAuthenticated => _state == AuthState.authenticated;
 
   // ===========================================================
-  // ðŸš€ BOOTSTRAP
+  // Ã°Å¸Å¡â‚¬ BOOTSTRAP
   // ===========================================================
   Future<void> bootstrap() async {
     _isLoading = true;
@@ -54,6 +54,17 @@ class AuthController extends ChangeNotifier {
         _currentUser = user;
         _api.setToken(user.token);
         _state = AuthState.authenticated;
+
+        // Rafraichir depuis l'API pour avoir le statut a jour
+        try {
+          final fresh = await _service.fetchMe();
+          if (fresh != null) {
+            _currentUser = fresh;
+            if (fresh.token != null) _api.setToken(fresh.token);
+          }
+        } catch (_) {
+          // Si fetch echoue, garder le user local
+        }
       } else {
         _api.clearToken();
         _state = AuthState.unauthenticated;
@@ -69,7 +80,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // ===========================================================
-  // ðŸ”‘ CONNEXION
+  // Ã°Å¸â€â€˜ CONNEXION
   // ===========================================================
   Future<bool> login({
     required String email,
@@ -99,7 +110,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // ===========================================================
-  // ðŸ“ INSCRIPTION
+  // Ã°Å¸â€œÂ INSCRIPTION
   // ===========================================================
   Future<bool> register({
     required String fullName,
@@ -133,7 +144,49 @@ class AuthController extends ChangeNotifier {
   }
 
   // ===========================================================
-  // ðŸšª DÃ‰CONNEXION
+  // VERIFICATION DU CODE D'INSCRIPTION
+  // ===========================================================
+  Future<Map<String, dynamic>> verifyCode({
+    required String email,
+    required String code,
+  }) async {
+    try {
+      final result = await _service.verifyCode(
+        email: email,
+        code: code,
+      );
+
+      if (result['success'] == true) {
+        await bootstrap();
+      }
+
+      return result;
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Erreur : ${e.toString()}',
+      };
+    }
+  }
+
+  // ===========================================================
+  // RENVOYER LE CODE D'INSCRIPTION
+  // ===========================================================
+  Future<Map<String, dynamic>> resendCode({
+    required String email,
+  }) async {
+    try {
+      return await _service.resendCode(email: email);
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Erreur : ${e.toString()}',
+      };
+    }
+  }
+
+  // ===========================================================
+  // Ã°Å¸Å¡Âª DÃƒâ€°CONNEXION
   // ===========================================================
   Future<void> logout() async {
     _isLoading = true;
@@ -151,7 +204,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // ===========================================================
-  // ðŸ”„ REFRESH
+  // Ã°Å¸â€â€ž REFRESH
   // ===========================================================
   Future<void> refreshUser() async {
     try {
@@ -167,7 +220,7 @@ class AuthController extends ChangeNotifier {
   }
 
   // ===========================================================
-  // ðŸ” MOT DE PASSE OUBLIÃ‰
+  // Ã°Å¸â€Â MOT DE PASSE OUBLIÃƒâ€°
   // ===========================================================
   Future<bool> forgotPassword(String email) async {
     _isLoading = true;
@@ -187,8 +240,64 @@ class AuthController extends ChangeNotifier {
   }
 
   // ===========================================================
-  // ðŸ§° HELPERS
+  // Ã°Å¸Â§Â° HELPERS
   // ===========================================================
+  // ===========================================================
+  // WIZARD - Statut d'inscription
+  // ===========================================================
+  /// Compte actif ET valide -> peut utiliser l'app normalement
+  bool get canUseApp {
+    final u = _currentUser;
+    if (u == null) return false;
+    if (u.validatedAt != null) return true;
+    if (u.statut == null && u.isActive) return true;
+    return false;
+  }
+
+  /// Etape du wizard d'inscription
+  /// Aligne sur les valeurs reelles du backend :
+  ///   statut = 'pending'          -> inscription en cours
+  ///   code_is_used = false        -> code a saisir
+  ///   code_is_used = true         -> preuves a soumettre
+  ///   proofs_submitted_at != null -> en attente validation admin
+  ///   validated_at != null        -> compte actif
+  String get registrationStage {
+    final u = _currentUser;
+    if (u == null) return 'none';
+
+    // 1. Compte valide par admin
+    if (u.validatedAt != null) return 'active';
+    if (u.statut == 'active') return 'active';
+
+    // 2. Preuves soumises, en attente validation admin
+    if (u.proofsSubmittedAt != null) return 'awaiting_validation';
+    if (u.statut == 'awaiting_validation' || u.statut == 'pending_validation') {
+      return 'awaiting_validation';
+    }
+
+    // 3. Code verifie mais preuves pas encore soumises
+    if (u.codeIsUsed == true) return 'proofs_pending';
+    if (u.statut == 'proofs_pending') return 'proofs_pending';
+
+    // 4. Compte SUSPENDU : en attente de validation admin
+    if (u.statut == 'suspended' || u.statut == 'suspendu') {
+      return 'awaiting_validation';
+    }
+
+    // 5. Compte en attente (statut backend = 'pending')
+    // -> etape de saisie du code a 6 chiffres
+    if (u.statut == 'pending' || u.statut == 'en_attente') {
+      return 'email_verification';
+    }
+
+    // 5. Fallback : si le code n'est pas encore utilise, demander le code
+    if (u.registrationCode != null && u.codeIsUsed != true) {
+      return 'email_verification';
+    }
+
+    // 6. Par defaut : demander le code
+    return 'email_verification';
+  }
   bool _handleAuthResponse(AuthResponse response) {
     if (response.success && response.user != null) {
       _currentUser = response.user;
@@ -198,7 +307,7 @@ class AuthController extends ChangeNotifier {
       _state = AuthState.authenticated;
       return true;
     }
-    _errorMessage = response.message ?? 'Authentification Ã©chouÃ©e';
+    _errorMessage = response.message ?? 'Authentification ÃƒÂ©chouÃƒÂ©e';
     return false;
   }
 
@@ -257,3 +366,5 @@ class AuthController extends ChangeNotifier {
     }
   }
 }
+
+

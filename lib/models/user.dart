@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - Modele User (propre + safe parsing)
 // =============================================================
 
@@ -42,6 +42,18 @@ class User {
   final DateTime? lastLoginAt;
   final bool profileCompleted;
 
+  // Champs validation inscription (Phase 4-5)
+  final String? statut;
+  final String? fonction;
+  final int? buchettes;
+  final String? registrationCode;
+  final bool? codeIsUsed;
+  final int? codeAttempts;
+  final DateTime? codeExpiresAt;
+  final DateTime? proofsSubmittedAt;
+  final String? validatedBy;
+  final DateTime? validatedAt;
+
   const User({
     required this.id,
     required this.postNom,
@@ -63,6 +75,18 @@ class User {
     this.createdAt,
     this.lastLoginAt,
     this.profileCompleted = false,
+
+    // Champs validation inscription
+    this.statut,
+    this.fonction,
+    this.buchettes,
+    this.registrationCode,
+    this.codeIsUsed,
+    this.codeAttempts,
+    this.codeExpiresAt,
+    this.proofsSubmittedAt,
+    this.validatedBy,
+    this.validatedAt,
   });
 
   // ===========================================================
@@ -105,6 +129,18 @@ class User {
         json['profileCompleted'] ?? json['profile_completed'],
         false,
       ),
+      statut: json['statut'] as String?,
+      fonction: json['fonction'] as String?,
+      buchettes: json['buchettes'] as int?,
+      registrationCode: json['registrationCode'] ?? json['registration_code'],
+      codeIsUsed: json['codeIsUsed'] ?? json['code_is_used'] != null
+          ? _parseBool(json['codeIsUsed'] ?? json['code_is_used'], false)
+          : null,
+      codeAttempts: json['codeAttempts'] as int? ?? json['code_attempts'] as int?,
+      codeExpiresAt: _parseDate(json['codeExpiresAt'] ?? json['code_expires_at']),
+      proofsSubmittedAt: _parseDate(json['proofsSubmittedAt'] ?? json['proofs_submitted_at']),
+      validatedBy: json['validatedBy']?.toString() ?? json['validated_by']?.toString(),
+      validatedAt: _parseDate(json['validatedAt'] ?? json['validated_at']),
     );
   }
 
@@ -143,6 +179,16 @@ class User {
         if (lastLoginAt != null)
           'lastLoginAt': lastLoginAt!.toIso8601String(),
         'profileCompleted': profileCompleted,
+        if (statut != null) 'statut': statut,
+        if (fonction != null) 'fonction': fonction,
+        if (buchettes != null) 'buchettes': buchettes,
+        if (registrationCode != null) 'registrationCode': registrationCode,
+        if (codeIsUsed != null) 'codeIsUsed': codeIsUsed,
+        if (codeAttempts != null) 'codeAttempts': codeAttempts,
+        if (codeExpiresAt != null) 'codeExpiresAt': codeExpiresAt!.toIso8601String(),
+        if (proofsSubmittedAt != null) 'proofsSubmittedAt': proofsSubmittedAt!.toIso8601String(),
+        if (validatedBy != null) 'validatedBy': validatedBy,
+        if (validatedAt != null) 'validatedAt': validatedAt!.toIso8601String(),
       };
 
   // ===========================================================
@@ -169,6 +215,16 @@ class User {
     DateTime? createdAt,
     DateTime? lastLoginAt,
     bool? profileCompleted,
+    String? statut,
+    String? fonction,
+    int? buchettes,
+    String? registrationCode,
+    bool? codeIsUsed,
+    int? codeAttempts,
+    DateTime? codeExpiresAt,
+    DateTime? proofsSubmittedAt,
+    String? validatedBy,
+    DateTime? validatedAt,
   }) =>
       User(
         id: id ?? this.id,
@@ -191,6 +247,16 @@ class User {
         createdAt: createdAt ?? this.createdAt,
         lastLoginAt: lastLoginAt ?? this.lastLoginAt,
         profileCompleted: profileCompleted ?? this.profileCompleted,
+        statut: statut ?? this.statut,
+        fonction: fonction ?? this.fonction,
+        buchettes: buchettes ?? this.buchettes,
+        registrationCode: registrationCode ?? this.registrationCode,
+        codeIsUsed: codeIsUsed ?? this.codeIsUsed,
+        codeAttempts: codeAttempts ?? this.codeAttempts,
+        codeExpiresAt: codeExpiresAt ?? this.codeExpiresAt,
+        proofsSubmittedAt: proofsSubmittedAt ?? this.proofsSubmittedAt,
+        validatedBy: validatedBy ?? this.validatedBy,
+        validatedAt: validatedAt ?? this.validatedAt,
       );
 
   // ===========================================================

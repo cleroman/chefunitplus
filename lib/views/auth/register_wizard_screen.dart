@@ -336,22 +336,63 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
           result['status'] == 'success';
 
       if (isSuccess) {
+        // Charger l'utilisateur depuis l'API pour avoir le statut a jour
         final auth = context.read<AuthController>();
         await auth.bootstrap();
         if (!mounted) return;
 
-        SnackbarHelper.success(
-          context,
-          'Compte cree ! Bienvenue ${prenomCtrl.text}',
-        );
+        // Determiner l'etape d'inscription via registrationStage
+        final stage = auth.registrationStage;
 
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.homeForRole(
-            auth.currentUser?.role.name ?? 'apprenant',
-          ),
-          (route) => false,
-        );
+        switch (stage) {
+          case 'active':
+            SnackbarHelper.success(
+              context,
+              'Compte cree ! Bienvenue ${prenomCtrl.text}',
+            );
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              AppRoutes.homeForRole(auth.currentUser!.role.name),
+              (route) => false,
+            );
+            break;
+
+          case 'email_verification':
+            SnackbarHelper.info(
+              context,
+              'Verifiez votre email pour recevoir le code.',
+            );
+            Navigator.pushReplacementNamed(
+              context,
+              AppRoutes.verifyCode,
+              arguments: {'email': emailCtrl.text.trim()},
+            );
+            break;
+
+          case 'proofs_pending':
+            SnackbarHelper.info(
+              context,
+              'Soumettez vos preuves de formation.',
+            );
+            Navigator.pushReplacementNamed(
+              context,
+              AppRoutes.submitProofs,
+              arguments: {'email': emailCtrl.text.trim()},
+            );
+            break;
+
+          case 'awaiting_validation':
+          default:
+            SnackbarHelper.success(
+              context,
+              'Compte cree ! En attente de validation admin.',
+            );
+            Navigator.pushReplacementNamed(
+              context,
+              '/pending-validation',
+            );
+            break;
+        }
       } else {
         final msg = result['message']?.toString() ??
             result['error']?.toString() ??

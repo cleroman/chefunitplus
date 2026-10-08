@@ -1,6 +1,6 @@
-// =============================================================
-// ChefUnitPlus - Wizard d'inscription (6 ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©tapes)
-// Fichier complet et corrigÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â© - Version finale
+﻿// =============================================================
+// ChefUnitPlus - Wizard d'inscription (6 ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â©tapes)
+// Fichier complet et corrigÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â© - Version finale
 // =============================================================
 
 import 'package:flutter/material.dart';
@@ -382,38 +382,64 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
           result['ok'] == true ||
           result['status'] == 'success';
 
-      if (isSuccess) {
-        // Verifier si le backend indique que le compte est en attente
-        final isPending = result['data']?['pending'] == true ||
-            result['code'] == 'ACCOUNT_PENDING' ||
-            result['message']?.toString().toLowerCase().contains('attente') == true;
+        if (isSuccess) {
+          // Charger l'utilisateur depuis l'API pour avoir le statut a jour
+          final auth = context.read<AuthController>();
+          await auth.bootstrap();
+          if (!mounted) return;
 
-        if (isPending) {
-          SnackbarHelper.success(
-            context,
-            'Compte cree ! En attente de validation admin.',
-          );
-          Navigator.pushReplacementNamed(context, '/pending-validation');
-          return;
-        }
+          // Determiner l'etape d'inscription via registrationStage
+          final stage = auth.registrationStage;
 
-        // Cas normal (si backend renvoie un token)
-        final auth = context.read<AuthController>();
-        await auth.bootstrap();
-        if (!mounted) return;
+          switch (stage) {
+            case 'active':
+              SnackbarHelper.success(
+                context,
+                'Compte cree ! Bienvenue ${prenomCtrl.text}',
+              );
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                AppRoutes.homeForRole(auth.currentUser!.role.name),
+                (route) => false,
+              );
+              break;
 
-        SnackbarHelper.success(
-          context,
-          'Compte cree ! Bienvenue ${prenomCtrl.text}',
-        );
+            case 'email_verification':
+              SnackbarHelper.info(
+                context,
+                'Verifiez votre email pour recevoir le code.',
+              );
+              Navigator.pushReplacementNamed(
+                context,
+                AppRoutes.verifyCode,
+                arguments: {'email': emailCtrl.text.trim()},
+              );
+              break;
 
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.homeForRole(
-            auth.currentUser?.role.name ?? 'apprenant',
-          ),
-          (route) => false,
-        );
+            case 'proofs_pending':
+              SnackbarHelper.info(
+                context,
+                'Soumettez vos preuves de formation.',
+              );
+              Navigator.pushReplacementNamed(
+                context,
+                AppRoutes.submitProofs,
+                arguments: {'email': emailCtrl.text.trim()},
+              );
+              break;
+
+            case 'awaiting_validation':
+            default:
+              SnackbarHelper.success(
+                context,
+                'Compte cree ! En attente de validation admin.',
+              );
+              Navigator.pushReplacementNamed(
+                context,
+                '/pending-validation',
+              );
+              break;
+          }
       } else {
         final msg = result['message']?.toString() ??
             result['error']?.toString() ??
