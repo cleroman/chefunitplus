@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - MyQrCodesScreen
 // Affiche les QR codes de l'apprenant
 // =============================================================
@@ -56,6 +56,7 @@ class _MyQrCodesScreenState extends State<MyQrCodesScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Mes QR Codes'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - LearnerPaymentListScreen
 // Permet a l'apprenant de choisir une formation pour payer
 // =============================================================
@@ -32,6 +32,7 @@ class _LearnerPaymentListScreenState extends State<LearnerPaymentListScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Choisir une formation'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

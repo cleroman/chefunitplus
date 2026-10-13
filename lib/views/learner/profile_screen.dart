@@ -42,6 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Mon profil'),
         actions: [
           IconButton(

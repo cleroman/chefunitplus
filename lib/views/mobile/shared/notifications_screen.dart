@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - NotificationsScreen
 // Liste des notifications de l'utilisateur connecte
 // =============================================================
@@ -15,6 +15,7 @@ class NotificationsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Notifications'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

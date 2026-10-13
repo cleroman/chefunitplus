@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -133,6 +133,7 @@ class _LessonEditorScreenState extends State<LessonEditorScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: Text(_isEditing ? 'Modifier la lecon' : 'Nouvelle lecon'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

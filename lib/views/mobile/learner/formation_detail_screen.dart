@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+﻿// ignore_for_file: use_build_context_synchronously
 // ignore_for_file: dead_null_aware_expression
 // ignore_for_file: unnecessary_non_null_assertion
 // ignore_for_file: unnecessary_cast
@@ -110,7 +110,8 @@ class _FormationDetailScreenState extends State<FormationDetailScreen> {
 
     if (_error != null || _formation == null) {
       return Scaffold(
-        appBar: AppBar(backgroundColor: AppColors.mauve, foregroundColor: Colors.white),
+        appBar: AppBar(
+        leading: const BackButton(),backgroundColor: AppColors.mauve, foregroundColor: Colors.white),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

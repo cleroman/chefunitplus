@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - PaymentNumbersScreen (Admin)
 // Gere les numeros de reception Mobile Money
 // =============================================================
@@ -63,6 +63,7 @@ class _PaymentNumbersScreenState extends State<PaymentNumbersScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Numeros Mobile Money'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

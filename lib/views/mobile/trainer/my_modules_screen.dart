@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - MyModulesScreen (formateur)
 // SOURCE : ModuleController -> ModuleService -> API /modules/my
 // =============================================================
@@ -34,6 +34,7 @@ class _MyModulesScreenState extends State<MyModulesScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Mes modules'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

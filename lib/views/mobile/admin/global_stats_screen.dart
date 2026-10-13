@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - GlobalStatsScreen
 // Statistiques globales de la plateforme
 // =============================================================
@@ -59,6 +59,7 @@ class _GlobalStatsScreenState extends State<GlobalStatsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Statistiques globales'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
@@ -125,9 +126,9 @@ class _GlobalStatsScreenState extends State<GlobalStatsScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Rpartition par rôle
+            // Rpartition par rÃ´le
             const Text(
-              'Rpartition par rôle',
+              'Rpartition par rÃ´le',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,

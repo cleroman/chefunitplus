@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - MessagesScreen
 // Liste des messages de l'utilisateur connecte
 // =============================================================
@@ -15,6 +15,7 @@ class MessagesScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Messages'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - MessagesScreen
 // =============================================================
 
@@ -53,6 +53,7 @@ class _MessagesScreenState extends State<MessagesScreen> with SingleTickerProvid
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Messages'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

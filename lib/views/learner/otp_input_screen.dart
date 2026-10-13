@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+﻿// ignore_for_file: use_build_context_synchronously
 // ignore_for_file: dead_null_aware_expression
 // ignore_for_file: unnecessary_non_null_assertion
 // ignore_for_file: unnecessary_cast
@@ -178,6 +178,7 @@ class _OtpInputScreenState extends State<OtpInputScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Verification OTP'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

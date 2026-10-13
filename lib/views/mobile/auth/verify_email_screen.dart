@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../controllers/register_controller.dart';
@@ -74,7 +74,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     final ctrl = context.watch<RegisterController>();
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Verification email'),
+      appBar: AppBar(
+        leading: const BackButton(),title: const Text('Verification email'),
         backgroundColor: AppColors.mauve, foregroundColor: Colors.white),
       body: Padding(padding: const EdgeInsets.all(24), child: Column(children: [
         Container(padding: const EdgeInsets.all(20),

@@ -60,6 +60,7 @@ class _PendingProofsScreenState extends State<PendingProofsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Preuves en attente'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

@@ -163,6 +163,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Fiche utilisateur'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

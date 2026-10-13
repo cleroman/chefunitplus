@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - AttachLessonScreen
 // Le formateur attache une lecon PDF a un module
 // =============================================================
@@ -92,6 +92,7 @@ class _AttachLessonScreenState extends State<AttachLessonScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Attacher une lecon'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

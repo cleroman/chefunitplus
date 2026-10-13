@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - Ecran Badge QR
 // Affiche le badge utilisateur avec QR code
 // UNIQUEMENT si le compte est active (is_active = 1)
@@ -27,6 +27,7 @@ class _UserBadgeScreenState extends State<UserBadgeScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Mon badge'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

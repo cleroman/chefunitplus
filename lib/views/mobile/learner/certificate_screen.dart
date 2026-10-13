@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - CertificateScreen
 // Affiche le certificat de l'apprenant
 // =============================================================
@@ -30,6 +30,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Mes certificats'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

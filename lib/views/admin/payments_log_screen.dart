@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+﻿// ignore_for_file: use_build_context_synchronously
 // ignore_for_file: dead_null_aware_expression
 // ignore_for_file: unnecessary_non_null_assertion
 // ignore_for_file: unnecessary_cast
@@ -77,7 +77,7 @@ class _PaymentsLogScreenState extends State<PaymentsLogScreen>
     final approvedCount = filtered.where((e) => e.isApproved).length;
     final rejectedCount = filtered.where((e) => e.isRejected).length;
 
-    // SÃ©parer par onglets
+    // SÃƒÂ©parer par onglets
     final pending = filtered.where((e) => e.isPending).toList();
     final approved = filtered.where((e) => e.isApproved).toList();
     final rejected = filtered.where((e) => e.isRejected).toList();
@@ -85,6 +85,7 @@ class _PaymentsLogScreenState extends State<PaymentsLogScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Journal des paiements'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

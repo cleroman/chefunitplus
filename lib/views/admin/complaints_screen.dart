@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
@@ -79,6 +79,7 @@ class _ComplaintsScreenState extends State<ComplaintsScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Reclamations'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

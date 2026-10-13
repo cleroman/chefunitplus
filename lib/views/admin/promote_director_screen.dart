@@ -1,6 +1,6 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - PromoteDirectorScreen
-// Promouvoir un utilisateur au rôle de Directeur ou Formateur
+// Promouvoir un utilisateur au rÃ´le de Directeur ou Formateur
 // =============================================================
 
 import 'package:flutter/material.dart';
@@ -50,7 +50,7 @@ class _PromoteDirectorScreenState extends State<PromoteDirectorScreen> {
         title: Text('Promouvoir en ${_targetRole.label}'),
         content: Text(
           'Confirmer la promotion de ${user.fullName} '
-          'au rôle de ${_targetRole.label} ?\n\n'
+          'au rÃ´le de ${_targetRole.label} ?\n\n'
           '${_targetRole.description}.',
         ),
         actions: [
@@ -104,13 +104,14 @@ class _PromoteDirectorScreenState extends State<PromoteDirectorScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Promouvoir un utilisateur'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
       ),
       body: Column(
         children: [
-          // Choix du rôle cible
+          // Choix du rÃ´le cible
           Container(
             color: Colors.white,
             padding: const EdgeInsets.all(16),
@@ -118,7 +119,7 @@ class _PromoteDirectorScreenState extends State<PromoteDirectorScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Rôle cible',
+                  'RÃ´le cible',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -362,7 +363,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Aucun utilisateur ne peut tre promu au rôle de ${role.label}.',
+              'Aucun utilisateur ne peut tre promu au rÃ´le de ${role.label}.',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 12,

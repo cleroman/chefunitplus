@@ -216,6 +216,7 @@ class _UserProofsDetailScreenState extends State<UserProofsDetailScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Detail des preuves'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

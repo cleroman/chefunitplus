@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+﻿import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
@@ -120,6 +120,7 @@ class _TrainerCreateModuleScreenState extends State<TrainerCreateModuleScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Proposer un module'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

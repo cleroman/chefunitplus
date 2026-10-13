@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - Registration Success Screen
 // Badge de verification avec photo + QR code + infos
 // =============================================================
@@ -61,6 +61,7 @@ class RegistrationSuccessScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Inscription reussie'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

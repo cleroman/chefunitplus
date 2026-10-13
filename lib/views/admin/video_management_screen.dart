@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - Admin Video Management
 // Liste + Ajout de videos (fichier ou URL)
 // =============================================================
@@ -176,6 +176,7 @@ class _VideoManagementScreenState extends State<VideoManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Videos des moments scouts'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
@@ -204,7 +205,7 @@ class _VideoManagementScreenState extends State<VideoManagementScreen> {
                         ),
                         title: Text(v['title'] ?? ''),
                         subtitle: Text(
-                          '${v['views'] ?? 0} vues â€¢ ${v['author_name'] ?? ''}',
+                          '${v['views'] ?? 0} vues Ã¢â‚¬Â¢ ${v['author_name'] ?? ''}',
                           style: const TextStyle(fontSize: 11),
                         ),
                       ),

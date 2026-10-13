@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+﻿// ignore_for_file: use_build_context_synchronously
 // ignore_for_file: dead_null_aware_expression
 // ignore_for_file: unnecessary_non_null_assertion
 // ignore_for_file: unnecessary_cast
@@ -142,6 +142,7 @@ class _MyInvitationsScreenState extends State<MyInvitationsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Mes invitations'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

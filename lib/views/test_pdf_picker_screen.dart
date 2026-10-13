@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - TEST PDF PICKER
 // Ecran de test pour diagnostiquer file_picker sur Chrome
 // =============================================================
@@ -80,6 +80,7 @@ class _TestPdfPickerScreenState extends State<TestPdfPickerScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Test PDF Picker'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

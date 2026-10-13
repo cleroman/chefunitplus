@@ -1,6 +1,6 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - ForgotPasswordScreen
-// Envoi d'un lien de réinitialisation par email
+// Envoi d'un lien de rÃ©initialisation par email
 // =============================================================
 
 import 'package:flutter/material.dart';
@@ -45,7 +45,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       setState(() => _sent = true);
       SnackbarHelper.success(
         context,
-        'Email envoyé si le compte existe',
+        'Email envoyÃ© si le compte existe',
       );
     } else {
       SnackbarHelper.error(
@@ -63,6 +63,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text(AppStrings.forgotPassword),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -101,7 +102,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           const SizedBox(height: 32),
 
           const Text(
-            'Mot de passe oublié ?',
+            'Mot de passe oubliÃ© ?',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 22,
@@ -111,8 +112,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Saisissez l\'email associé à votre compte. '
-            'Vous recevrez un lien pour réinitialiser votre mot de passe.',
+            'Saisissez l\'email associÃ© Ã  votre compte. '
+            'Vous recevrez un lien pour rÃ©initialiser votre mot de passe.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -174,7 +175,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         ),
         const SizedBox(height: 32),
         const Text(
-          'Email envoyé !',
+          'Email envoyÃ© !',
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -183,7 +184,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         ),
         const SizedBox(height: 12),
         Text(
-          'Un lien de réinitialisation a été envoyé à\n${_email.text}',
+          'Un lien de rÃ©initialisation a Ã©tÃ© envoyÃ© Ã \n${_email.text}',
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 14,
@@ -197,7 +198,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           height: 52,
           child: ElevatedButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Retour à la connexion'),
+            child: const Text('Retour Ã  la connexion'),
           ),
         ),
       ],

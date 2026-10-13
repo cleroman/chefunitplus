@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - LearnerFormationSuiviScreen
 // Suivi de formation : presence + materiaux + questions
 // =============================================================
@@ -99,6 +99,7 @@ class _LearnerFormationSuiviScreenState extends State<LearnerFormationSuiviScree
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: Text(widget.formationTitle, overflow: TextOverflow.ellipsis),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

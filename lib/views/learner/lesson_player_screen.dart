@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../models/lesson.dart';
@@ -23,6 +23,7 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: Text(
           lesson.title,
           style: const TextStyle(fontSize: 16),

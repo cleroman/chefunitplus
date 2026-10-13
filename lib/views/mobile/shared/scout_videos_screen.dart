@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - ScoutVideosScreen
 // Page des videos scouts publiees par l'administrateur
 // =============================================================
@@ -23,6 +23,7 @@ class _ScoutVideosScreenState extends State<ScoutVideosScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Videos Scout'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

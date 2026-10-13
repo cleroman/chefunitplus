@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - ProfileScreen
 // =============================================================
 
@@ -66,6 +66,7 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Profil'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

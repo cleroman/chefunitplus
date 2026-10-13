@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - EditProfileScreen COMPLET
 // Route : /editprofile
 // =============================================================
@@ -77,6 +77,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Modifier le profil'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

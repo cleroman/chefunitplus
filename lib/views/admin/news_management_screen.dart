@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - Admin News Management
 // Liste + Ajout d'actualites (PDF/Word/Image)
 // =============================================================
@@ -214,6 +214,7 @@ class _NewsManagementScreenState extends State<NewsManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Actualites & Communiques'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
@@ -249,7 +250,7 @@ class _NewsManagementScreenState extends State<NewsManagementScreen> {
                         ),
                         title: Text(n['title'] ?? ''),
                         subtitle: Text(
-                          '${n['category'] ?? 'actualite'} â€¢ ${n['author_name'] ?? ''}',
+                          '${n['category'] ?? 'actualite'} Ã¢â‚¬Â¢ ${n['author_name'] ?? ''}',
                           style: const TextStyle(fontSize: 11),
                         ),
                         trailing: IconButton(

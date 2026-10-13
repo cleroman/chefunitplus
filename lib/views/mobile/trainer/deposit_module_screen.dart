@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - DepositModuleScreen
 // Le formateur depose un module (PDF + infos)
 // =============================================================
@@ -132,6 +132,7 @@ class _DepositModuleScreenState extends State<DepositModuleScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Deposer un module'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

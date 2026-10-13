@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - SettingsScreen
 // Page des parametres de l'utilisateur
 // =============================================================
@@ -22,6 +22,7 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Parametres'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

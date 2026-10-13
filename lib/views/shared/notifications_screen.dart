@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - NotificationsScreen
 // Affiche toutes les notifications
 // =============================================================
@@ -84,6 +84,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Notifications'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

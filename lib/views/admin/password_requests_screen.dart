@@ -1,4 +1,4 @@
-// ChefUnitPlus - Ecran des demandes de reinitialisation
+﻿// ChefUnitPlus - Ecran des demandes de reinitialisation
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -79,6 +79,7 @@ class _PasswordRequestsScreenState extends State<PasswordRequestsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Demandes de mot de passe'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

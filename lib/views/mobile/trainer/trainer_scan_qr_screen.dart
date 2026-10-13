@@ -133,6 +133,7 @@ class _TrainerScanQrScreenState extends State<TrainerScanQrScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Scanner un QR code'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
@@ -413,6 +414,7 @@ class _CameraScanPageState extends State<_CameraScanPage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Scanner le QR code'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

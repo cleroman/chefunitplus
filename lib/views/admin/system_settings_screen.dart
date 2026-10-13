@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - SystemSettingsScreen
 // Paramtres systme de la plateforme
 // =============================================================
@@ -28,6 +28,7 @@ class _SystemSettingsScreenState extends State<SystemSettingsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text(AppStrings.systemSettings),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

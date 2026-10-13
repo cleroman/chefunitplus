@@ -56,6 +56,7 @@ class _UserDashboardState extends State<UserDashboard> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('ChefUnitPlus'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

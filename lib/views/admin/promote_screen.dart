@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
@@ -53,6 +53,7 @@ class _PromoteScreenState extends State<PromoteScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Promouvoir un utilisateur'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

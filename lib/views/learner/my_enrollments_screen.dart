@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_const, use_build_context_synchronously, duplicate_import, unused_element
+﻿// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_const, use_build_context_synchronously, duplicate_import, unused_element
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 
@@ -47,6 +47,7 @@ class _MyEnrollmentsScreenState extends State<MyEnrollmentsScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Mes formations'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -48,6 +48,7 @@ class _ScoutGroupsScreenState extends State<ScoutGroupsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        leading: const BackButton(),
         title: const Text('Groupes scouts'),
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
@@ -181,7 +182,7 @@ class _ScoutGroupsScreenState extends State<ScoutGroupsScreen> {
                       if ((g.region ?? '').isNotEmpty ||
                           (g.district ?? '').isNotEmpty)
                         Text(
-                          '${g.region ?? ''} ${(g.district ?? '').isNotEmpty ? "• ${g.district}" : ""}',
+                          '${g.region ?? ''} ${(g.district ?? '').isNotEmpty ? "â€¢ ${g.district}" : ""}',
                           style: const TextStyle(
                             fontSize: 11,
                             color: AppColors.textMuted,

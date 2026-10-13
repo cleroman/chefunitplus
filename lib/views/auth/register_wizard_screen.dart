@@ -5,6 +5,8 @@
 
 import 'package:flutter/material.dart';
 import '../../widgets/email_with_domain_controller.dart';
+import '../../widgets/common/error_dialog.dart';
+import '../../widgets/common/info_dialog.dart';
 import 'package:provider/provider.dart';
 
 import 'package:chefunitplus/controllers/auth_controller.dart';
@@ -330,10 +332,12 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
 
       if (!mounted) return;
 
-      // Verification du succes (plusieurs cles possibles)
-      final isSuccess = result['success'] == true ||
-          result['ok'] == true ||
-          result['status'] == 'success';
+      // Verification STRICTE du succes
+      final isSuccess = result['success'] == true;
+      
+      debugPrint('=== REGISTER RESULT ===');
+      debugPrint('result: $result');
+      debugPrint('isSuccess: $isSuccess');
 
       if (isSuccess) {
         // Charger l'utilisateur depuis l'API pour avoir le statut a jour
@@ -394,18 +398,58 @@ class RegisterWizardScreenState extends State<RegisterWizardScreen> {
             break;
         }
       } else {
+        // Recuperer le message d'erreur
         final msg = result['message']?.toString() ??
             result['error']?.toString() ??
             'Erreur inconnue';
-        setState(() => errorMessage = msg);
-        SnackbarHelper.error(context, msg);
+
+        // Recuperer les erreurs detaillees
+        final errorsRaw = result['errors'];
+        final details = (errorsRaw is List)
+            ? errorsRaw.map((e) => e.toString()).toList()
+            : <String>[];
+
+        debugPrint('=== REGISTER ERROR ===');
+        debugPrint('message: $msg');
+        debugPrint('errors: $errorsRaw');
+
+        if (mounted) {
+          await ErrorDialog.show(
+            context,
+            title: 'Inscription echouee',
+            message: msg,
+            details: details,
+          );
+        }
+        if (mounted) {
+          SnackbarHelper.error(context, msg);
+        }
       }
     } catch (e, st) {
       debugPrint('Submit error: $e');
       debugPrint('$st');
       if (!mounted) return;
-      setState(() => errorMessage = e.toString());
-      SnackbarHelper.error(context, 'Erreur : $e');
+
+      final errorStr = e.toString();
+
+      // Verifier si c'est une erreur 'email existe deja'
+      if (errorStr.contains('existe deja') ||
+          errorStr.contains('existe déjà') ||
+          errorStr.contains('existe deja avec cet email')) {
+        await InfoDialog.show(
+          context,
+          title: 'Email deja utilise',
+          message: 'Un compte existe deja avec cet email.`n`nVeuillez utiliser un autre email ou vous connecter avec ce compte.',
+          icon: Icons.email_outlined,
+          iconColor: AppColors.warning,
+        );
+      } else {
+        await ErrorDialog.show(
+          context,
+          title: 'Erreur',
+          message: errorStr,
+        );
+      }
     } finally {
       if (mounted) setState(() => isSubmitting = false);
     }
