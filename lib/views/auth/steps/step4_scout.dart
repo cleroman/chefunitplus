@@ -270,15 +270,29 @@ class Step4Scout extends StatelessWidget {
         const SizedBox(height: 16),
 
         // ===== FONCTION =====
-        TextFormField(
-          controller: state.fonctionScoutCtrl,
-          textCapitalization: TextCapitalization.sentences,
+        DropdownButtonFormField<String>(
+          initialValue: state.fonctionScoutCtrl.text.isEmpty
+              ? null
+              : state.fonctionScoutCtrl.text,
           decoration: const InputDecoration(
-            labelText: 'Fonction (optionnel)',
-            hintText: 'Ex : Chef de patrouille',
+            labelText: 'Fonction scout',
             prefixIcon: Icon(Icons.workspace_premium_outlined),
             border: OutlineInputBorder(),
           ),
+          items: const [
+            DropdownMenuItem(value: 'Chef de groupe', child: Text('Chef de groupe')),
+            DropdownMenuItem(value: 'Assistant chef de groupe', child: Text('Assistant chef de groupe')),
+            DropdownMenuItem(value: 'Chef de patrouille', child: Text('Chef de patrouille')),
+            DropdownMenuItem(value: 'Assistant chef de patrouille', child: Text('Assistant chef de patrouille')),
+            DropdownMenuItem(value: 'RAS', child: Text('RAS')),
+            DropdownMenuItem(value: 'Autre (preciser)', child: Text('Autre (preciser)')),
+          ],
+          onChanged: (value) {
+            if (value != null) {
+              state.fonctionScoutCtrl.text = value;
+              state.refresh();
+            }
+          },
         ),
 
         const SizedBox(height: 24),

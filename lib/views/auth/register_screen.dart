@@ -9,8 +9,12 @@ import '../../widgets/email_with_domain_controller.dart';
 import 'registration_success_screen.dart';
 
 const List<String> kScoutFunctions = [
-  'Chef de groupe', 'Assistant chef de groupe',
-                'Chef de patrouille', 'Assistant chef de patrouille',
+  'Chef de groupe',
+  'Assistant chef de groupe',
+  'Chef de patrouille',
+  'Assistant chef de patrouille',
+  'RAS',
+  'Autre (preciser)',
 ];
 
 class RegisterScreen extends StatefulWidget {
