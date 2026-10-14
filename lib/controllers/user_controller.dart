@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 // ChefUnitPlus - User Controller
 // CRUD complet pour les utilisateurs
 // =============================================================
@@ -170,6 +170,46 @@ class UserController extends ChangeNotifier {
   // =========================================================
   // RESET
   // =========================================================
+
+  // ===========================================================
+  // GET FULL PROFILE : profil complet d'un utilisateur
+  // ===========================================================
+  Future<Map<String, dynamic>?> getFullProfile(String userId) async {
+    try {
+      final profile = await _service.getFullProfile(userId);
+      return profile;
+    } catch (e) {
+      _error = 'Erreur : ${e.toString()}';
+      notifyListeners();
+      return null;
+    }
+  }
+
+
+  // ===========================================================
+  // UPDATE USER : met a jour les infos d'un utilisateur
+  // ===========================================================
+  Future<bool> updateUser(String userId, Map<String, dynamic> data) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _service.update(
+        id: userId,
+        fullName: data['full_name']?.toString(),
+        phone: data['phone']?.toString(),
+      );
+      return true;
+    } catch (e) {
+      _error = 'Erreur : ${e.toString()}';
+      return false;
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
   void reset() {
     _users = [];
     _error = null;
