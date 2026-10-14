@@ -296,7 +296,7 @@ class AuthController extends ChangeNotifier {
 
     // 4. Si fonction = RAS -> pas de preuves, aller a active
     if (isRas) {
-      return 'active';
+      return 'awaiting_validation';
     }
 
     // 5. Compte valide par admin -> page utilisateur
