@@ -110,6 +110,28 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
 
         final stage = auth.registrationStage;
 
+
+        // FIX REDIRECTION FORCEE
+        // Si le code est utilise mais preuves pas encore soumises,
+        // on force la redirection vers submit-proofs
+        final currentUser = auth.currentUser;
+        final needsProofs = (currentUser != null) &&
+            (currentUser.codeIsUsed == true) &&
+            (currentUser.proofsSubmittedAt == null);
+
+        if (needsProofs) {
+          SnackbarHelper.success(
+            context,
+            'Code verifie ! Soumettez vos preuves de formation.',
+          );
+          Navigator.pushReplacementNamed(
+            context,
+            AppRoutes.submitProofs,
+            arguments: {'email': widget.email},
+          );
+          return;
+        }
+
         switch (stage) {
           case 'active':
             SnackbarHelper.success(context, 'Compte active !');

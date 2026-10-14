@@ -129,7 +129,7 @@ class _SubmitProofsScreenState extends State<SubmitProofsScreen> {
               ),
               const SizedBox(height: 16),
               const Text(
-                'Soumettez vos preuves',
+                'Attachez vos preuves',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 22,
