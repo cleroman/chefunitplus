@@ -169,6 +169,18 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         backgroundColor: AppColors.mauve,
         foregroundColor: Colors.white,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            tooltip: 'Modifier',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => EditUserScreen(userId: widget.userId),
+                ),
+              ).then((_) => _load());
+            },
+          ),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _load),
         ],
       ),
